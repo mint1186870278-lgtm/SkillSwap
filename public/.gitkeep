@@ -1,0 +1,2 @@
+# Keeps public folder in git. Put static assets here (e.g. mascot-cat.png).
+# Files in public/ are served at the root: /mascot-cat.png

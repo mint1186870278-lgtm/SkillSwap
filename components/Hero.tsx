@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from './Button';
-import { Globe, Dumbbell, Rocket, Palette } from 'lucide-react';
+import { Globe, Dumbbell, Rocket, Palette, Compass } from 'lucide-react';
 
 interface HeroProps {
   onStart?: () => void;
@@ -11,7 +11,8 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
     { icon: Globe, label: 'Language', color: 'bg-pastelBlue', delay: '0s' },
     { icon: Dumbbell, label: 'Fitness', color: 'bg-pastelPink', delay: '0.1s' },
     { icon: Rocket, label: 'Tech', color: 'bg-pastelPurple', delay: '0.2s' },
-    { icon: Palette, label: 'Design', color: 'bg-pastelYellow', delay: '0.3s' }
+    { icon: Palette, label: 'Design', color: 'bg-pastelYellow', delay: '0.3s' },
+    { icon: Compass, label: 'Other', color: 'bg-pastelGreen', delay: '0.4s' }
   ];
 
   return (

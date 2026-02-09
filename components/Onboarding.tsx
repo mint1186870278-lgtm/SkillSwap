@@ -75,7 +75,7 @@ const SUGGESTIONS: Record<string, string[]> = {
   fitness: ['Yoga', 'HIIT', 'Running', 'Weightlifting', 'Pilates', 'Meditation'],
   tech: ['Python', 'React', 'JavaScript', 'AI/ML', 'Data Science', 'Rust'],
   design: ['Figma', 'Photoshop', 'UI/UX', 'Illustration', '3D Modeling', 'Canva'],
-  discovery: ['Astronomy', 'History', 'Photography', 'Writing', 'Travel', 'Cooking']
+  other: ['Astronomy', 'History', 'Photography', 'Writing', 'Travel', 'Cooking']
 };
 
 
@@ -140,7 +140,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
     { id: 'fitness', label: 'Fitness', Component: PlanetFitness },
     { id: 'tech', label: 'Tech', Component: PlanetTech },
     { id: 'design', label: 'Design', Component: PlanetDesign },
-    { id: 'discovery', label: 'Discovery', Component: PlanetDiscovery }
+    { id: 'other', label: 'Other', Component: PlanetDiscovery }
   ];
 
   // Helper: Handle Step 2 (Teach)

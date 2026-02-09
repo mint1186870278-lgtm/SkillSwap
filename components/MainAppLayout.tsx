@@ -507,6 +507,16 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem }: { onOpenDetail
 const ExploreView = ({ onOpenDetail, selectedItem }: { onOpenDetail: (item: any) => void, selectedItem: any }) => {
   const [activeTab, setActiveTab] = useState<'skills' | 'community'>('skills');
 
+  const [selectedCategory, setSelectedCategory] = useState<string>('All Skills');
+
+  const filteredSkills = selectedCategory === 'All Skills' 
+    ? MOCK_SKILLS 
+    : MOCK_SKILLS.filter(skill => {
+        if (selectedCategory === 'Design') return skill.type === 'Design' || skill.type === 'Art';
+        if (selectedCategory === 'Other') return !['Language', 'Fitness', 'Tech', 'Design', 'Art'].includes(skill.type);
+        return skill.type === selectedCategory;
+    });
+
   return (
   <div className="pb-20">
      
@@ -529,18 +539,25 @@ const ExploreView = ({ onOpenDetail, selectedItem }: { onOpenDetail: (item: any)
                        onClick={() => setActiveTab('community')}
                        className={`text-2xl font-black transition-colors ${activeTab === 'community' ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
                     >
-                       Inspiration
+                       Forum
                     </button>
                  </div>
 
                  {/* Row 2: Categories (Below Tabs) */}
                  {activeTab === 'skills' && (
                      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar mask-linear-fade pt-1">
-                         <button className="h-9 px-4 flex items-center justify-center bg-slate-900 text-white rounded-full text-xs font-bold shadow-md shadow-slate-200 shrink-0">
+                         <button 
+                           onClick={() => setSelectedCategory('All Skills')}
+                           className={`h-9 px-4 flex items-center justify-center rounded-full text-xs font-bold shrink-0 transition-all ${selectedCategory === 'All Skills' ? 'bg-slate-900 text-white shadow-md shadow-slate-200' : 'bg-white hover:bg-slate-50 border border-slate-200 text-slate-600'}`}
+                         >
                            All Skills
                          </button>
-                         {['Language', 'Fitness', 'Tech', 'Design', 'Discovery'].map(cat => (
-                           <button key={cat} className="h-9 px-4 flex items-center justify-center bg-white hover:bg-slate-50 border border-slate-200 rounded-full text-xs font-bold text-slate-600 shrink-0 transition-colors">
+                         {['Language', 'Fitness', 'Tech', 'Design', 'Other'].map(cat => (
+                           <button 
+                             key={cat} 
+                             onClick={() => setSelectedCategory(cat)}
+                             className={`h-9 px-4 flex items-center justify-center rounded-full text-xs font-bold shrink-0 transition-all ${selectedCategory === cat ? 'bg-slate-900 text-white shadow-md shadow-slate-200' : 'bg-white hover:bg-slate-50 border border-slate-200 text-slate-600'}`}
+                           >
                              {cat}
                            </button>
                          ))}
@@ -559,7 +576,7 @@ const ExploreView = ({ onOpenDetail, selectedItem }: { onOpenDetail: (item: any)
                      transition={{ duration: 0.2 }}
                      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 items-stretch"
                   >
-                     {MOCK_SKILLS.map((item, i) => (
+                     {filteredSkills.map((item, i) => (
                         <div key={`${item.id}-${i}`} className="relative h-full flex flex-col">
                            {/* Placeholder */}
                            {selectedItem?.id === item.id && <SkillCard item={item} isPlaceholder className="absolute inset-0 z-0 h-full" />}

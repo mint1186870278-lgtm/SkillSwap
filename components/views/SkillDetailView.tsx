@@ -5,6 +5,7 @@ import {
   Languages, GraduationCap, ChevronRight, Zap
 } from 'lucide-react';
 import { ImageWithFallback } from '../../figma/ImageWithFallback';
+import { SIMILAR_EXPERTS } from '../../data/mock';
 
 interface SkillDetailProps {
   onBack: () => void;
@@ -374,15 +375,10 @@ const SkillDetailView: React.FC<SkillDetailProps> = ({ onBack, item }) => {
           </div>
 
           {/* SIMILAR TEACHERS SECTION */}
-          <div className="border-t border-slate-200 pt-10">
+             <div className="border-t border-slate-200 pt-10">
              <h3 className="text-xl font-black text-slate-900 mb-6">Explore Similar Experts</h3>
              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {[
-                   { name: 'Brent', image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80', lessons: 6099, rating: 5.0, price: '15.00' },
-                   { name: 'Michael R', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80', lessons: 10857, rating: 5.0, price: '10.00' },
-                   { name: 'John K.', image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=600&q=80', lessons: 16043, rating: 5.0, price: '17.00' },
-                   { name: 'Sarah L.', image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=600&q=80', lessons: 420, rating: 4.9, price: '12.00' }
-                ].map((teacher, i) => (
+                {SIMILAR_EXPERTS.map((teacher, i) => (
                    <div key={i} className="bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-lg transition-all group cursor-pointer">
                       <div className="relative h-48 bg-slate-900">
                          <ImageWithFallback src={teacher.image} alt={teacher.name} className="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-500" />

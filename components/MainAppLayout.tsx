@@ -142,66 +142,10 @@ const PostDetailModal = ({ item, onClose }: { item: any, onClose: () => void }) 
 import SkillDetailView from './views/SkillDetailView';
 import UserProfileView from './views/UserProfileView';
 import MyExchangesView from './views/ExchangeView';
+import MessagesView from './views/MessagesView';
 
-// --- Types ---
-export type ViewType = 'home' | 'explore' | 'detail' | 'profile' | 'exchange';
-
-// --- Mock Data ---
-const MOCK_SKILLS = [
-  { id: 1, title: 'Spanish Conversation', user: 'Elena Rodriguez', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80', type: 'Language', distance: '0.5km', image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80', rating: 4.9, lessons: 342, speaks: 'Spanish', price: 2, description: "Native Spanish speaker from Madrid. I focus on conversational fluency and idiomatic expressions." },
-  { id: 2, title: 'React & Tailwind Mastery', user: 'David Kim', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80', type: 'Tech', distance: 'Online', image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=600&q=80', rating: 5.0, lessons: 120, speaks: 'English', price: 3, description: "Senior Frontend Engineer. Learn how to build modern, responsive UIs with the latest React patterns." },
-  { id: 3, title: 'Urban Photography', user: 'Sarah Jenks', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80', type: 'Art', distance: '2.1km', image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=600&q=80', rating: 4.8, lessons: 85, speaks: 'English', price: 2, description: "Capture the soul of the city. We will walk through downtown and practice composition and lighting." },
-  { id: 4, title: 'Yoga for Beginners', user: 'Mike Chen', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80', type: 'Fitness', distance: '1.2km', image: 'https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?auto=format&fit=crop&w=600&q=80', rating: 4.9, lessons: 560, speaks: 'Chinese', price: 1, description: "Hatha Yoga certified. Gentle introduction to basic poses, breathing techniques, and mindfulness." },
-  { id: 5, title: 'Sourdough Baking', user: 'Emma Wilson', avatar: 'https://images.unsplash.com/photo-1558898479-33c0057a5d12?auto=format&fit=crop&w=150&q=80', type: 'Cooking', distance: '3.0km', image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80', rating: 4.7, lessons: 45, speaks: 'English', price: 1, description: "From starter to loaf. Learn the art of fermentation and baking the perfect sourdough bread at home." },
-  { id: 6, title: 'Guitar Basics', user: 'Alex Turner', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80', type: 'Music', distance: '4.5km', image: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=600&q=80', rating: 4.8, lessons: 210, speaks: 'English', price: 2, description: "Acoustic guitar fundamentals. Chords, strumming patterns, and reading tabs. Fun and relaxed atmosphere." },
-  { id: 7, title: 'Watercolor Painting', user: 'Anna Li', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80', type: 'Art', distance: '1.5km', image: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=600&q=80', rating: 4.9, lessons: 150, speaks: 'Chinese', price: 2, description: "Express yourself through watercolors. Techniques for landscapes, florals, and abstract art." },
-  { id: 8, title: 'Python Data Science', user: 'James O.', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&q=80', type: 'Tech', distance: 'Online', image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80', rating: 5.0, lessons: 800, speaks: 'English', price: 4, description: "Data analysis with Pandas, visualization with Matplotlib, and intro to Machine Learning." },
-  { id: 9, title: 'Vegan Cooking', user: 'Linda Green', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80', type: 'Cooking', distance: '2.0km', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80', rating: 4.6, lessons: 90, speaks: 'English', price: 1, description: "Delicious plant-based recipes that are easy to make and packed with nutrition." },
-  { id: 10, title: 'Piano Masterclass', user: 'Robert Fox', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80', type: 'Music', distance: '5.0km', image: 'https://images.unsplash.com/photo-1552422535-c45813c61732?auto=format&fit=crop&w=600&q=80', rating: 4.9, lessons: 400, speaks: 'German', price: 3, description: "Advanced technique and interpretation for classical piano repertoire. Audition preparation." },
-  { id: 11, title: 'Crossfit Training', user: 'Tom Hardy', avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80', type: 'Fitness', distance: '0.8km', image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=600&q=80', rating: 4.8, lessons: 300, speaks: 'English', price: 2, description: "High-intensity functional training. Build strength, endurance, and agility." },
-  { id: 12, title: 'French for Travel', user: 'Sophie Marceau', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80', type: 'Language', distance: 'Online', image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=600&q=80', rating: 4.7, lessons: 180, speaks: 'French', price: 2, description: "Essential phrases and cultural tips for your trip to France. Order food, ask directions, and more." },
-  { id: 13, title: 'Ceramics Workshop', user: 'Pat M.', avatar: 'https://images.unsplash.com/photo-1552058544-f2b08422138a?auto=format&fit=crop&w=150&q=80', type: 'Art', distance: '3.5km', image: 'https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&w=600&q=80', rating: 4.9, lessons: 220, speaks: 'English', price: 2, description: "Hand-building and wheel throwing techniques. Glazing and firing. All levels welcome." },
-  { id: 14, title: 'SEO Basics', user: 'Gary V.', avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=150&q=80', type: 'Business', distance: 'Online', image: 'https://images.unsplash.com/photo-1572021335469-31706a17aaef?auto=format&fit=crop&w=600&q=80', rating: 4.5, lessons: 1000, speaks: 'English', price: 5, description: "Rank higher on Google. Keyword research, on-page optimization, and backlink strategies." },
-  { id: 15, title: 'Mixology 101', user: 'Barney S.', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&q=80', type: 'Culinary', distance: '1.0km', image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80', rating: 4.8, lessons: 150, speaks: 'English', price: 2, description: "Craft classic cocktails like a pro. Learn about spirits, mixers, and garnishes." },
-];
-
-const UPCOMING_SESSIONS = [
-  { id: 1, title: 'Advanced CSS Layouts', with: 'David Kim', time: 'Today, 4:00 PM', type: 'Learning', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80', meetingLink: '#' },
-  { id: 2, title: 'Piano 101', with: 'Alice Mu', time: 'Tomorrow, 10:00 AM', type: 'Teaching', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80', meetingLink: '#' }
-];
-
-const MOCK_POSTS = [
-  { id: 1, title: 'Finally baked my first perfect sourdough! 🍞✨', user: 'Emma Wilson', avatar: 'https://images.unsplash.com/photo-1558898479-33c0057a5d12?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1549931319-a545dcf3bc73?auto=format&fit=crop&w=600&q=80', likes: 124, tag: 'Baking' },
-  { id: 2, title: 'Sketching session at the park today. Anyone want to join next time?', user: 'Sarah Jenks', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=600&q=80', likes: 89, tag: 'Art' },
-  { id: 3, title: 'My pottery progress after 3 weeks with @MikeChen. 🏺', user: 'Jessica L.', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1493106641515-6b5631de4bb9?auto=format&fit=crop&w=600&q=80', likes: 256, tag: 'Ceramics' },
-  { id: 4, title: 'Coding setup upgrade! Ready to teach React.', user: 'David Kim', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?auto=format&fit=crop&w=600&q=80', likes: 412, tag: 'Tech' },
-  { id: 5, title: 'Morning yoga flow 🧘‍♀️ Best way to start the day.', user: 'Mike Chen', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?auto=format&fit=crop&w=600&q=80', likes: 67, tag: 'Wellness' },
-  { id: 6, title: 'Learning guitar is harder than it looks, but so rewarding!', user: 'Alex Turner', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1525201548942-d8732f6617a0?auto=format&fit=crop&w=600&q=80', likes: 103, tag: 'Music' },
-  { id: 7, title: 'Urban gardening in my tiny apartment 🌱', user: 'Green Thumb', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=600&q=80', likes: 156, tag: 'Gardening' },
-  { id: 8, title: 'Late night writing session ✍️ #NovelInProgress', user: 'Writer Dan', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=600&q=80', likes: 92, tag: 'Writing' },
-  { id: 9, title: 'Exploring the hidden gems of Kyoto 🇯🇵', user: 'Travel Bug', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=600&q=80', likes: 340, tag: 'Travel' },
-  { id: 10, title: 'DIY shelf project finally complete! 🔨', user: 'Maker Joe', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1512418490979-92798cec1380?auto=format&fit=crop&w=600&q=80', likes: 210, tag: 'DIY' },
-  { id: 11, title: 'Latte art practice. Getting better! ☕️', user: 'Barista Bob', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=600&q=80', likes: 180, tag: 'Coffee' },
-  { id: 12, title: 'Abstract painting sunday 🎨', user: 'Art Vibe', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1547891654-e66ed7ebb968?auto=format&fit=crop&w=600&q=80', likes: 115, tag: 'Art' },
-  { id: 13, title: 'Hiking the Rockies. The view! 🏔️', user: 'Hiker Gal', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=600&q=80', likes: 290, tag: 'Hiking' },
-  { id: 14, title: 'Chess strategy study. White to move.', user: 'Grandmaster', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1529699211952-734e80c4d42b?auto=format&fit=crop&w=600&q=80', likes: 75, tag: 'Chess' },
-  { id: 15, title: 'Vegan meal prep for the week 🥗', user: 'Veggie Life', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80', likes: 195, tag: 'Food' },
-];
-
-const COMMUNITY_UPDATES = [
-  { id: 1, text: "Sophie just learned Python from Mark!", time: "2m ago", icon: "🚀", color: "bg-blue-100 text-blue-600" },
-  { id: 2, text: "New 'Watercolor' group in Downtown.", time: "15m ago", icon: "🎨", color: "bg-purple-100 text-purple-600" },
-  { id: 3, text: "Liam earned the 'Super Teacher' badge.", time: "1h ago", icon: "🏆", color: "bg-yellow-100 text-yellow-600" },
-  { id: 4, text: "Sarah joined the 'Urban Photography' challenge.", time: "2h ago", icon: "📸", color: "bg-pink-100 text-pink-600" },
-  { id: 5, text: "David updated his 'React Mastery' course.", time: "3h ago", icon: "💻", color: "bg-indigo-100 text-indigo-600" },
-  { id: 6, text: "Emma commented on 'Sourdough Baking'.", time: "4h ago", icon: "💬", color: "bg-green-100 text-green-600" },
-  { id: 7, text: "Tom is looking for a guitar teacher.", time: "5h ago", icon: "🎸", color: "bg-orange-100 text-orange-600" },
-  { id: 8, text: "Anna swapped skills with Robert.", time: "6h ago", icon: "qh", color: "bg-teal-100 text-teal-600" },
-  { id: 9, text: "James posted a new resource: 'SEO Guide'.", time: "8h ago", icon: "aaa", color: "bg-cyan-100 text-cyan-600" },
-  { id: 10, text: "Linda liked your 'Vegan Cooking' skill.", time: "12h ago", icon: "❤️", color: "bg-red-100 text-red-600" },
-  { id: 11, text: "Alex followed you.", time: "1d ago", icon: "👤", color: "bg-slate-100 text-slate-600" },
-  { id: 12, text: "Barista Bob is live: 'Latte Art 101'", time: "1d ago", icon: "☕️", color: "bg-amber-100 text-amber-600" },
-];
+import { ViewType } from '../types';
+import { MOCK_SKILLS, UPCOMING_SESSIONS, MOCK_POSTS, COMMUNITY_UPDATES } from '../data/mock';
 
 // --- Components ---
 
@@ -818,7 +762,7 @@ const MainAppLayout: React.FC<MainAppProps> = ({ user }) => {
              <TopNavItem icon={Compass} label="Explore" active={currentView === 'explore'} onClick={() => setCurrentView('explore')} />
              <TopNavItem icon={Home} label="Dashboard" active={currentView === 'home'} onClick={() => setCurrentView('home')} />
              <TopNavItem icon={Calendar} label="Exchanges" active={currentView === 'exchange'} onClick={() => setCurrentView('exchange')} />
-             <TopNavItem icon={MessageCircle} label="Messages" active={false} onClick={() => setCurrentView('exchange')} />
+             <TopNavItem icon={MessageCircle} label="Messages" active={currentView === 'messages'} onClick={() => setCurrentView('messages')} />
              <TopNavItem icon={User} label="Profile" active={currentView === 'profile'} onClick={() => setCurrentView('profile')} />
          </nav>
 
@@ -860,6 +804,7 @@ const MainAppLayout: React.FC<MainAppProps> = ({ user }) => {
                {currentView === 'home' && <DashboardView selectedItem={selectedItem} onOpenDetail={handleOpenDetail} onExplore={() => setCurrentView('explore')} />}
                {currentView === 'explore' && <ExploreView selectedItem={selectedItem} onOpenDetail={handleOpenDetail} />}
                {currentView === 'exchange' && <MyExchangesView />}
+               {currentView === 'messages' && <MessagesView />}
                {/* Detail view is now handled by overlay */}
                {currentView === 'profile' && <UserProfileView />}
              </motion.div>
@@ -873,7 +818,7 @@ const MainAppLayout: React.FC<MainAppProps> = ({ user }) => {
             <div className="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-lg shadow-slate-300 -mt-8 border-4 border-[#F8FAFC] cursor-pointer" onClick={() => setCurrentView('exchange')}>
                <Zap size={24} fill="currentColor" />
             </div>
-            <NavBarItem icon={Calendar} label="" active={currentView === 'exchange'} onClick={() => setCurrentView('exchange')} />
+            <NavBarItem icon={MessageCircle} label="" active={currentView === 'messages'} onClick={() => setCurrentView('messages')} />
             <NavBarItem icon={User} label="" active={currentView === 'profile'} onClick={() => setCurrentView('profile')} />
         </nav>
       </main>

@@ -14,7 +14,7 @@ interface SkillDetailProps {
 }
 
 const SkillDetailView: React.FC<SkillDetailProps> = ({ onBack, item }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [activeTab, setActiveTab] = useState<'about' | 'teacher' | 'lessons'>('about');
   const [similarExperts, setSimilarExperts] = useState<any[]>([]);
 
@@ -34,31 +34,37 @@ const SkillDetailView: React.FC<SkillDetailProps> = ({ onBack, item }) => {
   const description = item?.description || "Hola! I'm a native teacher with a passion for sharing my language and culture. I have over 5 years of experience teaching students from all over the world.";
 
   const getLessonContent = (type: string, speaks: string) => {
+    const isZh = language === 'zh';
+    
     switch(type) {
       case 'Fitness':
+      case '健身':
         return [
-          { title: 'Intro to Yoga', subtitle: 'Beginner Friendly', badge: '1 Credit' },
-          { title: 'Vinyasa Flow', subtitle: 'Intermediate', badge: '2 Credits', details: 'Breath & Posture' }
+          { title: isZh ? '瑜伽入门' : 'Intro to Yoga', subtitle: isZh ? '适合初学者' : 'Beginner Friendly', badge: isZh ? '1 积分' : '1 Credit' },
+          { title: isZh ? '流瑜伽' : 'Vinyasa Flow', subtitle: isZh ? '中级' : 'Intermediate', badge: isZh ? '2 积分' : '2 Credits', details: isZh ? '呼吸与体式' : 'Breath & Posture' }
         ];
       case 'Tech':
+      case '技术':
         return [
-          { title: 'Code Review', subtitle: 'React & TS', badge: '1 Credit' },
-          { title: 'Project Planning', subtitle: 'Architecture', badge: '2 Credits', details: 'System Design' }
+          { title: isZh ? '代码审查' : 'Code Review', subtitle: 'React & TS', badge: isZh ? '1 积分' : '1 Credit' },
+          { title: isZh ? '项目规划' : 'Project Planning', subtitle: isZh ? '架构' : 'Architecture', badge: isZh ? '2 积分' : '2 Credits', details: isZh ? '系统设计' : 'System Design' }
         ];
       case 'Cooking':
+      case '烹饪':
         return [
-          { title: 'Knife Skills', subtitle: 'Basics', badge: '1 Credit' },
-          { title: 'Full Meal Prep', subtitle: 'Advanced', badge: '2 Credits', details: 'Plating & Timing' }
+          { title: isZh ? '刀工技巧' : 'Knife Skills', subtitle: isZh ? '基础' : 'Basics', badge: isZh ? '1 积分' : '1 Credit' },
+          { title: isZh ? '完整备餐' : 'Full Meal Prep', subtitle: isZh ? '高级' : 'Advanced', badge: isZh ? '2 积分' : '2 Credits', details: isZh ? '摆盘与时间' : 'Plating & Timing' }
         ];
       case 'Art':
+      case '艺术':
         return [
-          { title: 'Sketching 101', subtitle: 'Pencil & Charcoal', badge: '1 Credit' },
-          { title: 'Color Theory', subtitle: 'Watercolor', badge: '2 Credits', details: 'Composition' }
+          { title: isZh ? '素描 101' : 'Sketching 101', subtitle: isZh ? '铅笔与炭笔' : 'Pencil & Charcoal', badge: isZh ? '1 积分' : '1 Credit' },
+          { title: isZh ? '色彩理论' : 'Color Theory', subtitle: isZh ? '水彩' : 'Watercolor', badge: isZh ? '2 积分' : '2 Credits', details: isZh ? '构图' : 'Composition' }
         ];
       default: // Language
         return [
-          { title: 'Trial Lesson', subtitle: '150 Completed', badge: '1 Credit' },
-          { title: `${speaks} Conversation`, subtitle: 'A2 - C1', badge: '2 Credits', details: 'Speaking' }
+          { title: isZh ? '试听课' : 'Trial Lesson', subtitle: isZh ? '150 已完成' : '150 Completed', badge: isZh ? '1 积分' : '1 Credit' },
+          { title: isZh ? `${speaks} 会话` : `${speaks} Conversation`, subtitle: 'A2 - C1', badge: isZh ? '2 积分' : '2 Credits', details: isZh ? '口语' : 'Speaking' }
         ];
     }
   };
@@ -113,12 +119,12 @@ const SkillDetailView: React.FC<SkillDetailProps> = ({ onBack, item }) => {
                        
                        <div className="flex flex-wrap gap-y-2 gap-x-6 text-sm text-slate-600 mb-4">
                           <div className="flex items-center gap-2">
-                             <span className="text-slate-400">Teaches</span>
+                             <span className="text-slate-400">{t('skill_detail.teaches')}</span>
                              <span className="font-bold text-slate-800">{speaks}</span>
-                             <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold rounded">Native</span>
+                             <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold rounded">{t('skill_card.native')}</span>
                           </div>
                           <div className="flex items-center gap-2">
-                             <span className="text-slate-400">Speaks</span>
+                             <span className="text-slate-400">{t('skill_detail.speaks')}</span>
                              <div className="flex items-center gap-1">
                                 <span className="font-medium">English</span>
                                 <div className="flex gap-[1px] h-3 items-end"><div className="w-1 h-2 bg-green-400 rounded-sm"></div><div className="w-1 h-3 bg-green-400 rounded-sm"></div><div className="w-1 h-3 bg-green-400 rounded-sm"></div><div className="w-1 h-3 bg-slate-200 rounded-sm"></div></div>
@@ -126,7 +132,7 @@ const SkillDetailView: React.FC<SkillDetailProps> = ({ onBack, item }) => {
                           </div>
                        </div>
 
-                       <h2 className="font-bold text-slate-700 text-lg">{title} | Fun & Interactive</h2>
+                       <h2 className="font-bold text-slate-700 text-lg">{title}</h2>
                     </div>
                  </div>
 
@@ -178,7 +184,7 @@ const SkillDetailView: React.FC<SkillDetailProps> = ({ onBack, item }) => {
                  </div>
 
                  <div className="flex flex-wrap gap-2">
-                    <span className="text-sm font-bold text-slate-400 mr-2 py-1">Interests</span>
+                    <span className="text-sm font-bold text-slate-400 mr-2 py-1">{t('skill_detail.interests')}</span>
                     {['Travel', 'Cooking', 'Music', 'History', 'Movies'].map(tag => (
                        <span key={tag} className="px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-full hover:bg-slate-200 cursor-default transition-colors">
                           {tag}
@@ -193,14 +199,14 @@ const SkillDetailView: React.FC<SkillDetailProps> = ({ onBack, item }) => {
                     <p>
                        My lessons focus on conversation and building confidence. We'll discuss real-life topics, culture, and current events. I believe learning a language should be fun and immersive!
                     </p>
-                    <button className="text-indigo-600 font-bold hover:underline">Read more</button>
+                    <button className="text-indigo-600 font-bold hover:underline">{t('skill_detail.read_more')}</button>
                  </div>
               </div>
 
               {/* 4. Lessons List */}
               <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
                  <div className="p-6 border-b border-slate-50 bg-slate-50/50">
-                    <h3 className="font-black text-lg text-slate-800">{item?.type === 'Language' ? `${speaks} Lessons` : 'Available Lessons'}</h3>
+                    <h3 className="font-black text-lg text-slate-800">{item?.type === 'Language' ? `${speaks} ${t('skill_detail.lessons')}` : t('skill_detail.available_lessons')}</h3>
                  </div>
                  <div className="divide-y divide-slate-100">
                     {/* Lesson Item 1 */}
@@ -233,7 +239,7 @@ const SkillDetailView: React.FC<SkillDetailProps> = ({ onBack, item }) => {
                           <div className="bg-white border border-slate-200 text-slate-700 px-6 py-2 rounded-xl font-black text-sm group-hover:border-indigo-600 group-hover:text-indigo-600 transition-all shadow-sm">
                              {lessonContent[1].badge}
                           </div>
-                          <div className="text-[10px] text-slate-400 mt-1 font-medium">Package <span className="text-green-600">10% OFF</span></div>
+                          <div className="text-[10px] text-slate-400 mt-1 font-medium">{t('skill_detail.package_off')} <span className="text-green-600">10% OFF</span></div>
                        </div>
                     </div>
                  </div>
@@ -244,7 +250,7 @@ const SkillDetailView: React.FC<SkillDetailProps> = ({ onBack, item }) => {
                  <h3 className="font-black text-lg text-slate-800 mb-6">{t('skill_detail.availability')}</h3>
                  <div className="mb-4 flex items-center gap-2 text-sm">
                     <span className="text-slate-500">{t('skill_detail.available')}</span>
-                    <span className="text-teal-600 font-bold">18:00 Today</span>
+                    <span className="text-teal-600 font-bold">18:00 {language === 'zh' ? '今天' : 'Today'}</span>
                  </div>
                  
                  {/* Mock Calendar Grid */}
@@ -254,7 +260,7 @@ const SkillDetailView: React.FC<SkillDetailProps> = ({ onBack, item }) => {
                           <div className="text-xs font-bold text-slate-400"></div>
                           {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, i) => (
                              <div key={day} className="text-xs font-bold text-slate-600">
-                                {day} <br/> <span className="text-slate-400 font-normal">{9 + i}</span>
+                                {language === 'zh' ? ['一','二','三','四','五','六','日'][i] : day} <br/> <span className="text-slate-400 font-normal">{9 + i}</span>
                              </div>
                           ))}
                        </div>
@@ -284,7 +290,7 @@ const SkillDetailView: React.FC<SkillDetailProps> = ({ onBack, item }) => {
               
               {/* 6. Reviews */}
               <div>
-                 <h3 className="font-black text-2xl text-slate-800 mb-6">150 Reviews</h3>
+                 <h3 className="font-black text-2xl text-slate-800 mb-6">150 {t('profile.reviews')}</h3>
                  <div className="flex flex-wrap gap-3 mb-8">
                     {['Patient · 3', 'Fun lessons · 5', 'Great accent · 4', 'Beginner friendly · 9'].map(tag => (
                        <span key={tag} className="px-4 py-2 rounded-full border border-slate-200 text-sm font-medium text-slate-600 hover:border-slate-400 cursor-pointer transition-colors bg-white">
@@ -303,7 +309,7 @@ const SkillDetailView: React.FC<SkillDetailProps> = ({ onBack, item }) => {
                           </div>
                           <div>
                              <h4 className="font-bold text-slate-800 text-sm">Mike</h4>
-                             <p className="text-xs text-slate-500">24 lessons</p>
+                             <p className="text-xs text-slate-500">24 {t('skill_card.lessons')}</p>
                           </div>
                        </div>
                        <p className="text-sm text-slate-600 leading-relaxed mb-3">
@@ -320,7 +326,7 @@ const SkillDetailView: React.FC<SkillDetailProps> = ({ onBack, item }) => {
                           </div>
                           <div>
                              <h4 className="font-bold text-slate-800 text-sm">Sarah</h4>
-                             <p className="text-xs text-slate-500">12 lessons</p>
+                             <p className="text-xs text-slate-500">12 {t('skill_card.lessons')}</p>
                           </div>
                        </div>
                        <p className="text-sm text-slate-600 leading-relaxed mb-3">
@@ -350,9 +356,9 @@ const SkillDetailView: React.FC<SkillDetailProps> = ({ onBack, item }) => {
                   <div className="p-6">
                      <div className="flex justify-between items-baseline mb-6">
                         <h3 className="font-bold text-slate-800 text-lg flex items-center gap-2">
-                           Trial Lesson <span className="text-slate-400 bg-slate-100 rounded-full px-1.5 py-0.5"><Languages size={12}/></span>
+                           {t('skill_card.trial')} <span className="text-slate-400 bg-slate-100 rounded-full px-1.5 py-0.5"><Languages size={12}/></span>
                         </h3>
-                        <span className="text-2xl font-black text-slate-900">{price} Credit</span>
+                        <span className="text-2xl font-black text-slate-900">{price} {t('skill_card.credit')}</span>
                      </div>
                      
                      <div className="space-y-3">
@@ -413,7 +419,7 @@ const SkillDetailView: React.FC<SkillDetailProps> = ({ onBack, item }) => {
                                   <h4 className="font-bold text-slate-800 text-sm flex items-center gap-1">
                                      {teacher.name} <span className="bg-indigo-600 text-white text-[8px] px-1 rounded uppercase">Plus+</span>
                                   </h4>
-                                  <div className="text-[10px] text-slate-500">English <span className="text-teal-600 font-bold">Native</span></div>
+                                  <div className="text-[10px] text-slate-500">English <span className="text-teal-600 font-bold">{t('skill_card.native')}</span></div>
                                </div>
                             </div>
                             <div className="flex items-center gap-1 text-xs font-bold text-slate-700">
@@ -425,7 +431,7 @@ const SkillDetailView: React.FC<SkillDetailProps> = ({ onBack, item }) => {
                          </p>
                          <div className="flex items-center justify-between pt-3 border-t border-slate-50">
                             <div className="text-slate-900 font-black">
-                               ${teacher.price} <span className="text-slate-400 text-[10px] font-medium">/ Trial</span>
+                               ${teacher.price} <span className="text-slate-400 text-[10px] font-medium">/ {t('skill_card.trial')}</span>
                             </div>
                          </div>
                       </div>
@@ -442,11 +448,11 @@ const SkillDetailView: React.FC<SkillDetailProps> = ({ onBack, item }) => {
           {/* Mobile Booking Bar (Fixed Bottom) */}
           <div className="xl:hidden fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-200 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] z-50 flex items-center justify-between gap-4">
              <div>
-                <div className="text-[10px] text-slate-500 uppercase font-bold">Trial Lesson</div>
-                <div className="text-lg font-black text-slate-900">1 Credit</div>
+                <div className="text-[10px] text-slate-500 uppercase font-bold">{t('skill_card.trial')}</div>
+                <div className="text-lg font-black text-slate-900">1 {t('skill_card.credit')}</div>
              </div>
              <button className="flex-1 py-3 bg-rose-500 text-white rounded-xl font-bold text-sm uppercase shadow-lg shadow-rose-200">
-                Request Swap
+                {t('skill_detail.request_swap')}
              </button>
           </div>
 

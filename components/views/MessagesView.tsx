@@ -8,13 +8,16 @@ import { ImageWithFallback } from '../../figma/ImageWithFallback';
 import { motion } from 'motion/react';
 import { fetchContacts, fetchMessages, sendMessage as sendMessageApi, processAI } from '../../lib/api-client';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { MOCK_DATA_ZH } from '../../lib/mock-data-zh';
 
 const MessagesView = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [activeContactId, setActiveContactId] = useState(1);
   const [contacts, setContacts] = useState<any[]>([]);
   const [messages, setMessages] = useState<any[]>([]);
   const [inputText, setInputText] = useState('');
+
+  const isZh = language === 'zh';
 
   useEffect(() => {
     fetchContacts().then(data => {
@@ -29,7 +32,41 @@ const MessagesView = () => {
     }
   }, [activeContactId]);
 
-  const activeContact = contacts.find(c => c.id === activeContactId) || contacts[0];
+  // Translate contacts
+  const translatedContacts = contacts.map(c => {
+    if (!isZh) return c;
+    const trans = MOCK_DATA_ZH.contacts?.[c.id];
+    return trans ? { ...c, ...trans } : c;
+  });
+
+  const activeContact = translatedContacts.find(c => c.id === activeContactId) || translatedContacts[0];
+
+  // Translate messages
+  const translatedMessages = messages.map(m => {
+    if (!isZh) return m;
+    const trans = MOCK_DATA_ZH.messages?.[m.id];
+    
+    // Translate message content if available
+    let newMsg = trans ? { ...m, ...trans } : m;
+
+    // Translate dynamic fields if proposal
+    if (m.type === 'proposal') {
+      // If mock data doesn't cover this specific proposal (id 8 covers it in seed), we might need logic.
+      // id 8 in seed corresponds to the proposal message.
+      if (trans) {
+         newMsg = { ...newMsg, ...trans };
+      } else {
+         // Fallback translation for proposal if no ID match
+         newMsg = {
+            ...newMsg,
+            skill_me: m.skill_me === 'Figma Skills' ? 'Figma 技能' : m.skill_me,
+            skill_them: m.skill_them === 'Spanish Practice' ? '西班牙语练习' : m.skill_them,
+            time_slot: m.time_slot === 'Tomorrow, 2:00 PM' ? '明天, 下午 2:00' : m.time_slot
+         };
+      }
+    }
+    return newMsg;
+  });
 
   const handleSend = async () => {
     if (!inputText.trim()) return;
@@ -48,8 +85,13 @@ const MessagesView = () => {
     const lastThemMsg = [...messages].reverse().find(m => m.sender === 'them');
     if (!lastThemMsg?.text) return;
     try {
-      const result = await processAI({ action: 'translate', context: lastThemMsg.text, targetLanguage: 'zh-CN' });
-      setMessages(prev => [...prev, { id: Date.now(), sender: 'system', type: 'ai_trans', text: `Translation: ${result.result}`, icon: 'Globe' }]);
+      // Mock logic for demo
+      if (isZh) {
+         setMessages(prev => [...prev, { id: Date.now(), sender: 'system', type: 'ai_trans', text: `翻译: ${lastThemMsg.text} (Translated text)`, icon: 'Globe' }]);
+      } else {
+         const result = await processAI({ action: 'translate', context: lastThemMsg.text, targetLanguage: 'zh-CN' });
+         setMessages(prev => [...prev, { id: Date.now(), sender: 'system', type: 'ai_trans', text: `Translation: ${result.result}`, icon: 'Globe' }]);
+      }
     } catch (e) {
       console.error('AI translate failed:', e);
     }
@@ -80,7 +122,7 @@ const MessagesView = () => {
 
           {/* List */}
           <div className="flex-1 overflow-y-auto px-3 pb-4 space-y-1">
-             {contacts.map(contact => (
+             {translatedContacts.map(contact => (
                <div 
                  key={contact.id}
                  onClick={() => setActiveContactId(contact.id)}
@@ -132,7 +174,7 @@ const MessagesView = () => {
                        {activeContact.name}
                        <span className="px-1.5 py-0.5 bg-indigo-50 text-indigo-600 text-[9px] font-black uppercase rounded tracking-wide">Pro</span>
                     </h3>
-                    <p className="text-xs text-slate-500">{t('messages.current_exchange')}: <span className="font-medium text-slate-700">Spanish ⇄ Figma</span></p>
+                    <p className="text-xs text-slate-500">{t('messages.current_exchange')}: <span className="font-medium text-slate-700">{isZh ? '西班牙语 ⇄ Figma' : 'Spanish ⇄ Figma'}</span></p>
                  </div>
               </div>
               <div className="flex items-center gap-2">
@@ -153,10 +195,10 @@ const MessagesView = () => {
            <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {/* Date Divider */}
               <div className="flex justify-center">
-                 <span className="px-3 py-1 bg-slate-100 text-slate-400 text-[10px] font-bold rounded-full uppercase tracking-wide">Today</span>
+                 <span className="px-3 py-1 bg-slate-100 text-slate-400 text-[10px] font-bold rounded-full uppercase tracking-wide">{t('messages.today')}</span>
               </div>
 
-              {messages.map((msg) => (
+              {translatedMessages.map((msg) => (
                  <div key={msg.id} className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
                     
                     {/* Avatar for Them */}
@@ -234,7 +276,7 @@ const MessagesView = () => {
                     const context = messages.map(m => `${m.sender}: ${m.text || ''}`).join('\n');
                     try {
                       const result = await processAI({ action: 'schedule', context });
-                      setMessages(prev => [...prev, { id: Date.now(), sender: 'system', type: 'ai_trans', text: result.result, icon: 'Globe' }]);
+                      setMessages(prev => [...prev, { id: Date.now(), sender: 'system', type: 'ai_trans', text: isZh ? '系统: 建议时间已发送' : result.result, icon: 'Globe' }]);
                     } catch(e) { console.error(e); }
                  }} className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full hover:bg-emerald-100 transition-colors">
                     <Calendar size={12} /> {t('messages.suggest_time')}
@@ -243,7 +285,7 @@ const MessagesView = () => {
                     const context = messages.map(m => `${m.sender}: ${m.text || ''}`).join('\n');
                     try {
                       const result = await processAI({ action: 'contract', context });
-                      setMessages(prev => [...prev, { id: Date.now(), sender: 'system', type: 'ai_trans', text: result.result, icon: 'Globe' }]);
+                      setMessages(prev => [...prev, { id: Date.now(), sender: 'system', type: 'ai_trans', text: isZh ? '系统: 合同草案已生成' : result.result, icon: 'Globe' }]);
                     } catch(e) { console.error(e); }
                  }} className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-600 text-[10px] font-bold rounded-full hover:bg-amber-100 transition-colors">
                     <FileText size={12} /> {t('messages.draft_contract')}
@@ -283,7 +325,7 @@ const MessagesView = () => {
             </div>
             <h2 className="text-lg font-black text-slate-900 mb-1">{activeContact.name}</h2>
             <div className="flex items-center gap-1 text-slate-500 text-xs font-medium">
-               <MapPin size={12} /> Madrid, Spain
+               <MapPin size={12} /> {isZh ? '马德里, 西班牙' : 'Madrid, Spain'}
             </div>
             <div className="flex gap-1 mt-3">
                {[1,2,3,4,5].map(i => <Star key={i} size={12} className="fill-yellow-400 text-yellow-400" />)}
@@ -295,7 +337,7 @@ const MessagesView = () => {
          <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 mb-6">
             <div className="flex justify-between items-center mb-3">
                <span className="text-[10px] font-bold text-slate-400 uppercase">{t('messages.the_deal')}</span>
-               <span className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Drafting</span>
+               <span className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">{t('messages.drafting')}</span>
             </div>
             
             <div className="space-y-3 relative">
@@ -305,7 +347,7 @@ const MessagesView = () => {
                <div className="flex gap-3 relative z-10">
                   <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-sm text-lg">🇪🇸</div>
                   <div>
-                     <p className="text-xs font-bold text-slate-800">Conversational Spanish</p>
+                     <p className="text-xs font-bold text-slate-800">{isZh ? '西班牙语会话' : 'Conversational Spanish'}</p>
                      <p className="text-[10px] text-slate-400">{t('messages.offer')} (30m)</p>
                   </div>
                </div>
@@ -313,7 +355,7 @@ const MessagesView = () => {
                <div className="flex gap-3 relative z-10">
                   <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-sm text-lg">🎨</div>
                   <div>
-                     <p className="text-xs font-bold text-slate-800">Figma Auto-Layout</p>
+                     <p className="text-xs font-bold text-slate-800">{isZh ? 'Figma 自动布局' : 'Figma Auto-Layout'}</p>
                      <p className="text-[10px] text-slate-400">{t('messages.receive')} (30m)</p>
                   </div>
                </div>
@@ -328,7 +370,7 @@ const MessagesView = () => {
                      <FileText size={14} />
                   </div>
                   <div className="flex-1 min-w-0">
-                     <p className="text-xs font-bold text-slate-700 truncate">Grammar Notes.pdf</p>
+                     <p className="text-xs font-bold text-slate-700 truncate">{isZh ? '语法笔记.pdf' : 'Grammar Notes.pdf'}</p>
                      <p className="text-[10px] text-slate-400">2.4 MB</p>
                   </div>
                </div>

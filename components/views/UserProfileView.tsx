@@ -9,6 +9,7 @@ import {
 import { ImageWithFallback } from '../../figma/ImageWithFallback';
 import { fetchUserPosts, fetchReviews } from '../../lib/api-client';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { MOCK_DATA_ZH } from '../../lib/mock-data-zh';
 
 // -----------------------------------------------------------------------------
 // PREMIUM BADGE COMPONENT
@@ -92,7 +93,7 @@ const PremiumBadge = ({
 // -----------------------------------------------------------------------------
 
 const UserProfileView = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [activeTab, setActiveTab] = useState<'posts' | 'about' | 'reviews'>('posts');
   const [userPosts, setUserPosts] = useState<any[]>([]);
   const [reviews, setReviews] = useState<any[]>([]);
@@ -101,6 +102,59 @@ const UserProfileView = () => {
     fetchUserPosts().then(setUserPosts).catch(console.error);
     fetchReviews().then(setReviews).catch(console.error);
   }, []);
+
+  const isZh = language === 'zh';
+
+  // Helper for static content translation
+  const translate = (text: string, type: 'interest' | 'bio' | 'job' | 'edu' | 'location') => {
+    if (!isZh) return text;
+    const dict: Record<string, string> = {
+      'Digital Designer & Potter': '数字设计师 & 陶艺师',
+      'San Francisco, CA': '旧金山, 加州',
+      'Senior Product Designer': '高级产品设计师',
+      'BFA in Interaction Design': '交互设计学士',
+      'Pottery 🏺': '陶艺 🏺',
+      'Sourdough 🍞': '酸种面包 🍞',
+      'Figma 🎨': 'Figma 🎨',
+      'Hiking 🏔️': '徒步 🏔️',
+      'Indie Rock 🎸': '独立摇滚 🎸',
+      'Sci-Fi 📚': '科幻 📚',
+      'Yoga 🧘‍♀️': '瑜伽 🧘‍♀️',
+      'Coffee ☕': '咖啡 ☕',
+      'Travel ✈️': '旅行 ✈️',
+      'Photography 📸': '摄影 📸',
+      'TechFlow Inc. • 2021 - Present': 'TechFlow Inc. • 2021 - 至今',
+      'California College of the Arts': '加州艺术学院'
+    };
+    if (type === 'bio' && text.startsWith('Digital product designer')) {
+      return "白天是数字产品设计师，晚上是陶艺爱好者。我喜欢分享 Figma 技巧，也想学习如何烤出完美的酸种面包！🍞";
+    }
+    if (type === 'bio' && text.startsWith('Hi! I\'m Jessica')) {
+      return "嗨！我是 Jessica，一名住在旧金山的产品设计师，热衷于陶艺和烘焙。我在数字产品设计方面有超过 5 年的经验，专注于为初创公司打造直观而美观的界面。";
+    }
+    if (type === 'bio' && text.startsWith('When I\'m not working')) {
+      return "不工作的时候，你可以在当地的陶艺工作室找到我，或者在厨房里尝试新的酸种面包食谱。我加入 SkillSwap 是为了分享我的设计知识，并向其他才华横溢的创作者学习！";
+    }
+    return dict[text] || text;
+  };
+
+  // Translate User Posts
+  const translatedPosts = userPosts.map(post => {
+    if (!isZh) return post;
+    const trans = MOCK_DATA_ZH.user_posts?.[post.id];
+    return trans ? { ...post, ...trans } : post;
+  });
+
+  // Translate Reviews (Simple matching based on content start)
+  const translatedReviews = reviews.map(review => {
+    if (!isZh) return review;
+    // Simple content matching for demo purposes
+    if (review.text.includes('amazing teacher')) return { ...review, text: "Jessica 是位很棒的老师！她把 Figma 自动布局解释得非常清楚。我终于搞懂了。强烈推荐！", date: "2天前", class: "Figma 精通" };
+    if (review.text.includes('Great pottery')) return { ...review, text: "很棒的陶艺课。她对我的笨手笨脚非常有耐心哈哈。期待下一次。", date: "1周前", class: "陶艺基础" };
+    if (review.text.includes('Very professional')) return { ...review, text: "非常专业且友好。我们交换了西班牙语和 Figma 技能，这是一次完美的交换。", date: "2周前", class: "技能交换" };
+    if (review.text.includes('Good session')) return { ...review, text: "不错的课程，学到了很多关于组件属性的知识。", date: "1个月前", class: "设计系统" };
+    return review;
+  });
 
   return (
     <div className="flex flex-col w-full max-w-7xl mx-auto pb-20">
@@ -136,13 +190,13 @@ const UserProfileView = () => {
                           <p className="text-slate-500 font-medium text-xs mb-3 flex flex-wrap justify-center md:justify-start items-center gap-x-3 gap-y-1">
                              <span className="text-indigo-600 font-bold">@jess_creates</span>
                              <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                             <span>Digital Designer & Potter</span>
+                             <span>{translate('Digital Designer & Potter', 'job')}</span>
                              <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                             <span className="flex items-center gap-1"><MapPin size={12}/> San Francisco, CA</span>
+                             <span className="flex items-center gap-1"><MapPin size={12}/> {translate('San Francisco, CA', 'location')}</span>
                           </p>
                           
                           <p className="text-slate-600 text-sm leading-relaxed max-w-2xl mx-auto md:mx-0 line-clamp-2">
-                             Digital product designer by day, pottery enthusiast by night. I love sharing Figma tips and looking to learn how to bake the perfect sourdough! 🍞
+                             {translate('Digital product designer by day, pottery enthusiast by night. I love sharing Figma tips and looking to learn how to bake the perfect sourdough! 🍞', 'bio')}
                           </p>
                        </div>
 
@@ -186,32 +240,32 @@ const UserProfileView = () => {
                         <p className="text-xs text-slate-500 mt-1 font-medium">{t('profile.collect_badges')}</p>
                     </div>
                     <button className="text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-4 py-2 rounded-xl transition-colors">
-                       View All (12)
+                       {t('explore.view_all')} (12)
                     </button>
                  </div>
                  
                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 relative z-10">
                     <PremiumBadge 
                        icon={Star} 
-                       title="Super Teacher" 
+                       title={t('profile.super_teacher')} 
                        variant="gold"
                        earnedDate="Jan 2024"
                     />
                     <PremiumBadge 
                        icon={CheckCircle2} 
-                       title="Certified Pro" 
+                       title={t('profile.certified_pro')} 
                        variant="blue"
                        earnedDate="Feb 2024"
                     />
                     <PremiumBadge 
                        icon={Flame} 
-                       title="Weekly Streak" 
+                       title={t('profile.weekly_streak')} 
                        variant="purple"
                        earnedDate="3 Days"
                     />
                     <PremiumBadge 
                        icon={Sparkles} 
-                       title="Early Adopter" 
+                       title={t('profile.early_adopter')} 
                        variant="holographic"
                        earnedDate="Genesis"
                     />
@@ -253,7 +307,7 @@ const UserProfileView = () => {
 
                  {activeTab === 'posts' && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                       {userPosts.map(post => (
+                       {translatedPosts.map(post => (
                           <div key={post.id} className="bg-white p-4 rounded-[1.5rem] border border-slate-100 shadow-sm hover:shadow-md transition-all cursor-pointer group">
                              {/* Image Area */}
                              {post.image ? (
@@ -304,12 +358,10 @@ const UserProfileView = () => {
                              <User size={20} className="text-indigo-500" /> {t('profile.my_story')}
                           </h3>
                           <p className="text-slate-600 leading-relaxed mb-6">
-                             Hi! I'm Jessica, a product designer based in San Francisco with a passion for pottery and baking. 
-                             I have over 5 years of experience in digital product design, focusing on building intuitive and beautiful interfaces for startups.
+                             {translate("Hi! I'm Jessica, a product designer based in San Francisco with a passion for pottery and baking. I have over 5 years of experience in digital product design, focusing on building intuitive and beautiful interfaces for startups.", 'bio')}
                           </p>
                           <p className="text-slate-600 leading-relaxed">
-                             When I'm not working, you can find me at the local pottery studio playing with clay, or in my kitchen experimenting with new sourdough recipes. 
-                             I joined SkillSwap to share my design knowledge and learn from other talented creators!
+                             {translate("When I'm not working, you can find me at the local pottery studio playing with clay, or in my kitchen experimenting with new sourdough recipes. I joined SkillSwap to share my design knowledge and learn from other talented creators!", 'bio')}
                           </p>
                        </div>
 
@@ -318,12 +370,12 @@ const UserProfileView = () => {
                           {/* Languages */}
                           <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
                              <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                <Globe size={18} className="text-blue-500" /> Languages
+                                <Globe size={18} className="text-blue-500" /> {t('hero.skills.language')}
                              </h4>
                              <div className="space-y-3">
                                 <div className="flex items-center justify-between">
                                    <span className="text-slate-600 font-medium text-sm">English</span>
-                                   <span className="px-2 py-1 bg-green-100 text-green-700 text-[10px] font-black uppercase rounded">Native</span>
+                                   <span className="px-2 py-1 bg-green-100 text-green-700 text-[10px] font-black uppercase rounded">{t('skill_card.native')}</span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                    <span className="text-slate-600 font-medium text-sm">Spanish</span>
@@ -343,8 +395,8 @@ const UserProfileView = () => {
                                       <Briefcase size={14} />
                                    </div>
                                    <div>
-                                      <div className="font-bold text-slate-800 text-sm">Senior Product Designer</div>
-                                      <div className="text-xs text-slate-500">TechFlow Inc. • 2021 - Present</div>
+                                      <div className="font-bold text-slate-800 text-sm">{translate('Senior Product Designer', 'job')}</div>
+                                      <div className="text-xs text-slate-500">{translate('TechFlow Inc. • 2021 - Present', 'job')}</div>
                                    </div>
                                 </div>
                                 <div className="flex gap-3">
@@ -352,8 +404,8 @@ const UserProfileView = () => {
                                       <GraduationCap size={14} />
                                    </div>
                                    <div>
-                                      <div className="font-bold text-slate-800 text-sm">BFA in Interaction Design</div>
-                                      <div className="text-xs text-slate-500">California College of the Arts</div>
+                                      <div className="font-bold text-slate-800 text-sm">{translate('BFA in Interaction Design', 'edu')}</div>
+                                      <div className="text-xs text-slate-500">{translate('California College of the Arts', 'edu')}</div>
                                    </div>
                                 </div>
                              </div>
@@ -368,7 +420,7 @@ const UserProfileView = () => {
                           <div className="flex flex-wrap gap-2">
                              {['Pottery 🏺', 'Sourdough 🍞', 'Figma 🎨', 'Hiking 🏔️', 'Indie Rock 🎸', 'Sci-Fi 📚', 'Yoga 🧘‍♀️', 'Coffee ☕', 'Travel ✈️', 'Photography 📸'].map(tag => (
                                 <span key={tag} className="px-4 py-2 bg-slate-50 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-100 transition-colors cursor-default border border-slate-100">
-                                   {tag}
+                                   {translate(tag, 'interest')}
                                 </span>
                              ))}
                           </div>
@@ -386,7 +438,7 @@ const UserProfileView = () => {
                                 <div className="flex items-center justify-center md:justify-start gap-1 mb-2">
                                    {[1,2,3,4,5].map(i => <Star key={i} size={16} className="fill-yellow-400 text-yellow-400" />)}
                                 </div>
-                                <p className="text-indigo-100 font-medium text-sm">Based on 150 verified reviews</p>
+                                <p className="text-indigo-100 font-medium text-sm">{t('profile.load_more').replace('Load More', 'Based on 150')}</p>
                              </div>
                              
                              <div className="h-16 w-[1px] bg-white/20 hidden md:block"></div>
@@ -403,7 +455,7 @@ const UserProfileView = () => {
 
                        {/* Review List */}
                        <div className="grid grid-cols-1 gap-4">
-                          {reviews.map(review => (
+                          {translatedReviews.map(review => (
                              <div key={review.id} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-all">
                                 <div className="flex items-start justify-between mb-4">
                                    <div className="flex items-center gap-3">
@@ -440,7 +492,7 @@ const UserProfileView = () => {
                        </div>
                        
                        <button className="w-full py-4 bg-white border border-slate-200 text-slate-500 rounded-2xl font-bold text-sm hover:bg-slate-50 transition-colors">
-                          Load More Reviews
+                          {t('profile.load_more')}
                        </button>
                     </div>
                  )}
@@ -482,9 +534,9 @@ const UserProfileView = () => {
                     
                     <div className="flex-1">
                        <div className="text-xs font-medium text-slate-600 leading-snug mb-2">
-                          You are in the top <strong className="text-indigo-600">40%</strong> of trusted members!
+                          {t('profile.top_percent')}
                        </div>
-                       <button className="text-[10px] font-bold text-slate-400 hover:text-indigo-600 underline">View Report</button>
+                       <button className="text-[10px] font-bold text-slate-400 hover:text-indigo-600 underline">{t('profile.view_report')}</button>
                     </div>
                  </div>
               </div>
@@ -526,7 +578,7 @@ const UserProfileView = () => {
                  
                  <div className="relative z-10 mb-6">
                     <div className="inline-block bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wide mb-3 border border-white/20 shadow-sm">
-                       Limited
+                       {t('profile.limited')}
                     </div>
                     <h3 className="font-black text-xl mb-2">{t('profile.get_credits')}</h3>
                     <p className="text-indigo-100 text-sm leading-relaxed">

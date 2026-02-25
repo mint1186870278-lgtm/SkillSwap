@@ -2,10 +2,11 @@
 export const translations = {
   en: {
     navbar: {
-      about: "About",
+      about: "Home",
       explore: "Explore",
       community: "Community",
-      login: "Log In"
+      login: "Log In",
+      profile: "Profile"
     },
     hero: {
       title_prefix: "What's your",
@@ -17,6 +18,10 @@ export const translations = {
         fitness: "Fitness",
         tech: "Tech",
         design: "Design",
+        art: "Art",
+        cooking: "Cooking",
+        music: "Music",
+        business: "Business",
         other: "Other"
       },
       float_match: "New Match",
@@ -143,7 +148,14 @@ export const translations = {
       money_saved: "Money Saved",
       friends_made: "Friends Made",
       new_skills: "New Skills",
-      next_milestone: "Next Milestone"
+      next_milestone: "Next Milestone",
+      hours: "Hours",
+      level: "Level",
+      badge_progress: "hours to \"Swap Master\" badge",
+      money_saved_label: "Money Saved",
+      friends_made_label: "Friends Made",
+      new_skills_label: "New Skills",
+      milestone_text: "Complete 5 more sessions for \"Consistent\" badge."
     },
     messages: {
       title: "Messages",
@@ -162,7 +174,10 @@ export const translations = {
       time: "Time",
       you_teach: "You Teach",
       you_learn: "You Learn",
-      waiting: "Waiting for response..."
+      waiting: "Waiting for response...",
+      today: "Today",
+      tomorrow: "Tomorrow",
+      drafting: "Drafting"
     },
     profile: {
       pro: "Pro",
@@ -186,7 +201,15 @@ export const translations = {
       view_history: "View History",
       get_credits: "Get 5 Free Credits",
       invite_text: "Invite your friends and earn rewards for each signup!",
-      invite_btn: "Invite Friends"
+      invite_btn: "Invite Friends",
+      super_teacher: "Super Teacher",
+      certified_pro: "Certified Pro",
+      weekly_streak: "Weekly Streak",
+      early_adopter: "Early Adopter",
+      load_more: "Load More Reviews",
+      top_percent: "You are in the top 40% of trusted members!",
+      view_report: "View Report",
+      limited: "Limited"
     },
     skill_detail: {
       back: "Back",
@@ -207,15 +230,41 @@ export const translations = {
       response_time: "Response time",
       instant_booking: "Instant booking available",
       guarantee: "SkillSwap Guarantee",
-      free_cancel: "Free cancellation up to 24 hours before"
+      free_cancel: "Free cancellation up to 24 hours before",
+      teaches: "Teaches",
+      speaks: "Speaks",
+      interests: "Interests",
+      read_more: "Read more",
+      available_lessons: "Available Lessons",
+      package_off: "Package 10% OFF"
+    },
+    modal: {
+      follow: "Follow",
+      posted_on: "Posted on",
+      save: "Save",
+      comment: "Comment",
+      say_something: "Say something nice...",
+      placeholder_content: "Here is a detailed description of the skill or post. This would typically come from the database.\n\nImagine this area filled with rich text, emojis, and hashtags just like a Xiaohongshu post!\n\n✨ Features:\n- Step by step guide\n- Tips and tricks\n- Q&A session",
+      unknown_location: "Unknown Location"
+    },
+    skill_card: {
+      online: "Online",
+      pro_teacher: "Professional Teacher",
+      lang: "LANG:",
+      native: "Native",
+      lessons: "lessons",
+      trial: "Trial",
+      credit: "Credit",
+      book: "Book"
     }
   },
   zh: {
     navbar: {
-      about: "关于我们",
+      about: "我的主页",
       explore: "发现",
       community: "社区动态",
-      login: "登录"
+      login: "登录",
+      profile: "个人中心"
     },
     hero: {
       title_prefix: "你的光芒",
@@ -227,6 +276,10 @@ export const translations = {
         fitness: "健身",
         tech: "技术",
         design: "设计",
+        art: "艺术",
+        cooking: "烹饪",
+        music: "音乐",
+        business: "商业",
         other: "其他"
       },
       float_match: "新匹配",
@@ -293,7 +346,7 @@ export const translations = {
       step3_subtitle: "选择星系以拓展视野",
       continue: "继续",
       skip: "暂时跳过",
-      teach_input_title: "我可以教...",
+      teach_input_title: "I can teach...",
       teach_input_ph: "输入技能并回车",
       learn_input_title: "我想学...",
       learn_input_ph: "输入技能并回车",
@@ -353,7 +406,14 @@ export const translations = {
       money_saved: "节省资金",
       friends_made: "结交好友",
       new_skills: "新技能",
-      next_milestone: "下一个里程碑"
+      next_milestone: "下一个里程碑",
+      hours: "小时",
+      level: "等级",
+      badge_progress: "小时即可获得“交换大师”徽章",
+      money_saved_label: "已省资金",
+      friends_made_label: "结交好友",
+      new_skills_label: "新技能",
+      milestone_text: "再完成 5 次会话即可获得“持之以恒”徽章。"
     },
     messages: {
       title: "消息",
@@ -372,7 +432,10 @@ export const translations = {
       time: "时间",
       you_teach: "你教",
       you_learn: "你学",
-      waiting: "等待回应..."
+      waiting: "等待回应...",
+      today: "今天",
+      tomorrow: "明天",
+      drafting: "起草中"
     },
     profile: {
       pro: "Pro",
@@ -396,7 +459,15 @@ export const translations = {
       view_history: "查看历史",
       get_credits: "获赠 5 个免费积分",
       invite_text: "邀请好友注册即可获得奖励！",
-      invite_btn: "邀请好友"
+      invite_btn: "邀请好友",
+      super_teacher: "超级教师",
+      certified_pro: "认证专家",
+      weekly_streak: "连胜",
+      early_adopter: "早期体验者",
+      load_more: "加载更多评价",
+      top_percent: "你是前 40% 的可信成员！",
+      view_report: "查看报告",
+      limited: "限量"
     },
     skill_detail: {
       back: "返回",
@@ -417,7 +488,32 @@ export const translations = {
       response_time: "响应时间",
       instant_booking: "支持即时预订",
       guarantee: "SkillSwap 保障",
-      free_cancel: "24小时前免费取消"
+      free_cancel: "24小时前免费取消",
+      teaches: "教授",
+      speaks: "语言",
+      interests: "兴趣",
+      read_more: "阅读更多",
+      available_lessons: "可选课程",
+      package_off: "套餐 10% 优惠"
+    },
+    modal: {
+      follow: "关注",
+      posted_on: "发布于",
+      save: "收藏",
+      comment: "评论",
+      say_something: "说点好听的...",
+      placeholder_content: "这里是技能或帖子的详细描述。这通常来自数据库。\n\n想象一下这个区域充满了富文本、表情符号和标签，就像小红书的帖子一样！\n\n✨ 特点：\n- 循序渐进的指南\n- 技巧和窍门\n- 问答环节",
+      unknown_location: "未知地点"
+    },
+    skill_card: {
+      online: "在线",
+      pro_teacher: "专业教师",
+      lang: "语言:",
+      native: "母语",
+      lessons: "课时",
+      trial: "试听",
+      credit: "积分",
+      book: "预订"
     }
   }
 };

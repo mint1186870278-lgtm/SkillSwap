@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { useLanguage } from '../contexts/LanguageContext';
+import { MOCK_DATA_ZH } from '../lib/mock-data-zh';
 
 import SkillDetailView from './views/SkillDetailView';
 import UserProfileView from './views/UserProfileView';
@@ -17,8 +18,25 @@ import MessagesView from './views/MessagesView';
 import { ViewType } from '../types';
 import { fetchSkills, fetchSessions, fetchPosts, fetchCommunityUpdates } from '../lib/api-client';
 
+// Helper to merge translation if language is ZH
+const useTranslatedData = (data: any[], type: 'posts' | 'skills' | 'community_updates' | 'sessions') => {
+  const { language } = useLanguage();
+  
+  if (language !== 'zh' || !data) return data;
+
+  return data.map(item => {
+    const translation = MOCK_DATA_ZH[type]?.[item.id];
+    if (translation) {
+      return { ...item, ...translation };
+    }
+    return item;
+  });
+};
+
 // --- Detail Modal Component (Xiaohongshu Style) ---
 const PostDetailModal = ({ item, onClose }: { item: any, onClose: () => void }) => {
+  const { t } = useLanguage(); // Added useLanguage hook
+
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = 'auto'; };
@@ -77,11 +95,11 @@ const PostDetailModal = ({ item, onClose }: { item: any, onClose: () => void }) 
                    </div>
                    <div>
                       <h4 className="font-bold text-slate-800 text-sm">{item.user}</h4>
-                      <p className="text-xs text-slate-400 font-medium">Unknown Location</p>
+                      <p className="text-xs text-slate-400 font-medium">{t('modal.unknown_location')}</p>
                    </div>
                 </div>
                 <button className="px-4 py-1.5 rounded-full border border-slate-200 text-xs font-bold text-slate-600 hover:border-slate-800 hover:text-slate-800 transition-colors">
-                   Follow
+                   {t('modal.follow')}
                 </button>
              </div>
 
@@ -89,14 +107,7 @@ const PostDetailModal = ({ item, onClose }: { item: any, onClose: () => void }) 
              <div className="flex-1 overflow-y-auto p-6 space-y-4">
                 <h2 className="text-2xl font-black text-slate-900 leading-tight">{item.title}</h2>
                 <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-line">
-                   Here is a detailed description of the skill or post. This would typically come from the database. 
-                   
-                   Imagine this area filled with rich text, emojis, and hashtags just like a Xiaohongshu post! 
-                   
-                   ✨ Features:
-                   - Step by step guide
-                   - Tips and tricks
-                   - Q&A session
+                   {item.content || t('modal.placeholder_content')}
                 </p>
                 <div className="flex flex-wrap gap-2 pt-2">
                    {['#SkillSwap', '#Learning', `#${item.type || item.tag || 'Skill'}`].map(tag => (
@@ -104,7 +115,7 @@ const PostDetailModal = ({ item, onClose }: { item: any, onClose: () => void }) 
                    ))}
                 </div>
                 <div className="text-xs text-slate-400 font-medium pt-2">
-                   Posted on {new Date().toLocaleDateString()}
+                   {t('modal.posted_on')} {new Date().toLocaleDateString()}
                 </div>
              </div>
 
@@ -116,10 +127,10 @@ const PostDetailModal = ({ item, onClose }: { item: any, onClose: () => void }) 
                          <Heart size={20} /> <span className="text-xs font-bold">{item.likes || item.rating || 0}</span>
                       </button>
                       <button className="flex items-center gap-1.5 text-slate-700 hover:text-blue-500 transition-colors">
-                         <Star size={20} /> <span className="text-xs font-bold">Save</span>
+                         <Star size={20} /> <span className="text-xs font-bold">{t('modal.save')}</span>
                       </button>
                       <button className="flex items-center gap-1.5 text-slate-700 hover:text-green-500 transition-colors">
-                         <MessageCircle size={20} /> <span className="text-xs font-bold">Comment</span>
+                         <MessageCircle size={20} /> <span className="text-xs font-bold">{t('modal.comment')}</span>
                       </button>
                    </div>
                    <button className="text-slate-400 hover:text-slate-600">
@@ -134,7 +145,7 @@ const PostDetailModal = ({ item, onClose }: { item: any, onClose: () => void }) 
                    </div>
                    <input 
                       type="text" 
-                      placeholder="Say something nice..." 
+                      placeholder={t('modal.say_something')} 
                       className="w-full bg-slate-100 rounded-full pl-11 pr-4 py-2.5 text-xs font-medium outline-none focus:ring-2 focus:ring-indigo-100 transition-all"
                    />
                 </div>
@@ -175,6 +186,7 @@ const NavBarItem = ({ icon: Icon, label, active, onClick }: any) => ( // Mobile/
 );
 
 const SkillCard = ({ item, onClick, className = "", isPlaceholder = false }: { item: any, onClick?: () => void, className?: string, isPlaceholder?: boolean }) => {
+  const { t } = useLanguage();
   const CardContent = (
     <>
       {/* 1. VIDEO PREVIEW AREA (Italki Style) */}
@@ -204,7 +216,7 @@ const SkillCard = ({ item, onClick, className = "", isPlaceholder = false }: { i
          {/* Online Status Badge */}
          <div className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-green-500/90 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold flex items-center gap-1">
             <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-            <span>Online</span>
+            <span>{t('skill_card.online')}</span>
          </div>
 
          {/* Like Button */}
@@ -230,7 +242,7 @@ const SkillCard = ({ item, onClick, className = "", isPlaceholder = false }: { i
                      <h3 className="font-bold text-slate-800 text-sm leading-tight truncate">{item.user}</h3>
                      <span className="px-1 py-[1px] rounded bg-indigo-100 text-indigo-700 text-[8px] font-black uppercase tracking-wider shrink-0">PRO</span>
                   </div>
-                  <p className="text-[10px] text-slate-400 font-medium truncate">Professional Teacher</p>
+                  <p className="text-[10px] text-slate-400 font-medium truncate">{t('skill_card.pro_teacher')}</p>
                </div>
             </div>
             <div className="flex flex-col items-end shrink-0 pl-1">
@@ -238,15 +250,15 @@ const SkillCard = ({ item, onClick, className = "", isPlaceholder = false }: { i
                   <Star size={10} className="fill-yellow-400 text-yellow-400" />
                   <span className="text-xs font-black text-slate-800">{item.rating || '5.0'}</span>
                </div>
-               <span className="text-[9px] text-slate-500 font-bold mt-0.5">{item.lessons || 128} lessons</span>
+               <span className="text-[9px] text-slate-500 font-bold mt-0.5">{item.lessons || 128} {t('skill_card.lessons')}</span>
             </div>
          </div>
 
          {/* Skill Tags - Fixed Height */}
          <div className="flex items-center gap-2 py-1 h-[26px]">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide shrink-0">Lang:</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide shrink-0">{t('skill_card.lang')}</span>
             <div className="flex gap-1 overflow-hidden">
-               <span className="px-1.5 py-0.5 bg-slate-100 rounded text-[10px] font-bold text-slate-600 whitespace-nowrap">{item.speaks || 'English'} <span className="text-slate-400 font-normal">Native</span></span>
+               <span className="px-1.5 py-0.5 bg-slate-100 rounded text-[10px] font-bold text-slate-600 whitespace-nowrap">{item.speaks || 'English'} <span className="text-slate-400 font-normal">{t('skill_card.native')}</span></span>
                <span className="px-1.5 py-0.5 bg-slate-100 rounded text-[10px] font-bold text-slate-600 shrink-0">+2</span>
             </div>
          </div>
@@ -260,13 +272,13 @@ const SkillCard = ({ item, onClick, className = "", isPlaceholder = false }: { i
          {/* Footer - Fixed Height */}
          <div className="mt-auto pt-3 flex items-center justify-between h-[42px] shrink-0">
             <div className="flex flex-col justify-center">
-               <span className="block text-[9px] text-slate-400 font-medium leading-none mb-1">Trial</span>
+               <span className="block text-[9px] text-slate-400 font-medium leading-none mb-1">{t('skill_card.trial')}</span>
                <div className="flex items-baseline gap-1 leading-none">
-                 <span className="text-sm font-black text-slate-900">{item.price || 1} Credit</span>
+                 <span className="text-sm font-black text-slate-900">{item.price || 1} {t('skill_card.credit')}</span>
                </div>
             </div>
             <button className="h-full px-4 bg-white border border-slate-200 text-slate-700 rounded-lg text-xs font-bold hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all shadow-sm flex items-center justify-center">
-               Book
+               {t('skill_card.book')}
             </button>
          </div>
       </div>
@@ -386,6 +398,9 @@ const CommunityPostCard = ({ post, onClick, className = "", isPlaceholder = fals
 // 1. HOME VIEW: Personal Dashboard
 const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcomingSessions, communityUpdates }: { onOpenDetail: (item: any) => void, onExplore: () => void, selectedItem: any, skills: any[], upcomingSessions: any[], communityUpdates: any[] }) => {
   const { t } = useLanguage();
+  const translatedSkills = useTranslatedData(skills, 'skills');
+  const translatedSessions = useTranslatedData(upcomingSessions, 'sessions');
+  const translatedUpdates = useTranslatedData(communityUpdates, 'community_updates');
 
   return (
   <div className="h-full pb-20">
@@ -413,7 +428,7 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcoming
                   </button>
                </div>
                <div className="space-y-4">
-                  {upcomingSessions.map(session => (
+                  {translatedSessions.map((session: any) => (
                     <SessionCard key={session.id} session={session} />
                   ))}
                </div>
@@ -453,7 +468,7 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcoming
                  <button onClick={onExplore} className="text-xs font-bold text-slate-400 hover:text-indigo-600">{t('dashboard.see_all')}</button>
                </div>
                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {skills.slice(0, 4).map(item => (
+                  {translatedSkills.slice(0, 4).map((item: any) => (
                     <div key={item.id} className="relative">
                        {/* Placeholder (Visible if selected) */}
                        {selectedItem?.id === item.id && <SkillCard item={item} isPlaceholder className="absolute inset-0 z-0" />}
@@ -474,7 +489,7 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcoming
                 </h3>
                 <div className="space-y-6 relative">
                    <div className="absolute left-2 top-2 bottom-2 w-0.5 bg-slate-100"></div>
-                   {communityUpdates.map(u => (
+                   {translatedUpdates.map((u: any) => (
                      <div key={u.id} className="flex gap-4 items-start relative z-10">
                        <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 border-4 border-white shadow-sm ${u.color.replace('text-', 'bg-').replace('100', '500')} text-white text-[10px]`}>
                        </div>
@@ -511,15 +526,20 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcoming
 const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdates }: { onOpenDetail: (item: any) => void, selectedItem: any, skills: any[], posts: any[], communityUpdates: any[] }) => {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'skills' | 'community'>('skills');
-
   const [selectedCategory, setSelectedCategory] = useState<string>('All Skills'); // Using English ID for logic, label separate
 
+  const translatedSkills = useTranslatedData(skills, 'skills');
+  const translatedPosts = useTranslatedData(posts, 'posts');
+  const translatedUpdates = useTranslatedData(communityUpdates, 'community_updates');
+
   const filteredSkills = selectedCategory === 'All Skills' 
-    ? skills 
-    : skills.filter(skill => {
-        if (selectedCategory === 'Design') return skill.type === 'Design' || skill.type === 'Art';
-        if (selectedCategory === 'Other') return !['Language', 'Fitness', 'Tech', 'Design', 'Art'].includes(skill.type);
-        return skill.type === selectedCategory;
+    ? translatedSkills 
+    : translatedSkills.filter((skill: any) => {
+        if (selectedCategory === 'Design') return skill.type === 'Design' || skill.type === 'Art' || skill.type === '设计' || skill.type === '艺术';
+        if (selectedCategory === 'Other') return !['Language', 'Fitness', 'Tech', 'Design', 'Art', '语言', '健身', '技术', '设计', '艺术'].includes(skill.type);
+        // Map category ID to translation if needed for filtering
+        const typeMap: any = { 'Language': '语言', 'Fitness': '健身', 'Tech': '技术', 'Design': '设计', 'Art': '艺术' };
+        return skill.type === selectedCategory || skill.type === typeMap[selectedCategory];
     });
 
   return (
@@ -563,7 +583,7 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdat
                              onClick={() => setSelectedCategory(cat)}
                              className={`h-9 px-4 flex items-center justify-center rounded-full text-xs font-bold shrink-0 transition-all ${selectedCategory === cat ? 'bg-slate-900 text-white shadow-md shadow-slate-200' : 'bg-white hover:bg-slate-50 border border-slate-200 text-slate-600'}`}
                            >
-                             {cat}
+                             {t(`hero.skills.${cat.toLowerCase()}`)}
                            </button>
                          ))}
                      </div>
@@ -581,7 +601,7 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdat
                      transition={{ duration: 0.2 }}
                      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 items-stretch"
                   >
-                     {filteredSkills.map((item, i) => (
+                     {filteredSkills.map((item: any, i: any) => (
                         <div key={`${item.id}-${i}`} className="relative h-full flex flex-col">
                            {/* Placeholder */}
                            {selectedItem?.id === item.id && <SkillCard item={item} isPlaceholder className="absolute inset-0 z-0 h-full" />}
@@ -604,7 +624,7 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdat
                      transition={{ duration: 0.2 }}
                      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6"
                   >
-                      {posts.map((post, i) => (
+                      {translatedPosts.map((post: any, i: any) => (
                          <div key={`${post.id}-${i}`} className="relative h-full">
                            {/* Placeholder */}
                            {selectedItem?.id === post.id && <CommunityPostCard post={post} isPlaceholder className="absolute inset-0 z-0 h-full" />}
@@ -665,7 +685,7 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdat
 
                        <div className="animate-scroll-vertical">
                          {/* Render Twice for Seamless Loop */}
-                         {[...communityUpdates, ...communityUpdates].map((u, index) => (
+                         {[...translatedUpdates, ...translatedUpdates].map((u: any, index: any) => (
                            <div key={`${u.id}-${index}`} className="flex gap-3 items-start relative z-10 mb-4 px-1">
                              <div className="absolute left-2.5 top-0 bottom-[-16px] w-0.5 bg-slate-200/50 rounded-full"></div>
                              <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 border-4 border-[#F8FAFC] shadow-sm ${u.color.replace('text-', 'bg-').replace('100', '500')} text-white text-[8px] ring-2 ring-white mt-0.5 relative z-20`}>
@@ -818,7 +838,7 @@ const MainAppLayout: React.FC<MainAppProps> = ({ user }) => {
              <TopNavItem icon={Home} label={t('navbar.about')} active={currentView === 'home'} onClick={() => setCurrentView('home')} /> {/* Using 'About' as Dashboard label temporarily or add new key */}
              <TopNavItem icon={Calendar} label={t('profile.exchanges')} active={currentView === 'exchange'} onClick={() => setCurrentView('exchange')} />
              <TopNavItem icon={MessageCircle} label={t('messages.title')} active={currentView === 'messages'} onClick={() => setCurrentView('messages')} />
-             <TopNavItem icon={User} label="Profile" active={currentView === 'profile'} onClick={() => setCurrentView('profile')} />
+             <TopNavItem icon={User} label={t('navbar.profile')} active={currentView === 'profile'} onClick={() => setCurrentView('profile')} />
          </nav>
 
          {/* Right: Search & Profile */}

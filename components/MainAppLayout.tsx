@@ -7,6 +7,15 @@ import {
   LayoutGrid, Image as ImageIcon, Plus, X, Play
 } from 'lucide-react';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
+import { useLanguage } from '../contexts/LanguageContext';
+
+import SkillDetailView from './views/SkillDetailView';
+import UserProfileView from './views/UserProfileView';
+import MyExchangesView from './views/ExchangeView';
+import MessagesView from './views/MessagesView';
+
+import { ViewType } from '../types';
+import { fetchSkills, fetchSessions, fetchPosts, fetchCommunityUpdates } from '../lib/api-client';
 
 // --- Detail Modal Component (Xiaohongshu Style) ---
 const PostDetailModal = ({ item, onClose }: { item: any, onClose: () => void }) => {
@@ -68,11 +77,11 @@ const PostDetailModal = ({ item, onClose }: { item: any, onClose: () => void }) 
                    </div>
                    <div>
                       <h4 className="font-bold text-slate-800 text-sm">{item.user}</h4>
-                      <p className="text-xs text-slate-400 font-medium">位置未知</p>
+                      <p className="text-xs text-slate-400 font-medium">Unknown Location</p>
                    </div>
                 </div>
                 <button className="px-4 py-1.5 rounded-full border border-slate-200 text-xs font-bold text-slate-600 hover:border-slate-800 hover:text-slate-800 transition-colors">
-                   关注
+                   Follow
                 </button>
              </div>
 
@@ -107,10 +116,10 @@ const PostDetailModal = ({ item, onClose }: { item: any, onClose: () => void }) 
                          <Heart size={20} /> <span className="text-xs font-bold">{item.likes || item.rating || 0}</span>
                       </button>
                       <button className="flex items-center gap-1.5 text-slate-700 hover:text-blue-500 transition-colors">
-                         <Star size={20} /> <span className="text-xs font-bold">收藏</span>
+                         <Star size={20} /> <span className="text-xs font-bold">Save</span>
                       </button>
                       <button className="flex items-center gap-1.5 text-slate-700 hover:text-green-500 transition-colors">
-                         <MessageCircle size={20} /> <span className="text-xs font-bold">评论</span>
+                         <MessageCircle size={20} /> <span className="text-xs font-bold">Comment</span>
                       </button>
                    </div>
                    <button className="text-slate-400 hover:text-slate-600">
@@ -125,7 +134,7 @@ const PostDetailModal = ({ item, onClose }: { item: any, onClose: () => void }) 
                    </div>
                    <input 
                       type="text" 
-                      placeholder="说点好听的..." 
+                      placeholder="Say something nice..." 
                       className="w-full bg-slate-100 rounded-full pl-11 pr-4 py-2.5 text-xs font-medium outline-none focus:ring-2 focus:ring-indigo-100 transition-all"
                    />
                 </div>
@@ -137,15 +146,6 @@ const PostDetailModal = ({ item, onClose }: { item: any, onClose: () => void }) 
     </>
   );
 };
-
-// ... (in MainAppLayout)
-import SkillDetailView from './views/SkillDetailView';
-import UserProfileView from './views/UserProfileView';
-import MyExchangesView from './views/ExchangeView';
-import MessagesView from './views/MessagesView';
-
-import { ViewType } from '../types';
-import { fetchSkills, fetchSessions, fetchPosts, fetchCommunityUpdates } from '../lib/api-client';
 
 // --- Components ---
 
@@ -204,7 +204,7 @@ const SkillCard = ({ item, onClick, className = "", isPlaceholder = false }: { i
          {/* Online Status Badge */}
          <div className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-green-500/90 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold flex items-center gap-1">
             <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-            <span>在线</span>
+            <span>Online</span>
          </div>
 
          {/* Like Button */}
@@ -230,7 +230,7 @@ const SkillCard = ({ item, onClick, className = "", isPlaceholder = false }: { i
                      <h3 className="font-bold text-slate-800 text-sm leading-tight truncate">{item.user}</h3>
                      <span className="px-1 py-[1px] rounded bg-indigo-100 text-indigo-700 text-[8px] font-black uppercase tracking-wider shrink-0">PRO</span>
                   </div>
-                  <p className="text-[10px] text-slate-400 font-medium truncate">专业教师</p>
+                  <p className="text-[10px] text-slate-400 font-medium truncate">Professional Teacher</p>
                </div>
             </div>
             <div className="flex flex-col items-end shrink-0 pl-1">
@@ -238,15 +238,15 @@ const SkillCard = ({ item, onClick, className = "", isPlaceholder = false }: { i
                   <Star size={10} className="fill-yellow-400 text-yellow-400" />
                   <span className="text-xs font-black text-slate-800">{item.rating || '5.0'}</span>
                </div>
-               <span className="text-[9px] text-slate-500 font-bold mt-0.5">{item.lessons || 128} 课程</span>
+               <span className="text-[9px] text-slate-500 font-bold mt-0.5">{item.lessons || 128} lessons</span>
             </div>
          </div>
 
          {/* Skill Tags - Fixed Height */}
          <div className="flex items-center gap-2 py-1 h-[26px]">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide shrink-0">语言:</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide shrink-0">Lang:</span>
             <div className="flex gap-1 overflow-hidden">
-               <span className="px-1.5 py-0.5 bg-slate-100 rounded text-[10px] font-bold text-slate-600 whitespace-nowrap">{item.speaks || 'English'} <span className="text-slate-400 font-normal">母语</span></span>
+               <span className="px-1.5 py-0.5 bg-slate-100 rounded text-[10px] font-bold text-slate-600 whitespace-nowrap">{item.speaks || 'English'} <span className="text-slate-400 font-normal">Native</span></span>
                <span className="px-1.5 py-0.5 bg-slate-100 rounded text-[10px] font-bold text-slate-600 shrink-0">+2</span>
             </div>
          </div>
@@ -254,19 +254,19 @@ const SkillCard = ({ item, onClick, className = "", isPlaceholder = false }: { i
          {/* Description - Fixed Height (Force 2 lines space) */}
          <div className="min-h-[2.5rem] h-[2.5rem]">
             <h4 className="font-bold text-slate-700 text-xs line-clamp-1 mb-0.5">{item.title}</h4>
-            <p className="text-[10px] leading-relaxed text-slate-500 line-clamp-2">{item.description || "认证讲师，全球授课超6000节。擅长清晰解释语法。"}</p>
+            <p className="text-[10px] leading-relaxed text-slate-500 line-clamp-2">{item.description || "Certified teacher with over 6000 lessons taught worldwide. I specialize in clear explanations of grammar."}</p>
          </div>
 
          {/* Footer - Fixed Height */}
          <div className="mt-auto pt-3 flex items-center justify-between h-[42px] shrink-0">
             <div className="flex flex-col justify-center">
-               <span className="block text-[9px] text-slate-400 font-medium leading-none mb-1">体验课</span>
+               <span className="block text-[9px] text-slate-400 font-medium leading-none mb-1">Trial</span>
                <div className="flex items-baseline gap-1 leading-none">
-                 <span className="text-sm font-black text-slate-900">{item.price || 1} 积分</span>
+                 <span className="text-sm font-black text-slate-900">{item.price || 1} Credit</span>
                </div>
             </div>
             <button className="h-full px-4 bg-white border border-slate-200 text-slate-700 rounded-lg text-xs font-bold hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all shadow-sm flex items-center justify-center">
-               预约体验
+               Book
             </button>
          </div>
       </div>
@@ -307,7 +307,7 @@ const SessionCard = ({ session }: { session: any }) => (
         <div>
            <h4 className="font-bold text-slate-800">{session.title}</h4>
            <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
-              <span className="font-medium">与 {session.with}</span>
+              <span className="font-medium">with {session.with}</span>
               <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
               <span className="flex items-center gap-1 text-indigo-600 font-bold bg-indigo-50 px-2 py-0.5 rounded-full">
                 <Clock size={10} /> {session.time}
@@ -316,7 +316,7 @@ const SessionCard = ({ session }: { session: any }) => (
         </div>
      </div>
      <button className="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-indigo-600 transition-colors">
-        加入
+        Join
      </button>
   </div>
 );
@@ -384,15 +384,18 @@ const CommunityPostCard = ({ post, onClick, className = "", isPlaceholder = fals
 // --- Views ---
 
 // 1. HOME VIEW: Personal Dashboard
-const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcomingSessions, communityUpdates }: { onOpenDetail: (item: any) => void, onExplore: () => void, selectedItem: any, skills: any[], upcomingSessions: any[], communityUpdates: any[] }) => (
+const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcomingSessions, communityUpdates }: { onOpenDetail: (item: any) => void, onExplore: () => void, selectedItem: any, skills: any[], upcomingSessions: any[], communityUpdates: any[] }) => {
+  const { t } = useLanguage();
+
+  return (
   <div className="h-full pb-20">
       
       {/* Header Greeting */}
       <div className="mb-8">
         <h1 className="text-3xl md:text-4xl font-black text-slate-800 tracking-tight">
-          你好，Jessica！👋
+          {t('dashboard.greeting')}
         </h1>
-        <p className="text-slate-500 font-medium mt-1">本周你有 2 个即将到来的会话。</p>
+        <p className="text-slate-500 font-medium mt-1">{t('dashboard.subtitle')}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -403,10 +406,10 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcoming
             <section>
                <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
-                    <Calendar size={18} className="text-indigo-500" /> 你的日程
+                    <Calendar size={18} className="text-indigo-500" /> {t('dashboard.schedule')}
                   </h3>
                   <button onClick={onExplore} className="hidden md:flex items-center gap-2 text-indigo-600 font-bold text-sm hover:underline">
-                     发现更多技能 <ChevronRight size={16} />
+                     {t('dashboard.find_more')} <ChevronRight size={16} />
                   </button>
                </div>
                <div className="space-y-4">
@@ -423,8 +426,8 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcoming
                      <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center mb-4 text-white">
                         <BookOpen size={20} />
                      </div>
-                     <h3 className="font-bold text-lg mb-1">我的学习</h3>
-                     <p className="text-indigo-100 text-sm">3 项技能进行中</p>
+                     <h3 className="font-bold text-lg mb-1">{t('dashboard.my_learning')}</h3>
+                     <p className="text-indigo-100 text-sm">{t('dashboard.in_progress')}</p>
                      <div className="mt-4 w-full bg-black/20 h-1.5 rounded-full overflow-hidden">
                         <div className="h-full bg-white/80 w-[60%]"></div>
                      </div>
@@ -437,8 +440,8 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcoming
                      <div className="w-10 h-10 bg-pink-100 rounded-xl flex items-center justify-center mb-4 text-pink-500">
                         <Heart size={20} fill="currentColor" />
                      </div>
-                     <h3 className="font-bold text-slate-800 text-lg mb-1">已收藏</h3>
-                     <p className="text-slate-400 text-sm">12 项待尝试技能</p>
+                     <h3 className="font-bold text-slate-800 text-lg mb-1">{t('dashboard.saved')}</h3>
+                     <p className="text-slate-400 text-sm">{t('dashboard.saved_text')}</p>
                   </div>
                </div>
             </section>
@@ -446,8 +449,8 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcoming
             {/* Recommended for You (Grid Layout) */}
             <section>
                <div className="flex items-center justify-between mb-4">
-                 <h3 className="text-lg font-black text-slate-800">为你精选</h3>
-                 <button onClick={onExplore} className="text-xs font-bold text-slate-400 hover:text-indigo-600">查看全部</button>
+                 <h3 className="text-lg font-black text-slate-800">{t('dashboard.top_picks')}</h3>
+                 <button onClick={onExplore} className="text-xs font-bold text-slate-400 hover:text-indigo-600">{t('dashboard.see_all')}</button>
                </div>
                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                   {skills.slice(0, 4).map(item => (
@@ -467,7 +470,7 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcoming
          <div className="space-y-6">
             <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2rem] p-6 shadow-sm mt-[44px]">
                 <h3 className="font-black text-lg text-slate-800 mb-6 flex items-center gap-2">
-                   <Zap size={20} className="fill-yellow-400 text-yellow-400"/> 动态
+                   <Zap size={20} className="fill-yellow-400 text-yellow-400"/> {t('dashboard.activity')}
                 </h3>
                 <div className="space-y-6 relative">
                    <div className="absolute left-2 top-2 bottom-2 w-0.5 bg-slate-100"></div>
@@ -486,10 +489,10 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcoming
 
             <div className="bg-[#111] text-white rounded-[2rem] p-6 relative overflow-hidden shadow-xl">
                <div className="relative z-10">
-                  <h4 className="font-black text-xl mb-2">专业会员</h4>
-                  <p className="text-gray-400 text-xs leading-relaxed mb-4">解锁无限交换并使用Pro徽章验证你的技能。</p>
+                  <h4 className="font-black text-xl mb-2">{t('dashboard.pro_member')}</h4>
+                  <p className="text-gray-400 text-xs leading-relaxed mb-4">{t('dashboard.upgrade_text')}</p>
                   <button className="w-full py-3 bg-white text-black rounded-xl text-xs font-black uppercase tracking-wider hover:bg-gray-200 transition-colors">
-                    立即升级
+                    {t('dashboard.upgrade')}
                   </button>
                </div>
                {/* Decorative Gradient */}
@@ -501,15 +504,17 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcoming
          </div>
       </div>
   </div>
-);
+  );
+};
 
 // 2. EXPLORE VIEW: Discovery
 const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdates }: { onOpenDetail: (item: any) => void, selectedItem: any, skills: any[], posts: any[], communityUpdates: any[] }) => {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'skills' | 'community'>('skills');
 
-  const [selectedCategory, setSelectedCategory] = useState<string>('全部技能');
+  const [selectedCategory, setSelectedCategory] = useState<string>('All Skills'); // Using English ID for logic, label separate
 
-  const filteredSkills = selectedCategory === '全部技能' 
+  const filteredSkills = selectedCategory === 'All Skills' 
     ? skills 
     : skills.filter(skill => {
         if (selectedCategory === 'Design') return skill.type === 'Design' || skill.type === 'Art';
@@ -533,13 +538,13 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdat
                        onClick={() => setActiveTab('skills')}
                        className={`text-2xl font-black transition-colors ${activeTab === 'skills' ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
                     >
-                       找技能
+                       {t('explore.find_skills')}
                     </button>
                     <button 
                        onClick={() => setActiveTab('community')}
                        className={`text-2xl font-black transition-colors ${activeTab === 'community' ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
                     >
-                       论坛
+                       {t('explore.forum')}
                     </button>
                  </div>
 
@@ -547,10 +552,10 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdat
                  {activeTab === 'skills' && (
                      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar mask-linear-fade pt-1">
                          <button 
-                           onClick={() => setSelectedCategory('全部技能')}
-                           className={`h-9 px-4 flex items-center justify-center rounded-full text-xs font-bold shrink-0 transition-all ${selectedCategory === '全部技能' ? 'bg-slate-900 text-white shadow-md shadow-slate-200' : 'bg-white hover:bg-slate-50 border border-slate-200 text-slate-600'}`}
+                           onClick={() => setSelectedCategory('All Skills')}
+                           className={`h-9 px-4 flex items-center justify-center rounded-full text-xs font-bold shrink-0 transition-all ${selectedCategory === 'All Skills' ? 'bg-slate-900 text-white shadow-md shadow-slate-200' : 'bg-white hover:bg-slate-50 border border-slate-200 text-slate-600'}`}
                          >
-                           全部技能
+                           {t('explore.all_skills')}
                          </button>
                          {['Language', 'Fitness', 'Tech', 'Design', 'Other'].map(cat => (
                            <button 
@@ -623,7 +628,7 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdat
                  <div className={`h-[40px] w-full flex items-center ${activeTab === 'skills' ? 'mb-[60px]' : 'mb-5'}`}>
                      <button className="w-full h-full bg-slate-900 text-white rounded-xl flex items-center justify-center gap-2 font-black text-lg shadow-lg shadow-slate-200 hover:bg-slate-800 transition-all active:scale-95">
                         {activeTab === 'skills' ? <Plus size={20} strokeWidth={3} /> : <ImageIcon size={20} strokeWidth={3} />}
-                        <span>{activeTab === 'skills' ? '发布技能' : '分享帖子'}</span>
+                        <span>{activeTab === 'skills' ? t('explore.list_skill') : t('explore.share_post')}</span>
                      </button>
                  </div>
 
@@ -632,9 +637,9 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdat
                  <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2rem] p-5 shadow-sm flex flex-col h-[365px] mb-5">
                      <div className="flex items-center justify-between mb-3 shrink-0">
                        <h3 className="font-black text-sm text-slate-800 flex items-center gap-2">
-                         <Zap size={16} className="fill-yellow-400 text-yellow-400"/> 社区
+                         <Zap size={16} className="fill-yellow-400 text-yellow-400"/> {t('explore.community')}
                        </h3>
-                       <button className="text-[10px] font-bold text-indigo-600 hover:text-indigo-700">查看全部</button>
+                       <button className="text-[10px] font-bold text-indigo-600 hover:text-indigo-700">{t('explore.view_all')}</button>
                      </div>
                      
                      {/* Auto-Scrolling List */}
@@ -680,10 +685,10 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdat
                     {/* TRENDING TAGS */}
                     <div className="bg-white/40 border border-white/50 rounded-2xl p-2.5 hover:bg-white/60 transition-colors">
                        <h3 className="font-black text-xs text-slate-800 mb-1.5 flex items-center gap-2">
-                         当前热门
+                         {t('explore.trending')}
                        </h3>
                        <div className="flex flex-wrap gap-1.5">
-                          {['#数字艺术', '#酸种面包', '#Python', '#瑜伽'].map(tag => (
+                          {['#DigitalArt', '#Sourdough', '#Python', '#Yoga'].map(tag => (
                              <span key={tag} className="px-2 py-0.5 bg-white rounded-md text-[10px] font-bold text-slate-500 hover:text-indigo-600 hover:shadow-sm cursor-pointer transition-all border border-transparent hover:border-slate-100">
                                 {tag}
                              </span>
@@ -699,13 +704,13 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdat
                                   <Share2 size={14} />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <h4 className="font-black text-slate-800 text-xs">邀请好友</h4>
-                                <p className="text-slate-400 text-[9px] font-medium truncate">壮大我们的星系</p>
+                                <h4 className="font-black text-slate-800 text-xs">{t('explore.invite')}</h4>
+                                <p className="text-slate-400 text-[9px] font-medium truncate">{t('explore.grow')}</p>
                               </div>
                            </div>
                            
                            <button className="px-2 py-1 bg-white text-indigo-600 border border-slate-100 rounded-lg text-[9px] font-bold shadow-sm hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all">
-                             复制
+                             {t('explore.copy')}
                            </button>
                         </div>
                     </div>
@@ -715,7 +720,7 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdat
         </div>
      </div>
   </div>
-);
+  );
 };
 
 // --- Layout ---
@@ -725,6 +730,7 @@ interface MainAppProps {
 }
 
 const MainAppLayout: React.FC<MainAppProps> = ({ user }) => {
+  const { t } = useLanguage();
   const [currentView, setCurrentView] = useState<ViewType>('explore');
   const [selectedItem, setSelectedItem] = useState<any>(null); // State for modal (Inspiration/Community)
   const [selectedSkill, setSelectedSkill] = useState<any>(null); // State for full page view (Find Skills)
@@ -789,11 +795,11 @@ const MainAppLayout: React.FC<MainAppProps> = ({ user }) => {
 
          {/* Center: Navigation Links (Desktop) */}
          <nav className="hidden md:flex items-center gap-8 relative">
-             <TopNavItem icon={Compass} label="探索" active={currentView === 'explore'} onClick={() => setCurrentView('explore')} />
-             <TopNavItem icon={Home} label="仪表盘" active={currentView === 'home'} onClick={() => setCurrentView('home')} />
-             <TopNavItem icon={Calendar} label="交换" active={currentView === 'exchange'} onClick={() => setCurrentView('exchange')} />
-             <TopNavItem icon={MessageCircle} label="消息" active={currentView === 'messages'} onClick={() => setCurrentView('messages')} />
-             <TopNavItem icon={User} label="个人资料" active={currentView === 'profile'} onClick={() => setCurrentView('profile')} />
+             <TopNavItem icon={Compass} label={t('navbar.explore')} active={currentView === 'explore'} onClick={() => setCurrentView('explore')} />
+             <TopNavItem icon={Home} label={t('navbar.about')} active={currentView === 'home'} onClick={() => setCurrentView('home')} /> {/* Using 'About' as Dashboard label temporarily or add new key */}
+             <TopNavItem icon={Calendar} label={t('profile.exchanges')} active={currentView === 'exchange'} onClick={() => setCurrentView('exchange')} />
+             <TopNavItem icon={MessageCircle} label={t('messages.title')} active={currentView === 'messages'} onClick={() => setCurrentView('messages')} />
+             <TopNavItem icon={User} label="Profile" active={currentView === 'profile'} onClick={() => setCurrentView('profile')} />
          </nav>
 
          {/* Right: Search & Profile */}
@@ -801,7 +807,7 @@ const MainAppLayout: React.FC<MainAppProps> = ({ user }) => {
             {/* Search */}
             <div className="hidden lg:flex w-56 items-center gap-2 bg-slate-100/50 hover:bg-slate-100 rounded-full px-4 py-2 text-slate-500 focus-within:ring-2 focus-within:ring-indigo-100 transition-all border border-transparent focus-within:border-indigo-200">
                 <Search size={16} />
-                <input type="text" placeholder="搜索技能..." className="bg-transparent border-none outline-none text-xs w-full font-medium" />
+                <input type="text" placeholder={t('messages.search')} className="bg-transparent border-none outline-none text-xs w-full font-medium" />
             </div>
 
             <div className="flex items-center gap-3">

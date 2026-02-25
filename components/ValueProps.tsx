@@ -1,40 +1,49 @@
 import React from 'react';
 import { ValueProp } from '../types';
-
-const values: ValueProp[] = [
-  {
-    id: 1,
-    icon: "🧠",
-    title: "灵魂契合",
-    description: "Gemini AI 感知你的学习风格，为你匹配技能灵魂伴侣。",
-    color: "bg-pastelPurple"
-  },
-  {
-    id: 2,
-    icon: "✨",
-    title: "光环徽章",
-    description: "收集精美的 NFT 徽章，映照你不断增长的技能光环。",
-    color: "bg-pastelPink"
-  },
-  {
-    id: 3,
-    icon: "🌏",
-    title: "全球圈子",
-    description: "加入一个安全、温馨的学习圈子，连接来自世界各地的伙伴。",
-    color: "bg-pastelBlue"
-  }
-];
+import { useLanguage } from '../contexts/LanguageContext';
 
 const ValueProps: React.FC = () => {
+  const { t, language } = useLanguage();
+
+  // In a real app, this would also come from translation files via arrays,
+  // but for simplicity with our structure, we'll map manually or rely on the structure.
+  // Since our t() helper supports simple strings, we'll construct the array here.
+  // A better way is t('value_props.items', { returnObjects: true }) if i18n lib supports it.
+  // Our simple helper doesn't, so we'll hardcode the structure mapping.
+  
+  const values: ValueProp[] = [
+    {
+      id: 1,
+      icon: "🧠",
+      title: t('value_props.items.0.title') as string,
+      description: t('value_props.items.0.desc') as string,
+      color: "bg-pastelPurple"
+    },
+    {
+      id: 2,
+      icon: "✨",
+      title: t('value_props.items.1.title') as string,
+      description: t('value_props.items.1.desc') as string,
+      color: "bg-pastelPink"
+    },
+    {
+      id: 3,
+      icon: "🌏",
+      title: t('value_props.items.2.title') as string,
+      description: t('value_props.items.2.desc') as string,
+      color: "bg-pastelBlue"
+    }
+  ];
+
   return (
     <section id="about" className="py-20 relative z-10 scroll-mt-20">
       <div className="container mx-auto px-6">
         <div className="text-center max-w-2xl mx-auto mb-16">
           <h2 className="text-3xl md:text-5xl font-black text-textMain mb-4 font-heading">
-            你的成长避风港
+            {t('value_props.title')}
           </h2>
           <p className="text-lg text-textLight">
-            学习不应充满压力。我们保留了良好的氛围，去除了价格标签。
+            {t('value_props.subtitle')}
           </p>
         </div>
 

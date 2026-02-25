@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import Button from './Button';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Globe } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface NavbarProps {
   onLoginClick: () => void;
 }
 
 const Navbar: React.FC<NavbarProps> = ({ onLoginClick }) => {
+  const { language, setLanguage, t } = useLanguage();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -19,10 +21,14 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick }) => {
   }, []);
 
   const navItems = [
-    { name: '关于', id: 'about' },
-    { name: '探索', id: 'explore' },
-    { name: '社区', id: 'community' }
+    { name: t('navbar.about'), id: 'about' },
+    { name: t('navbar.explore'), id: 'explore' },
+    { name: t('navbar.community'), id: 'community' }
   ];
+
+  const toggleLanguage = () => {
+    setLanguage(language === 'en' ? 'zh' : 'en');
+  };
 
   return (
     <nav 
@@ -53,15 +59,34 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick }) => {
               </a>
             ))}
           </div>
-          <Button onClick={onLoginClick} variant="primary" size="md" className="rounded-full px-8 !text-lg">登录</Button>
+          
+          <button 
+            onClick={toggleLanguage}
+            className="flex items-center gap-1 text-textLight hover:text-textMain font-bold transition-colors"
+          >
+            <Globe size={20} />
+            <span className="uppercase">{language}</span>
+          </button>
+
+          <Button onClick={onLoginClick} variant="primary" size="md" className="rounded-full px-8 !text-lg">{t('navbar.login')}</Button>
         </div>
 
-        <button 
-          className="md:hidden text-textMain"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          {mobileMenuOpen ? <X /> : <Menu />}
-        </button>
+        <div className="md:hidden flex items-center gap-4">
+          <button 
+            onClick={toggleLanguage}
+            className="flex items-center gap-1 text-textMain font-bold transition-colors"
+          >
+            <Globe size={20} />
+            <span className="uppercase">{language}</span>
+          </button>
+
+          <button 
+            className="text-textMain"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X /> : <Menu />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
@@ -78,7 +103,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick }) => {
             </a>
           ))}
           <div className="flex flex-col gap-3 mt-4">
-            <Button onClick={onLoginClick} variant="primary" size="md" className="w-full">登录</Button>
+            <Button onClick={onLoginClick} variant="primary" size="md" className="w-full">{t('navbar.login')}</Button>
           </div>
         </div>
       )}

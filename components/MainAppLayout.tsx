@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Home, MessageCircle, User, Calendar, Search, Bell, 
   Menu, Filter, MapPin, Star, Heart, Share2, MoreHorizontal,
   Zap, ChevronRight, Clock, Sparkles, Compass, Video, BookOpen,
-  LayoutGrid, Image as ImageIcon, Plus, X, Play
+  LayoutGrid, Image as ImageIcon, Plus, X, Play, Languages, ChevronDown, Check
 } from 'lucide-react';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -652,6 +652,7 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdat
                          }
                          .animate-scroll-vertical {
                            animation: scroll-vertical 40s linear infinite;
+                           animation-play-state: running;
                          }
                          .group:hover .animate-scroll-vertical {
                            animation-play-state: paused;
@@ -730,10 +731,12 @@ interface MainAppProps {
 }
 
 const MainAppLayout: React.FC<MainAppProps> = ({ user }) => {
-  const { t } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
   const [currentView, setCurrentView] = useState<ViewType>('explore');
   const [selectedItem, setSelectedItem] = useState<any>(null); // State for modal (Inspiration/Community)
   const [selectedSkill, setSelectedSkill] = useState<any>(null); // State for full page view (Find Skills)
+  const [langMenuOpen, setLangMenuOpen] = useState(false);
+  const langMenuRef = useRef<HTMLDivElement>(null);
 
   // API data states
   const [skills, setSkills] = useState<any[]>([]);
@@ -748,6 +751,17 @@ const MainAppLayout: React.FC<MainAppProps> = ({ user }) => {
     fetchCommunityUpdates().then(setCommunityUpdates).catch(console.error);
   }, []);
 
+  // Close language menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (langMenuRef.current && !langMenuRef.current.contains(event.target as Node)) {
+        setLangMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const handleOpenDetail = (item: any) => {
     // Determine if it's a Skill (Full Page) or Post (Modal)
     // Skills have 'lessons' property in our mock data, Posts have 'likes'
@@ -756,6 +770,11 @@ const MainAppLayout: React.FC<MainAppProps> = ({ user }) => {
     } else {
        setSelectedItem(item);
     }
+  };
+
+  const handleLanguageSelect = (lang: 'en' | 'zh') => {
+    setLanguage(lang);
+    setLangMenuOpen(false);
   };
 
   return (
@@ -808,6 +827,36 @@ const MainAppLayout: React.FC<MainAppProps> = ({ user }) => {
             <div className="hidden lg:flex w-56 items-center gap-2 bg-slate-100/50 hover:bg-slate-100 rounded-full px-4 py-2 text-slate-500 focus-within:ring-2 focus-within:ring-indigo-100 transition-all border border-transparent focus-within:border-indigo-200">
                 <Search size={16} />
                 <input type="text" placeholder={t('messages.search')} className="bg-transparent border-none outline-none text-xs w-full font-medium" />
+            </div>
+
+            {/* Language Switcher */}
+            <div className="relative" ref={langMenuRef}>
+               <button 
+                 onClick={() => setLangMenuOpen(!langMenuOpen)}
+                 className="flex items-center gap-1.5 text-slate-500 hover:text-slate-800 font-bold transition-colors px-2 py-1 rounded-lg hover:bg-slate-100"
+               >
+                 <Languages size={18} />
+                 <ChevronDown size={14} className={`transition-transform duration-200 ${langMenuOpen ? 'rotate-180' : ''}`} />
+               </button>
+               
+               {langMenuOpen && (
+                 <div className="absolute top-full right-0 mt-2 w-40 bg-white rounded-xl shadow-xl border border-slate-100 py-2 animate-in fade-in zoom-in-95 origin-top-right overflow-hidden z-[100]">
+                   <button
+                     onClick={() => handleLanguageSelect('en')}
+                     className={`w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center justify-between transition-colors ${language === 'en' ? 'text-purple-600 font-bold bg-purple-50/50' : 'text-slate-700'}`}
+                   >
+                     <span>English</span>
+                     {language === 'en' && <Check size={16} />}
+                   </button>
+                   <button
+                     onClick={() => handleLanguageSelect('zh')}
+                     className={`w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center justify-between transition-colors ${language === 'zh' ? 'text-purple-600 font-bold bg-purple-50/50' : 'text-slate-700'}`}
+                   >
+                     <span>中文</span>
+                     {language === 'zh' && <Check size={16} />}
+                   </button>
+                 </div>
+               )}
             </div>
 
             <div className="flex items-center gap-3">

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import Button from './Button';
-import { Globe, Dumbbell, Rocket, Palette, CheckCircle2, Search, Sparkles, MessageCircle, ArrowRight, Check, Mail, Github, Smartphone, Chrome, Command, X, Plus } from 'lucide-react';
+import { Globe, Dumbbell, Rocket, Palette, CheckCircle2, Search, Sparkles, MessageCircle, ArrowRight, Check, Mail, Github, Smartphone, Chrome, Command, X, Plus, Languages, ChevronDown } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 const mascotImage = "/Gemini_Generated_Image.png";
 
@@ -95,27 +95,81 @@ const FloatingFish: React.FC<{ className?: string }> = ({ className }) => (
 );
 
 // Helper: Navigation Buttons
-const NavButtons = ({ onBack, onClose, showBack = true }: { onBack?: () => void, onClose: () => void, showBack?: boolean }) => (
-  <div className="fixed top-0 left-0 w-full z-50 pointer-events-none p-6 md:p-8">
-    <div className="relative w-full h-full flex justify-between items-start pointer-events-auto">
-      {showBack && (
-        <button 
-          onClick={onBack}
-          className="flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-slate-600 tracking-widest uppercase transition-colors"
-        >
-          <ArrowRight className="rotate-180 w-4 h-4" /> Back
-        </button>
-      )}
-      {!showBack && <div></div>} {/* Spacer */}
-      <button 
-        onClick={onClose}
-        className="text-sm font-bold text-slate-400 hover:text-slate-600 tracking-widest uppercase transition-colors"
-      >
-        CLOSE
-      </button>
+const NavButtons = ({ onBack, onClose, showBack = true }: { onBack?: () => void, onClose: () => void, showBack?: boolean }) => {
+  const { language, setLanguage } = useLanguage();
+  const [langMenuOpen, setLangMenuOpen] = useState(false);
+  const langMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close language menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (langMenuRef.current && !langMenuRef.current.contains(event.target as Node)) {
+        setLangMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleLanguageSelect = (lang: 'en' | 'zh') => {
+    setLanguage(lang);
+    setLangMenuOpen(false);
+  };
+
+  return (
+    <div className="fixed top-0 left-0 w-full z-50 pointer-events-none p-6 md:p-8">
+      <div className="relative w-full h-full flex justify-between items-start pointer-events-auto">
+        {showBack ? (
+          <button 
+            onClick={onBack}
+            className="flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-slate-600 tracking-widest uppercase transition-colors"
+          >
+            <ArrowRight className="rotate-180 w-4 h-4" /> Back
+          </button>
+        ) : <div></div>}
+        
+        <div className="flex items-center gap-4">
+          {/* Language Switcher */}
+          <div className="relative" ref={langMenuRef}>
+             <button 
+               onClick={() => setLangMenuOpen(!langMenuOpen)}
+               className="flex items-center gap-1.5 text-slate-400 hover:text-slate-600 font-bold transition-colors px-2 py-1 rounded-lg hover:bg-slate-100"
+             >
+               <Languages size={18} />
+               <ChevronDown size={14} className={`transition-transform duration-200 ${langMenuOpen ? 'rotate-180' : ''}`} />
+             </button>
+             
+             {langMenuOpen && (
+               <div className="absolute top-full right-0 mt-2 w-32 bg-white rounded-xl shadow-xl border border-slate-100 py-2 animate-in fade-in zoom-in-95 origin-top-right overflow-hidden z-[100]">
+                 <button
+                   onClick={() => handleLanguageSelect('en')}
+                   className={`w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center justify-between transition-colors ${language === 'en' ? 'text-purple-600 font-bold bg-purple-50/50' : 'text-slate-700'}`}
+                 >
+                   <span>English</span>
+                   {language === 'en' && <Check size={14} />}
+                 </button>
+                 <button
+                   onClick={() => handleLanguageSelect('zh')}
+                   className={`w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center justify-between transition-colors ${language === 'zh' ? 'text-purple-600 font-bold bg-purple-50/50' : 'text-slate-700'}`}
+                 >
+                   <span>中文</span>
+                   {language === 'zh' && <Check size={14} />}
+                 </button>
+               </div>
+             )}
+          </div>
+
+          <button 
+            onClick={onClose}
+            className="text-sm font-bold text-slate-400 hover:text-slate-600 tracking-widest uppercase transition-colors"
+          >
+            CLOSE
+          </button>
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
   const { t } = useLanguage();

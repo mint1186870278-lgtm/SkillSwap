@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Button from './Button';
-import { Menu, X, Globe } from 'lucide-react';
+import { Menu, X, Languages, ChevronDown, Check } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface NavbarProps {
@@ -11,6 +11,8 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick }) => {
   const { language, setLanguage, t } = useLanguage();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [langMenuOpen, setLangMenuOpen] = useState(false);
+  const langMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,14 +22,27 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close language menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (langMenuRef.current && !langMenuRef.current.contains(event.target as Node)) {
+        setLangMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const navItems = [
     { name: t('navbar.about'), id: 'about' },
     { name: t('navbar.explore'), id: 'explore' },
     { name: t('navbar.community'), id: 'community' }
   ];
 
-  const toggleLanguage = () => {
-    setLanguage(language === 'en' ? 'zh' : 'en');
+  const handleLanguageSelect = (lang: 'en' | 'zh') => {
+    setLanguage(lang);
+    setLangMenuOpen(false);
+    setMobileMenuOpen(false);
   };
 
   return (
@@ -60,26 +75,41 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick }) => {
             ))}
           </div>
           
-          <button 
-            onClick={toggleLanguage}
-            className="flex items-center gap-1 text-textLight hover:text-textMain font-bold transition-colors"
-          >
-            <Globe size={20} />
-            <span className="uppercase">{language}</span>
-          </button>
+          {/* Language Dropdown */}
+          <div className="relative" ref={langMenuRef}>
+            <button 
+              onClick={() => setLangMenuOpen(!langMenuOpen)}
+              className="flex items-center gap-1.5 text-textLight hover:text-textMain font-bold transition-colors px-2 py-1 rounded-lg hover:bg-black/5"
+            >
+              <Languages size={20} />
+              <span>Language</span>
+              <ChevronDown size={16} className={`transition-transform duration-200 ${langMenuOpen ? 'rotate-180' : ''}`} />
+            </button>
+            
+            {langMenuOpen && (
+              <div className="absolute top-full right-0 mt-2 w-40 bg-white rounded-xl shadow-xl border border-slate-100 py-2 animate-in fade-in zoom-in-95 origin-top-right overflow-hidden">
+                <button
+                  onClick={() => handleLanguageSelect('en')}
+                  className={`w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center justify-between transition-colors ${language === 'en' ? 'text-purple-600 font-bold bg-purple-50/50' : 'text-textMain'}`}
+                >
+                  <span>English</span>
+                  {language === 'en' && <Check size={16} />}
+                </button>
+                <button
+                  onClick={() => handleLanguageSelect('zh')}
+                  className={`w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center justify-between transition-colors ${language === 'zh' ? 'text-purple-600 font-bold bg-purple-50/50' : 'text-textMain'}`}
+                >
+                  <span>中文</span>
+                  {language === 'zh' && <Check size={16} />}
+                </button>
+              </div>
+            )}
+          </div>
 
           <Button onClick={onLoginClick} variant="primary" size="md" className="rounded-full px-8 !text-lg">{t('navbar.login')}</Button>
         </div>
 
         <div className="md:hidden flex items-center gap-4">
-          <button 
-            onClick={toggleLanguage}
-            className="flex items-center gap-1 text-textMain font-bold transition-colors"
-          >
-            <Globe size={20} />
-            <span className="uppercase">{language}</span>
-          </button>
-
           <button 
             className="text-textMain"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -102,7 +132,29 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick }) => {
               {item.name}
             </a>
           ))}
-          <div className="flex flex-col gap-3 mt-4">
+          
+          <div className="py-2 border-b border-slate-50">
+            <div className="text-sm font-bold text-textLight mb-3 flex items-center gap-2">
+              <Languages size={16} />
+              Language
+            </div>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => handleLanguageSelect('en')}
+                className={`flex-1 py-2 rounded-lg text-sm font-bold transition-colors ${language === 'en' ? 'bg-purple-100 text-purple-700' : 'bg-slate-50 text-textLight'}`}
+              >
+                English
+              </button>
+              <button 
+                onClick={() => handleLanguageSelect('zh')}
+                className={`flex-1 py-2 rounded-lg text-sm font-bold transition-colors ${language === 'zh' ? 'bg-purple-100 text-purple-700' : 'bg-slate-50 text-textLight'}`}
+              >
+                中文
+              </button>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3 mt-2">
             <Button onClick={onLoginClick} variant="primary" size="md" className="w-full">{t('navbar.login')}</Button>
           </div>
         </div>

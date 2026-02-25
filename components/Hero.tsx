@@ -19,8 +19,10 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
   ];
 
   // Adjust font size for Chinese to prevent it from looking too large/overwhelming
+  // User requested ~0.5 font size difference
+  // English: text-4xl (2.25rem), text-6xl (3.75rem), text-7xl (4.5rem)
   const titleSizeClass = language === 'zh' 
-    ? 'text-3xl md:text-5xl lg:text-6xl' 
+    ? 'text-[2.1rem] md:text-[3.4rem] lg:text-[4.2rem]' 
     : 'text-4xl md:text-6xl lg:text-7xl';
 
   return (
@@ -29,7 +31,7 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
       <div className="container mx-auto px-6 relative z-10">
         <div className="flex flex-col items-center text-center">
           
-          <h1 className={`${titleSizeClass} font-black mb-4 text-textMain font-heading tracking-tight drop-shadow-sm`}>
+          <h1 className={`${titleSizeClass} font-extrabold mb-4 text-textMain font-heading tracking-tight drop-shadow-sm leading-[1.1]`}>
             {t('hero.title_prefix')} <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 animate-pulse">
               {t('hero.title_suffix')}

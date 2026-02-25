@@ -218,8 +218,8 @@ export const translations = {
       login: "登录"
     },
     hero: {
-      title_prefix: "点亮你的",
-      title_suffix: "技能星系",
+      title_prefix: "你的光芒",
+      title_suffix: "值得被整片星系看见",
       subtitle: "连接灵魂契合的学习伙伴。拒绝金钱交易，回归纯粹的技能互换。",
       start_button: "开启交换之旅",
       skills: {

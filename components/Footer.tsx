@@ -9,6 +9,7 @@ const Footer: React.FC = () => {
         </div>
         
         <div className="flex gap-6 text-sm text-textLight font-bold">
+          <a href="/case-study" className="hover:text-textMain transition-colors">Case Study</a>
           <a href="#" className="hover:text-textMain transition-colors">Vibes</a>
           <a href="#" className="hover:text-textMain transition-colors">Privacy</a>
           <a href="#" className="hover:text-textMain transition-colors">Contact</a>

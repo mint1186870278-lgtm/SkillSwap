@@ -37,7 +37,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick }) => {
 
         <div className="hidden md:flex items-center gap-8">
           <div className="flex items-center gap-8">
-            {['Explore', 'Community', 'Stories', 'About'].map((item) => (
+            {['About', 'Explore', 'Community'].map((item) => (
               <a 
                 key={item} 
                 href={`#${item.toLowerCase()}`} 
@@ -61,7 +61,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick }) => {
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="absolute top-full left-0 right-0 bg-white border-t border-slate-100 shadow-xl p-6 md:hidden flex flex-col gap-4 animate-in slide-in-from-top-5">
-           {['Explore', 'Community', 'Stories', 'About'].map((item) => (
+           {['About', 'Explore', 'Community'].map((item) => (
             <a 
               key={item} 
               href={`#${item.toLowerCase()}`} 

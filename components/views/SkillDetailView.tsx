@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Calendar, Clock, MessageCircle, MapPin, Star, Shield, 
   ChevronLeft, Video, Play, Globe, CheckCircle2, Heart,
   Languages, GraduationCap, ChevronRight, Zap
 } from 'lucide-react';
 import { ImageWithFallback } from '../../figma/ImageWithFallback';
-import { SIMILAR_EXPERTS } from '../../data/mock';
+import { fetchSimilarExperts } from '../../lib/api-client';
 
 interface SkillDetailProps {
   onBack: () => void;
@@ -14,6 +14,11 @@ interface SkillDetailProps {
 
 const SkillDetailView: React.FC<SkillDetailProps> = ({ onBack, item }) => {
   const [activeTab, setActiveTab] = useState<'about' | 'teacher' | 'lessons'>('about');
+  const [similarExperts, setSimilarExperts] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchSimilarExperts().then(setSimilarExperts).catch(console.error);
+  }, []);
 
   // Fallbacks if item is missing properties (for safety)
   const user = item?.user || 'Elena Rodriguez';
@@ -378,7 +383,7 @@ const SkillDetailView: React.FC<SkillDetailProps> = ({ onBack, item }) => {
              <div className="border-t border-slate-200 pt-10">
              <h3 className="text-xl font-black text-slate-900 mb-6">Explore Similar Experts</h3>
              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {SIMILAR_EXPERTS.map((teacher, i) => (
+                {similarExperts.map((teacher, i) => (
                    <div key={i} className="bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-lg transition-all group cursor-pointer">
                       <div className="relative h-48 bg-slate-900">
                          <ImageWithFallback src={teacher.image} alt={teacher.name} className="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-500" />

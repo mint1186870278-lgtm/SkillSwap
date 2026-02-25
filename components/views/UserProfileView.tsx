@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { 
   Settings, MapPin, Calendar, Star, Zap, Crown, 
@@ -7,7 +7,7 @@ import {
   Globe, GraduationCap, Briefcase, User, Quote
 } from 'lucide-react';
 import { ImageWithFallback } from '../../figma/ImageWithFallback';
-import { MOCK_USER_POSTS } from '../../data/mock';
+import { fetchUserPosts, fetchReviews } from '../../lib/api-client';
 
 // -----------------------------------------------------------------------------
 // PREMIUM BADGE COMPONENT
@@ -92,6 +92,13 @@ const PremiumBadge = ({
 
 const UserProfileView = () => {
   const [activeTab, setActiveTab] = useState<'posts' | 'about' | 'reviews'>('posts');
+  const [userPosts, setUserPosts] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchUserPosts().then(setUserPosts).catch(console.error);
+    fetchReviews().then(setReviews).catch(console.error);
+  }, []);
 
   return (
     <div className="flex flex-col w-full max-w-7xl mx-auto pb-20">
@@ -240,7 +247,7 @@ const UserProfileView = () => {
 
                  {activeTab === 'posts' && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                       {MOCK_USER_POSTS.map(post => (
+                       {userPosts.map(post => (
                           <div key={post.id} className="bg-white p-4 rounded-[1.5rem] border border-slate-100 shadow-sm hover:shadow-md transition-all cursor-pointer group">
                              {/* Image Area */}
                              {post.image ? (
@@ -390,12 +397,7 @@ const UserProfileView = () => {
 
                        {/* Review List */}
                        <div className="grid grid-cols-1 gap-4">
-                          {[
-                             { id: 1, user: 'Sarah Jenks', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80', rating: 5, date: '2 days ago', text: "Jessica is an amazing teacher! She explained auto-layout in Figma so clearly. I finally understand how it works. Highly recommend!", class: "Figma Mastery" },
-                             { id: 2, user: 'Mike Chen', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80', rating: 5, date: '1 week ago', text: "Had a great pottery session. She was very patient with my clumsy hands lol. Can't wait for the next lesson.", class: "Pottery Basics" },
-                             { id: 3, user: 'Elena Rodriguez', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80', rating: 5, date: '2 weeks ago', text: "Very professional and friendly. We exchanged Spanish for Figma tips, and it was a perfect swap.", class: "Skill Swap" },
-                             { id: 4, user: 'David Kim', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80', rating: 4, date: '1 month ago', text: "Good session, learned a lot about component properties.", class: "Design Systems" },
-                          ].map(review => (
+                          {reviews.map(review => (
                              <div key={review.id} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-all">
                                 <div className="flex items-start justify-between mb-4">
                                    <div className="flex items-center gap-3">

@@ -38,7 +38,7 @@ const testimonials: Testimonial[] = [
 
 const SocialProof: React.FC = () => {
   return (
-    <section className="py-20 relative z-10">
+    <section id="community" className="py-20 relative z-10 scroll-mt-20">
       <div className="container mx-auto px-6">
         <div className="mb-10 text-center">
             <h2 className="text-3xl font-black text-textMain font-heading">Community Vibes</h2>
@@ -49,14 +49,14 @@ const SocialProof: React.FC = () => {
             - Increased vertical padding to `py-12`: Prevents hover effects from being cut off at the top.
             - Added `px-8`: Ensures first/last cards have breathing room.
         */}
-        <div className="flex overflow-x-auto gap-6 py-12 px-8 snap-x snap-mandatory no-scrollbar w-fit mx-auto max-w-full">
+        <div className="grid grid-cols-2 gap-3 py-8 px-0 md:flex md:overflow-x-auto md:gap-6 md:py-12 md:px-8 md:snap-x md:snap-mandatory md:no-scrollbar w-full md:w-fit mx-auto max-w-full">
           {testimonials.map((item, index) => (
             <div 
               key={item.id} 
               className={`
-                flex-shrink-0 w-[280px] snap-center glass-panel p-6 rounded-[2rem] 
+                w-full md:w-[280px] md:flex-shrink-0 snap-center glass-panel p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] 
                 transform transition-all duration-300 hover:scale-105 hover:bg-white/60
-                ${index % 2 === 0 ? 'rotate-1' : '-rotate-1'}
+                ${index % 2 === 0 ? 'md:rotate-1' : 'md:-rotate-1'}
               `}
             >
                 <div className="flex items-center gap-3 mb-4">

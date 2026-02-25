@@ -145,7 +145,7 @@ import MyExchangesView from './views/ExchangeView';
 import MessagesView from './views/MessagesView';
 
 import { ViewType } from '../types';
-import { MOCK_SKILLS, UPCOMING_SESSIONS, MOCK_POSTS, COMMUNITY_UPDATES } from '../data/mock';
+import { fetchSkills, fetchSessions, fetchPosts, fetchCommunityUpdates } from '../lib/api-client';
 
 // --- Components ---
 
@@ -384,7 +384,7 @@ const CommunityPostCard = ({ post, onClick, className = "", isPlaceholder = fals
 // --- Views ---
 
 // 1. HOME VIEW: Personal Dashboard
-const DashboardView = ({ onOpenDetail, onExplore, selectedItem }: { onOpenDetail: (item: any) => void, onExplore: () => void, selectedItem: any }) => (
+const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcomingSessions, communityUpdates }: { onOpenDetail: (item: any) => void, onExplore: () => void, selectedItem: any, skills: any[], upcomingSessions: any[], communityUpdates: any[] }) => (
   <div className="h-full pb-20">
       
       {/* Header Greeting */}
@@ -410,7 +410,7 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem }: { onOpenDetail
                   </button>
                </div>
                <div className="space-y-4">
-                  {UPCOMING_SESSIONS.map(session => (
+                  {upcomingSessions.map(session => (
                     <SessionCard key={session.id} session={session} />
                   ))}
                </div>
@@ -450,7 +450,7 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem }: { onOpenDetail
                  <button onClick={onExplore} className="text-xs font-bold text-slate-400 hover:text-indigo-600">See all</button>
                </div>
                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {MOCK_SKILLS.slice(0, 4).map(item => (
+                  {skills.slice(0, 4).map(item => (
                     <div key={item.id} className="relative">
                        {/* Placeholder (Visible if selected) */}
                        {selectedItem?.id === item.id && <SkillCard item={item} isPlaceholder className="absolute inset-0 z-0" />}
@@ -471,7 +471,7 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem }: { onOpenDetail
                 </h3>
                 <div className="space-y-6 relative">
                    <div className="absolute left-2 top-2 bottom-2 w-0.5 bg-slate-100"></div>
-                   {COMMUNITY_UPDATES.map(u => (
+                   {communityUpdates.map(u => (
                      <div key={u.id} className="flex gap-4 items-start relative z-10">
                        <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 border-4 border-white shadow-sm ${u.color.replace('text-', 'bg-').replace('100', '500')} text-white text-[10px]`}>
                        </div>
@@ -504,14 +504,14 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem }: { onOpenDetail
 );
 
 // 2. EXPLORE VIEW: Discovery
-const ExploreView = ({ onOpenDetail, selectedItem }: { onOpenDetail: (item: any) => void, selectedItem: any }) => {
+const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdates }: { onOpenDetail: (item: any) => void, selectedItem: any, skills: any[], posts: any[], communityUpdates: any[] }) => {
   const [activeTab, setActiveTab] = useState<'skills' | 'community'>('skills');
 
   const [selectedCategory, setSelectedCategory] = useState<string>('All Skills');
 
   const filteredSkills = selectedCategory === 'All Skills' 
-    ? MOCK_SKILLS 
-    : MOCK_SKILLS.filter(skill => {
+    ? skills 
+    : skills.filter(skill => {
         if (selectedCategory === 'Design') return skill.type === 'Design' || skill.type === 'Art';
         if (selectedCategory === 'Other') return !['Language', 'Fitness', 'Tech', 'Design', 'Art'].includes(skill.type);
         return skill.type === selectedCategory;
@@ -599,7 +599,7 @@ const ExploreView = ({ onOpenDetail, selectedItem }: { onOpenDetail: (item: any)
                      transition={{ duration: 0.2 }}
                      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6"
                   >
-                      {MOCK_POSTS.map((post, i) => (
+                      {posts.map((post, i) => (
                          <div key={`${post.id}-${i}`} className="relative h-full">
                            {/* Placeholder */}
                            {selectedItem?.id === post.id && <CommunityPostCard post={post} isPlaceholder className="absolute inset-0 z-0 h-full" />}
@@ -659,7 +659,7 @@ const ExploreView = ({ onOpenDetail, selectedItem }: { onOpenDetail: (item: any)
 
                        <div className="animate-scroll-vertical">
                          {/* Render Twice for Seamless Loop */}
-                         {[...COMMUNITY_UPDATES, ...COMMUNITY_UPDATES].map((u, index) => (
+                         {[...communityUpdates, ...communityUpdates].map((u, index) => (
                            <div key={`${u.id}-${index}`} className="flex gap-3 items-start relative z-10 mb-4 px-1">
                              <div className="absolute left-2.5 top-0 bottom-[-16px] w-0.5 bg-slate-200/50 rounded-full"></div>
                              <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 border-4 border-[#F8FAFC] shadow-sm ${u.color.replace('text-', 'bg-').replace('100', '500')} text-white text-[8px] ring-2 ring-white mt-0.5 relative z-20`}>
@@ -728,6 +728,19 @@ const MainAppLayout: React.FC<MainAppProps> = ({ user }) => {
   const [currentView, setCurrentView] = useState<ViewType>('explore');
   const [selectedItem, setSelectedItem] = useState<any>(null); // State for modal (Inspiration/Community)
   const [selectedSkill, setSelectedSkill] = useState<any>(null); // State for full page view (Find Skills)
+
+  // API data states
+  const [skills, setSkills] = useState<any[]>([]);
+  const [upcomingSessions, setUpcomingSessions] = useState<any[]>([]);
+  const [posts, setPosts] = useState<any[]>([]);
+  const [communityUpdates, setCommunityUpdates] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchSkills().then(setSkills).catch(console.error);
+    fetchSessions({ dashboard: true }).then(setUpcomingSessions).catch(console.error);
+    fetchPosts().then(setPosts).catch(console.error);
+    fetchCommunityUpdates().then(setCommunityUpdates).catch(console.error);
+  }, []);
 
   const handleOpenDetail = (item: any) => {
     // Determine if it's a Skill (Full Page) or Post (Modal)
@@ -818,8 +831,8 @@ const MainAppLayout: React.FC<MainAppProps> = ({ user }) => {
                transition={{duration: 0.25}}
                className="h-full"
              >
-               {currentView === 'home' && <DashboardView selectedItem={selectedItem} onOpenDetail={handleOpenDetail} onExplore={() => setCurrentView('explore')} />}
-               {currentView === 'explore' && <ExploreView selectedItem={selectedItem} onOpenDetail={handleOpenDetail} />}
+               {currentView === 'home' && <DashboardView selectedItem={selectedItem} onOpenDetail={handleOpenDetail} onExplore={() => setCurrentView('explore')} skills={skills} upcomingSessions={upcomingSessions} communityUpdates={communityUpdates} />}
+               {currentView === 'explore' && <ExploreView selectedItem={selectedItem} onOpenDetail={handleOpenDetail} skills={skills} posts={posts} communityUpdates={communityUpdates} />}
                {currentView === 'exchange' && <MyExchangesView />}
                {currentView === 'messages' && <MessagesView />}
                {/* Detail view is now handled by overlay */}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Calendar, Clock, Video, MessageCircle, Star, 
   MoreVertical, CheckCircle, XCircle, AlertCircle, TrendingUp,
@@ -6,12 +6,19 @@ import {
 } from 'lucide-react';
 import { ImageWithFallback } from '../../figma/ImageWithFallback';
 import { motion, AnimatePresence } from 'motion/react';
-import { SESSIONS } from '../../data/mock';
+import { fetchSessions } from '../../lib/api-client';
 
 const ExchangeView = () => {
   const [filter, setFilter] = useState<'upcoming' | 'pending' | 'past'>('upcoming');
+  const [sessions, setSessions] = useState<any[]>([]);
 
-  const filteredSessions = SESSIONS.filter(s => s.type === filter);
+  useEffect(() => {
+    fetchSessions()
+      .then(setSessions)
+      .catch(console.error);
+  }, []);
+
+  const filteredSessions = sessions.filter(s => s.type === filter);
 
   return (
     <div className="h-full pb-20">

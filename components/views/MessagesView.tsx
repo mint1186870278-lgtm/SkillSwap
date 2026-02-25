@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Search, Phone, Video, MoreVertical, Paperclip, Mic, Send, 
   Bot, Clock, Calendar, CheckCircle, XCircle, Shield, Globe, 
@@ -6,11 +6,54 @@ import {
 } from 'lucide-react';
 import { ImageWithFallback } from '../../figma/ImageWithFallback';
 import { motion } from 'motion/react';
-import { CONTACTS, MESSAGES } from '../../data/mock';
+import { fetchContacts, fetchMessages, sendMessage as sendMessageApi, processAI } from '../../lib/api-client';
 
 const MessagesView = () => {
   const [activeContactId, setActiveContactId] = useState(1);
-  const activeContact = CONTACTS.find(c => c.id === activeContactId) || CONTACTS[0];
+  const [contacts, setContacts] = useState<any[]>([]);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [inputText, setInputText] = useState('');
+
+  useEffect(() => {
+    fetchContacts().then(data => {
+      setContacts(data);
+      if (data.length > 0) setActiveContactId(data[0].id);
+    }).catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    if (activeContactId) {
+      fetchMessages(activeContactId).then(setMessages).catch(console.error);
+    }
+  }, [activeContactId]);
+
+  const activeContact = contacts.find(c => c.id === activeContactId) || contacts[0];
+
+  const handleSend = async () => {
+    if (!inputText.trim()) return;
+    const text = inputText;
+    setInputText('');
+    // Optimistic update
+    setMessages(prev => [...prev, { id: Date.now(), sender: 'me', text, time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }), type: 'text' }]);
+    try {
+      await sendMessageApi(activeContactId, { text, sender: 'me' });
+    } catch (e) {
+      console.error('Failed to send message:', e);
+    }
+  };
+
+  const handleAITranslate = async () => {
+    const lastThemMsg = [...messages].reverse().find(m => m.sender === 'them');
+    if (!lastThemMsg?.text) return;
+    try {
+      const result = await processAI({ action: 'translate', context: lastThemMsg.text, targetLanguage: 'zh-CN' });
+      setMessages(prev => [...prev, { id: Date.now(), sender: 'system', type: 'ai_trans', text: `Translation: ${result.result}`, icon: 'Globe' }]);
+    } catch (e) {
+      console.error('AI translate failed:', e);
+    }
+  };
+
+  if (!activeContact) return <div className="flex items-center justify-center h-full text-slate-400">Loading...</div>;
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-6 h-full">
@@ -35,7 +78,7 @@ const MessagesView = () => {
 
           {/* List */}
           <div className="flex-1 overflow-y-auto px-3 pb-4 space-y-1">
-             {CONTACTS.map(contact => (
+             {contacts.map(contact => (
                <div 
                  key={contact.id}
                  onClick={() => setActiveContactId(contact.id)}
@@ -111,7 +154,7 @@ const MessagesView = () => {
                  <span className="px-3 py-1 bg-slate-100 text-slate-400 text-[10px] font-bold rounded-full uppercase tracking-wide">Today</span>
               </div>
 
-              {MESSAGES.map((msg) => (
+              {messages.map((msg) => (
                  <div key={msg.id} className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
                     
                     {/* Avatar for Them */}
@@ -126,7 +169,7 @@ const MessagesView = () => {
                        {/* BUBBLE CONTENT */}
                        {msg.sender === 'system' ? (
                           <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50/50 border border-indigo-100 text-indigo-600 rounded-xl text-xs font-medium w-fit mx-auto shadow-sm">
-                             <msg.icon size={14} /> {msg.text}
+                             <Globe size={14} /> {msg.text}
                           </div>
                        ) : msg.type === 'proposal' ? (
                           <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
@@ -182,13 +225,25 @@ const MessagesView = () => {
            <div className="p-4 bg-white border-t border-slate-100">
               {/* AI Tools Bar */}
               <div className="flex gap-2 mb-3 overflow-x-auto no-scrollbar">
-                 <button className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded-full hover:bg-indigo-100 transition-colors">
+                 <button onClick={handleAITranslate} className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded-full hover:bg-indigo-100 transition-colors">
                     <Bot size={12} /> AI Translate
                  </button>
-                 <button className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full hover:bg-emerald-100 transition-colors">
+                 <button onClick={async () => {
+                    const context = messages.map(m => `${m.sender}: ${m.text || ''}`).join('\n');
+                    try {
+                      const result = await processAI({ action: 'schedule', context });
+                      setMessages(prev => [...prev, { id: Date.now(), sender: 'system', type: 'ai_trans', text: result.result, icon: 'Globe' }]);
+                    } catch(e) { console.error(e); }
+                 }} className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full hover:bg-emerald-100 transition-colors">
                     <Calendar size={12} /> Suggest Time
                  </button>
-                 <button className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-600 text-[10px] font-bold rounded-full hover:bg-amber-100 transition-colors">
+                 <button onClick={async () => {
+                    const context = messages.map(m => `${m.sender}: ${m.text || ''}`).join('\n');
+                    try {
+                      const result = await processAI({ action: 'contract', context });
+                      setMessages(prev => [...prev, { id: Date.now(), sender: 'system', type: 'ai_trans', text: result.result, icon: 'Globe' }]);
+                    } catch(e) { console.error(e); }
+                 }} className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-600 text-[10px] font-bold rounded-full hover:bg-amber-100 transition-colors">
                     <FileText size={12} /> Draft Contract
                  </button>
               </div>
@@ -201,11 +256,14 @@ const MessagesView = () => {
                     placeholder="Type a message..." 
                     className="flex-1 bg-transparent border-none outline-none text-sm font-medium text-slate-700 min-h-[40px] max-h-[120px] py-2 resize-none"
                     rows={1}
+                    value={inputText}
+                    onChange={e => setInputText(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
                  />
                  <button className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-white rounded-xl transition-colors">
                     <Mic size={20} />
                  </button>
-                 <button className="p-2 bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-200 hover:scale-105 transition-transform active:scale-95">
+                 <button onClick={handleSend} className="p-2 bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-200 hover:scale-105 transition-transform active:scale-95">
                     <Send size={18} fill="currentColor" />
                  </button>
               </div>

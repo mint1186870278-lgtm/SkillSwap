@@ -1,5 +1,5 @@
 ---
-license: apache-2.0
+license: Apache License 2.0
 sdk: docker
 title: SkillSwap
 emoji: 🚀

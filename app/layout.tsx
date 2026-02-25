@@ -1,6 +1,5 @@
 import './globals.css';
-import type { Metadata } from 'next';
-import { Poppins, Nunito, Noto_Sans_SC } from 'next/font/google';
+import { Inter, Poppins, Nunito, Noto_Sans_SC } from 'next/font/google';
 
 const poppins = Poppins({
   subsets: ['latin'],

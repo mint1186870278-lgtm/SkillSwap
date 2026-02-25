@@ -8,7 +8,7 @@ interface HeroProps {
 }
 
 const Hero: React.FC<HeroProps> = ({ onStart }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const skills = [
     { icon: Globe, label: t('hero.skills.language'), color: 'bg-pastelBlue', delay: '0s' },
@@ -18,13 +18,18 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
     { icon: Compass, label: t('hero.skills.other'), color: 'bg-pastelGreen', delay: '0.4s' }
   ];
 
+  // Adjust font size for Chinese to prevent it from looking too large/overwhelming
+  const titleSizeClass = language === 'zh' 
+    ? 'text-3xl md:text-5xl lg:text-6xl' 
+    : 'text-4xl md:text-6xl lg:text-7xl';
+
   return (
     <section className="relative w-full min-h-screen flex items-center justify-center pt-16 pb-8 overflow-hidden">
       
       <div className="container mx-auto px-6 relative z-10">
         <div className="flex flex-col items-center text-center">
           
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-4 text-textMain font-heading tracking-tight drop-shadow-sm">
+          <h1 className={`${titleSizeClass} font-black mb-4 text-textMain font-heading tracking-tight drop-shadow-sm`}>
             {t('hero.title_prefix')} <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 animate-pulse">
               {t('hero.title_suffix')}

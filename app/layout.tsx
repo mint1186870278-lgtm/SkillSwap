@@ -1,6 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
-import { Poppins, Nunito } from 'next/font/google';
+import { Poppins, Nunito, Noto_Sans_SC } from 'next/font/google';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -12,6 +12,12 @@ const nunito = Nunito({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700', '800'],
   variable: '--font-sans',
+});
+
+const notoSansSC = Noto_Sans_SC({
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
+  variable: '--font-noto',
 });
 
 export const metadata: Metadata = {
@@ -26,7 +32,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${poppins.variable} ${nunito.variable} bg-transparent`}>
+      <body className={`${poppins.variable} ${nunito.variable} ${notoSansSC.variable} font-sans bg-transparent`}>
         {children}
       </body>
     </html>

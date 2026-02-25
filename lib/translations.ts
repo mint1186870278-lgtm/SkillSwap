@@ -212,16 +212,16 @@ export const translations = {
   },
   zh: {
     navbar: {
-      about: "关于",
-      explore: "探索",
-      community: "社区",
+      about: "关于我们",
+      explore: "发现",
+      community: "社区动态",
       login: "登录"
     },
     hero: {
-      title_prefix: "你的技能星系",
-      title_suffix: "是什么？",
-      subtitle: "连接志同道合的学习伙伴。零费用，纯粹的技能交换。",
-      start_button: "开始交换",
+      title_prefix: "点亮你的",
+      title_suffix: "技能星系",
+      subtitle: "连接灵魂契合的学习伙伴。拒绝金钱交易，回归纯粹的技能互换。",
+      start_button: "开启交换之旅",
       skills: {
         language: "语言",
         fitness: "健身",
@@ -234,22 +234,22 @@ export const translations = {
       float_goal: "周目标"
     },
     value_props: {
-      title: "你的成长避风港",
-      subtitle: "学习不应充满压力。我们保留了良好的氛围，去除了价格标签。",
+      title: "你的专属成长空间",
+      subtitle: "学习本该轻松自在。这里没有价格标签，只有真诚的交流氛围。",
       items: [
-        { title: "灵魂契合", desc: "Gemini AI 感知你的学习风格，为你匹配技能灵魂伴侣。" },
-        { title: "光环徽章", desc: "收集精美的 NFT 徽章，映照你不断增长的技能光环。" },
-        { title: "全球圈子", desc: "加入一个安全、温馨的学习圈子，连接来自世界各地的伙伴。" }
+        { title: "默契伙伴", desc: "Gemini AI 读懂你的学习风格，为你寻找最合拍的技能伙伴。" },
+        { title: "成就光环", desc: "收集精美的 NFT 徽章，映照你不断增长的技能光环。" },
+        { title: "全球社区", desc: "加入一个安全、温馨的学习圈子，连接来自世界各地的伙伴。" }
       ]
     },
     product_preview: {
-      tag: "简单流程",
-      title_prefix: "专为",
-      title_suffix: "安心设计。",
+      tag: "极简流程",
+      title_prefix: "让学习",
+      title_suffix: "回归纯粹。",
       steps: [
-        { title: "设定目标", desc: "告诉我们要学什么。" },
-        { title: "找到节奏", desc: "滑动匹配合拍伙伴。" },
-        { title: "共同成长", desc: "聊天、视频、交换智慧。" }
+        { title: "设定学习目标", desc: "告诉我们要学什么。" },
+        { title: "发现合拍伙伴", desc: "滑动匹配合拍伙伴。" },
+        { title: "开启共同成长", desc: "聊天、视频、交换智慧。" }
       ],
       phone: {
         insight: "每日洞察",
@@ -261,18 +261,18 @@ export const translations = {
       }
     },
     social_proof: {
-      title: "社区氛围",
+      title: "社区声音",
       reviews: [
-        { text: "学编程最轻松的方式。没压力，只有好氛围。" },
-        { text: "学语言时在法国交了个死党。满分推荐。" },
-        { text: "省了好多钱。用钢琴技能换设计帮助简直是作弊码。" },
-        { text: "这个社区的审美绝了。大家都很支持我。" }
+        { text: "这是我体验过最轻松的编程学习方式。零压力，氛围超棒。" },
+        { text: "学语言时认识了一位法国挚友。强烈推荐！" },
+        { text: "省下了一大笔学费。用钢琴技能换取设计指导，简直是技能树的作弊码！" },
+        { text: "社区的审美在线，大家也都超级热心。" }
       ]
     },
     final_cta: {
-      title: "准备好找到\n你的伙伴了吗？",
-      subtitle: "加入互联网上最温柔、最友好的学习角落。",
-      button: "🚀 加入圈子",
+      title: "准备好遇见\n你的技能伙伴了吗？",
+      subtitle: "加入互联网上最温暖、最友好的学习社区。",
+      button: "🚀 立即加入社区",
       tags: ["🌱 永久免费", "✨ 无广告", "🤝 真人互动"]
     },
     footer: {
@@ -283,12 +283,12 @@ export const translations = {
     },
     onboarding: {
       welcome: "欢迎来到",
-      subtitle: "在这里，技能就是货币。\n免费连接、教学和学习。",
+      subtitle: "在这里，技能即货币。\n连接、分享、免费学习。",
       google: "通过 Google 继续",
       guest: "以访客身份浏览",
       no_account: "还没有账号？",
-      step2_title: "你的专长是什么？",
-      step2_subtitle: "选择你技能最闪耀的星系",
+      step2_title: "你的擅长领域是？",
+      step2_subtitle: "点亮属于你的技能星系",
       step3_title: "接下来你想学什么？",
       step3_subtitle: "选择星系以拓展视野",
       continue: "继续",

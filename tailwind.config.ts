@@ -22,8 +22,8 @@ const config: Config = {
         pastelGreen: '#CBF0F8', // Minty
       },
       fontFamily: {
-        sans: ['Nunito', 'sans-serif'],
-        heading: ['Poppins', 'sans-serif'],
+        sans: ['var(--font-sans)', 'var(--font-noto)', 'sans-serif'],
+        heading: ['var(--font-heading)', 'var(--font-noto)', 'sans-serif'],
       },
       boxShadow: {
         'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.07)',

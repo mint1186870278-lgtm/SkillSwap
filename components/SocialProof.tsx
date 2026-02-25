@@ -5,33 +5,33 @@ const testimonials: Testimonial[] = [
   {
     id: 1,
     name: "Alex",
-    location: "Shanghai",
+    location: "上海",
     avatar: "https://picsum.photos/id/1012/200/200",
-    text: "Literally the chillest way to learn coding. No pressure, just vibes.",
+    text: "学编程最轻松的方式。没压力，只有好氛围。",
     skillIcon: "🐍"
   },
   {
     id: 2,
     name: "Sophia",
-    location: "Milan",
+    location: "米兰",
     avatar: "https://picsum.photos/id/1027/200/200",
-    text: "Made a bestie in France while learning the language. 10/10.",
+    text: "学语言时在法国交了个死党。满分推荐。",
     skillIcon: "🇫🇷"
   },
   {
     id: 3,
     name: "Mike",
-    location: "NYC",
+    location: "纽约",
     avatar: "https://picsum.photos/id/1005/200/200",
-    text: "Saved so much money. Trading piano skills for design help is a cheat code.",
+    text: "省了好多钱。用钢琴技能换设计帮助简直是作弊码。",
     skillIcon: "🎹"
   },
   {
     id: 4,
     name: "Yuki",
-    location: "Tokyo",
+    location: "东京",
     avatar: "https://picsum.photos/id/1011/200/200",
-    text: "The aesthetic of this community is everything. Everyone is so supportive.",
+    text: "这个社区的审美绝了。大家都很支持我。",
     skillIcon: "🎨"
   }
 ];
@@ -41,7 +41,7 @@ const SocialProof: React.FC = () => {
     <section id="community" className="py-20 relative z-10 scroll-mt-20">
       <div className="container mx-auto px-6">
         <div className="mb-10 text-center">
-            <h2 className="text-3xl font-black text-textMain font-heading">Community Vibes</h2>
+            <h2 className="text-3xl font-black text-textMain font-heading">社区氛围</h2>
         </div>
 
         {/* Scroll Container 

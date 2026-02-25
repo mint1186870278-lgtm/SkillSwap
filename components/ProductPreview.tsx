@@ -9,16 +9,16 @@ const ProductPreview: React.FC = () => {
           {/* Text Info */}
           <div className="flex-1 max-w-lg">
              <div className="inline-block px-4 py-1 rounded-full bg-pastelYellow/50 border border-pastelYellow text-yellow-700 font-bold text-xs uppercase tracking-wider mb-6">
-                Simple Flow
+                简单流程
              </div>
              <h2 className="text-4xl md:text-6xl font-black text-textMain mb-8 font-heading leading-tight">
-                Designed for <br/> <span className="text-purple-500">peace of mind.</span>
+                专为 <br/> <span className="text-purple-500">安心设计。</span>
              </h2>
              <div className="space-y-8">
                 {[
-                    { title: "Set Your Intentions", desc: "Tell us what you want to learn today." },
-                    { title: "Find Your Flow", desc: "Swipe through matches that fit your vibe." },
-                    { title: "Grow Together", desc: "Chat, video call, and exchange wisdom." }
+                    { title: "设定目标", desc: "告诉我们要学什么。" },
+                    { title: "找到节奏", desc: "滑动匹配合拍伙伴。" },
+                    { title: "共同成长", desc: "聊天、视频、交换智慧。" }
                 ].map((step, i) => (
                     <div key={i} className="flex gap-6 group cursor-pointer">
                         <div className="w-12 h-12 rounded-full bg-white/50 border border-white flex items-center justify-center font-bold text-textMain shadow-sm group-hover:bg-pastelBlue group-hover:text-white transition-colors">
@@ -47,8 +47,8 @@ const ProductPreview: React.FC = () => {
 
                  {/* "Good Morning" Card */}
                  <div className="bg-white/60 rounded-[2rem] p-6 mb-4 text-center shadow-sm">
-                     <div className="text-xs font-bold text-textLight uppercase mb-1">Daily Insight</div>
-                     <h3 className="text-xl font-bold text-textMain mb-4">Ready to learn Guitar?</h3>
+                     <div className="text-xs font-bold text-textLight uppercase mb-1">每日洞察</div>
+                     <h3 className="text-xl font-bold text-textMain mb-4">准备好学吉他了吗？</h3>
                      
                      <div className="flex justify-center items-center gap-4 mb-4">
                          <div className="w-16 h-16 rounded-full bg-pastelPink flex items-center justify-center text-2xl animate-bounce">🎸</div>
@@ -56,7 +56,7 @@ const ProductPreview: React.FC = () => {
                          <div className="w-16 h-16 rounded-full bg-pastelBlue flex items-center justify-center text-2xl">💻</div>
                      </div>
                      <div className="bg-textMain text-white rounded-full py-2 px-4 text-sm font-bold shadow-lg">
-                        Start Session
+                        开始会话
                      </div>
                  </div>
 
@@ -64,13 +64,13 @@ const ProductPreview: React.FC = () => {
                  <div className="grid grid-cols-2 gap-3 mb-4">
                     <div className="bg-pastelGreen/40 p-4 rounded-[2rem]">
                         <div className="text-2xl mb-1">🔥</div>
-                        <div className="font-bold text-textMain">3 Day</div>
-                        <div className="text-xs text-textMain opacity-60">Streak</div>
+                        <div className="font-bold text-textMain">3 天</div>
+                        <div className="text-xs text-textMain opacity-60">连胜</div>
                     </div>
                     <div className="bg-pastelYellow/40 p-4 rounded-[2rem]">
                         <div className="text-2xl mb-1">⭐</div>
-                        <div className="font-bold text-textMain">Level 5</div>
-                        <div className="text-xs text-textMain opacity-60">Explorer</div>
+                        <div className="font-bold text-textMain">5 级</div>
+                        <div className="text-xs text-textMain opacity-60">探索者</div>
                     </div>
                  </div>
 
@@ -79,8 +79,8 @@ const ProductPreview: React.FC = () => {
                     <div className="bg-white/50 p-3 rounded-[1.5rem] flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gray-200"></div>
                         <div className="flex-1">
-                            <div className="font-bold text-sm text-textMain">Lesson with Kai</div>
-                            <div className="text-xs text-textLight">Today, 4:00 PM</div>
+                            <div className="font-bold text-sm text-textMain">与 Kai 的课程</div>
+                            <div className="text-xs text-textLight">今天, 下午 4:00</div>
                         </div>
                         <div className="w-8 h-8 rounded-full bg-green-200 flex items-center justify-center text-green-700 text-xs font-bold">GO</div>
                     </div>

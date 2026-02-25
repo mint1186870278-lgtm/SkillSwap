@@ -134,13 +134,13 @@ const UserProfileView = () => {
                           <p className="text-slate-500 font-medium text-xs mb-3 flex flex-wrap justify-center md:justify-start items-center gap-x-3 gap-y-1">
                              <span className="text-indigo-600 font-bold">@jess_creates</span>
                              <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                             <span>Digital Designer & Potter</span>
+                             <span>数字设计师 & 陶艺师</span>
                              <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                             <span className="flex items-center gap-1"><MapPin size={12}/> San Francisco, CA</span>
+                             <span className="flex items-center gap-1"><MapPin size={12}/> 美国旧金山</span>
                           </p>
                           
                           <p className="text-slate-600 text-sm leading-relaxed max-w-2xl mx-auto md:mx-0 line-clamp-2">
-                             Digital designer by day, pottery enthusiast by night. I love teaching Figma tips and looking to learn how to bake the perfect sourdough bread! 🍞
+                             白天的数字设计师，晚上的陶艺爱好者。我喜欢分享 Figma 技巧，也期待学习如何烘焙完美的酸种面包！ 🍞
                           </p>
                        </div>
 
@@ -148,15 +148,15 @@ const UserProfileView = () => {
                        <div className="flex gap-3 shrink-0 mt-4 md:mt-0">
                           <div className="flex flex-col items-center justify-center bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-100 min-w-[80px] hover:bg-slate-100 transition-colors group">
                              <span className="block text-xl font-black text-slate-800 leading-none mb-1 group-hover:text-indigo-600 transition-colors">12</span>
-                             <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Exchanges</span>
+                             <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">交换</span>
                           </div>
                           <div className="flex flex-col items-center justify-center bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-100 min-w-[80px] hover:bg-slate-100 transition-colors group">
                              <span className="block text-xl font-black text-slate-800 leading-none mb-1 group-hover:text-indigo-600 transition-colors">4.9</span>
-                             <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Rating</span>
+                             <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">评分</span>
                           </div>
                           <div className="flex flex-col items-center justify-center bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-100 min-w-[80px] hover:bg-slate-100 transition-colors group">
                              <span className="block text-xl font-black text-slate-800 leading-none mb-1 group-hover:text-indigo-600 transition-colors">48h</span>
-                             <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Learned</span>
+                             <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">已学</span>
                           </div>
                        </div>
                     </div>
@@ -179,37 +179,37 @@ const UserProfileView = () => {
                     <div>
                         <h3 className="font-black text-xl text-slate-900 flex items-center gap-2">
                             <Trophy size={20} className="text-amber-500 fill-amber-500/20" /> 
-                            Achievement Wall
+                            成就墙
                         </h3>
-                        <p className="text-xs text-slate-500 mt-1 font-medium">Collect badges to unlock exclusive community perks</p>
+                        <p className="text-xs text-slate-500 mt-1 font-medium">收集徽章以解锁专属社区特权</p>
                     </div>
                     <button className="text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-4 py-2 rounded-xl transition-colors">
-                       View All (12)
+                       查看全部 (12)
                     </button>
                  </div>
                  
                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 relative z-10">
                     <PremiumBadge 
                        icon={Star} 
-                       title="Super Teacher" 
+                       title="超级教师" 
                        variant="gold"
                        earnedDate="Jan 2024"
                     />
                     <PremiumBadge 
                        icon={CheckCircle2} 
-                       title="Verified Pro" 
+                       title="认证专家" 
                        variant="blue"
                        earnedDate="Feb 2024"
                     />
                     <PremiumBadge 
                        icon={Flame} 
-                       title="Week Streak" 
+                       title="周连胜" 
                        variant="purple"
                        earnedDate="3 Days"
                     />
                     <PremiumBadge 
                        icon={Sparkles} 
-                       title="Early Adopter" 
+                       title="早期用户" 
                        variant="holographic"
                        earnedDate="Genesis"
                     />
@@ -218,8 +218,8 @@ const UserProfileView = () => {
                  {/* Progress Bar */}
                  <div className="mt-8 pt-6 border-t border-slate-100 relative z-10">
                     <div className="flex justify-between text-[10px] font-bold mb-2 uppercase tracking-wide">
-                        <span className="text-slate-500">Next: Master Mentor Badge</span>
-                        <span className="text-indigo-600">8/10 Sessions</span>
+                        <span className="text-slate-500">下一个：导师大师徽章</span>
+                        <span className="text-indigo-600">8/10 会话</span>
                     </div>
                     <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
                         <div className="h-full bg-indigo-500 w-[80%] rounded-full shadow-lg shadow-indigo-200"></div>
@@ -230,17 +230,21 @@ const UserProfileView = () => {
               {/* TABS & FEED (Loop 3) */}
               <section>
                  <div className="bg-slate-100/50 p-1.5 rounded-2xl inline-flex gap-1 mb-5">
-                    {['Posts', 'About', 'Reviews'].map((tab) => (
+                    {[
+                      { id: 'posts', label: '帖子' },
+                      { id: 'about', label: '关于' },
+                      { id: 'reviews', label: '评价' }
+                    ].map((tab) => (
                        <button 
-                          key={tab}
-                          onClick={() => setActiveTab(tab.toLowerCase() as any)}
+                          key={tab.id}
+                          onClick={() => setActiveTab(tab.id as any)}
                           className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${
-                             activeTab === tab.toLowerCase() 
+                             activeTab === tab.id 
                              ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200/50' 
                              : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
                           }`}
                        >
-                          {tab}
+                          {tab.label}
                        </button>
                     ))}
                  </div>
@@ -285,7 +289,7 @@ const UserProfileView = () => {
                           <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                              <Plus size={24} /> 
                           </div>
-                          <span className="font-bold text-sm">Create New Post</span>
+                          <span className="font-bold text-sm">发布新帖子</span>
                        </div>
                     </div>
                  )}
@@ -295,15 +299,15 @@ const UserProfileView = () => {
                        {/* 1. Bio Card */}
                        <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm">
                           <h3 className="font-black text-lg text-slate-900 mb-4 flex items-center gap-2">
-                             <User size={20} className="text-indigo-500" /> My Story
+                             <User size={20} className="text-indigo-500" /> 我的故事
                           </h3>
                           <p className="text-slate-600 leading-relaxed mb-6">
-                             Hi there! I'm Jessica, a Product Designer based in San Francisco with a passion for pottery and baking. 
-                             I've been designing digital products for over 5 years, working with startups to build intuitive and beautiful interfaces.
+                             嗨！我是 Jessica，一名住在旧金山的产品设计师，热衷于陶艺和烘焙。
+                             我有超过5年的数字产品设计经验，致力于为初创公司构建直观美观的界面。
                           </p>
                           <p className="text-slate-600 leading-relaxed">
-                             When I'm not pushing pixels, you can find me at the local pottery studio throwing clay or in my kitchen experimenting with new sourdough recipes.
-                             I joined SkillSwap to share my design knowledge and learn from other talented creators!
+                             不工作的时候，你会发现我在当地的陶艺工作室玩泥巴，或者在厨房里试验新的酸种面包配方。
+                             我加入 SkillSwap 是为了分享我的设计知识，并向其他才华横溢的创作者学习！
                           </p>
                        </div>
 
@@ -312,16 +316,16 @@ const UserProfileView = () => {
                           {/* Languages */}
                           <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
                              <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                <Globe size={18} className="text-blue-500" /> Languages
+                                <Globe size={18} className="text-blue-500" /> 语言
                              </h4>
                              <div className="space-y-3">
                                 <div className="flex items-center justify-between">
                                    <span className="text-slate-600 font-medium text-sm">English</span>
-                                   <span className="px-2 py-1 bg-green-100 text-green-700 text-[10px] font-black uppercase rounded">Native</span>
+                                   <span className="px-2 py-1 bg-green-100 text-green-700 text-[10px] font-black uppercase rounded">母语</span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                    <span className="text-slate-600 font-medium text-sm">Spanish</span>
-                                   <span className="px-2 py-1 bg-blue-100 text-blue-700 text-[10px] font-black uppercase rounded">B1 Intermediate</span>
+                                   <span className="px-2 py-1 bg-blue-100 text-blue-700 text-[10px] font-black uppercase rounded">B1 中级</span>
                                 </div>
                              </div>
                           </div>
@@ -329,7 +333,7 @@ const UserProfileView = () => {
                           {/* Work & Edu */}
                           <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
                              <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                <Briefcase size={18} className="text-purple-500" /> Experience
+                                <Briefcase size={18} className="text-purple-500" /> 经验
                              </h4>
                              <div className="space-y-4">
                                 <div className="flex gap-3">
@@ -337,8 +341,8 @@ const UserProfileView = () => {
                                       <Briefcase size={14} />
                                    </div>
                                    <div>
-                                      <div className="font-bold text-slate-800 text-sm">Senior Product Designer</div>
-                                      <div className="text-xs text-slate-500">TechFlow Inc. • 2021 - Present</div>
+                                      <div className="font-bold text-slate-800 text-sm">高级产品设计师</div>
+                                      <div className="text-xs text-slate-500">TechFlow Inc. • 2021 - 至今</div>
                                    </div>
                                 </div>
                                 <div className="flex gap-3">
@@ -346,8 +350,8 @@ const UserProfileView = () => {
                                       <GraduationCap size={14} />
                                    </div>
                                    <div>
-                                      <div className="font-bold text-slate-800 text-sm">BFA in Interaction Design</div>
-                                      <div className="text-xs text-slate-500">California College of the Arts</div>
+                                      <div className="font-bold text-slate-800 text-sm">交互设计美术学士</div>
+                                      <div className="text-xs text-slate-500">加州艺术学院</div>
                                    </div>
                                 </div>
                              </div>
@@ -357,10 +361,10 @@ const UserProfileView = () => {
                        {/* 3. Interests Cloud */}
                        <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
                           <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                             <Heart size={18} className="text-rose-500" /> Things I Love
+                             <Heart size={18} className="text-rose-500" /> 我的爱好
                           </h4>
                           <div className="flex flex-wrap gap-2">
-                             {['Pottery 🏺', 'Sourdough 🍞', 'Figma 🎨', 'Hiking 🏔️', 'Indie Rock 🎸', 'Sci-Fi Books 📚', 'Yoga 🧘‍♀️', 'Coffee ☕', 'Travel ✈️', 'Photography 📸'].map(tag => (
+                             {['陶艺 🏺', '酸种面包 🍞', 'Figma 🎨', '徒步 🏔️', '独立摇滚 🎸', '科幻小说 📚', '瑜伽 🧘‍♀️', '咖啡 ☕', '旅行 ✈️', '摄影 📸'].map(tag => (
                                 <span key={tag} className="px-4 py-2 bg-slate-50 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-100 transition-colors cursor-default border border-slate-100">
                                    {tag}
                                 </span>
@@ -380,13 +384,13 @@ const UserProfileView = () => {
                                 <div className="flex items-center justify-center md:justify-start gap-1 mb-2">
                                    {[1,2,3,4,5].map(i => <Star key={i} size={16} className="fill-yellow-400 text-yellow-400" />)}
                                 </div>
-                                <p className="text-indigo-100 font-medium text-sm">Based on 150 verified reviews</p>
+                                <p className="text-indigo-100 font-medium text-sm">基于 150 条已验证评价</p>
                              </div>
                              
                              <div className="h-16 w-[1px] bg-white/20 hidden md:block"></div>
                              
                              <div className="flex flex-wrap justify-center gap-2 max-w-md">
-                                {['Patient (42)', 'Fun (38)', 'Expert (35)', 'Great Listener (24)', 'Prepared (18)'].map(tag => (
+                                {['耐心 (42)', '有趣 (38)', '专家 (35)', '善于倾听 (24)', '准备充分 (18)'].map(tag => (
                                    <span key={tag} className="px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-lg text-xs font-bold border border-white/20 hover:bg-white/20 transition-colors cursor-pointer">
                                       {tag}
                                    </span>
@@ -426,7 +430,7 @@ const UserProfileView = () => {
                                 </div>
 
                                 <div className="flex items-center gap-2">
-                                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Session:</span>
+                                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">会话:</span>
                                    <span className="px-2 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg">{review.class}</span>
                                 </div>
                              </div>
@@ -434,7 +438,7 @@ const UserProfileView = () => {
                        </div>
                        
                        <button className="w-full py-4 bg-white border border-slate-200 text-slate-500 rounded-2xl font-bold text-sm hover:bg-slate-50 transition-colors">
-                          Load More Reviews
+                          加载更多评价
                        </button>
                     </div>
                  )}
@@ -448,8 +452,8 @@ const UserProfileView = () => {
               <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm relative overflow-hidden">
                  <div className="flex justify-between items-start mb-4">
                     <div>
-                       <h3 className="font-black text-slate-900 text-lg">Trust Score</h3>
-                       <p className="text-xs text-slate-400 font-medium mt-1">Based on verified reviews</p>
+                       <h3 className="font-black text-slate-900 text-lg">信任分</h3>
+                       <p className="text-xs text-slate-400 font-medium mt-1">基于已验证评价</p>
                     </div>
                     <div className="w-9 h-9 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
                        <ShieldCheck size={18} />
@@ -476,9 +480,9 @@ const UserProfileView = () => {
                     
                     <div className="flex-1">
                        <div className="text-xs font-medium text-slate-600 leading-snug mb-2">
-                          You are in the <strong className="text-indigo-600">top 40%</strong> of trusted members!
+                          你是前 <strong className="text-indigo-600">40%</strong> 的可信成员！
                        </div>
-                       <button className="text-[10px] font-bold text-slate-400 hover:text-indigo-600 underline">View Report</button>
+                       <button className="text-[10px] font-bold text-slate-400 hover:text-indigo-600 underline">查看报告</button>
                     </div>
                  </div>
               </div>
@@ -491,23 +495,23 @@ const UserProfileView = () => {
                  
                  <div className="flex items-center justify-between mb-6 relative z-10">
                     <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-wider">
-                       <Wallet size={16} /> Balance
+                       <Wallet size={16} /> 余额
                     </div>
                     <button className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wide hover:bg-white/20 transition-colors">
-                       Top Up
+                       充值
                     </button>
                  </div>
                  
                  <div className="relative z-10 mb-4">
                     <div className="text-4xl font-black flex items-baseline gap-2">
-                       24 <span className="text-sm font-bold text-slate-400">Credits</span>
+                       24 <span className="text-sm font-bold text-slate-400">积分</span>
                     </div>
                  </div>
 
                  <div className="relative z-10 pt-4 border-t border-white/10 flex items-center justify-between text-xs">
-                     <span className="text-slate-400">Expires in 30 days</span>
+                     <span className="text-slate-400">30天后过期</span>
                      <button className="flex items-center gap-1 font-bold text-indigo-300 hover:text-white transition-colors">
-                        View History <ChevronRight size={12}/>
+                        查看历史 <ChevronRight size={12}/>
                      </button>
                  </div>
               </div>
@@ -520,16 +524,16 @@ const UserProfileView = () => {
                  
                  <div className="relative z-10 mb-6">
                     <div className="inline-block bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wide mb-3 border border-white/20 shadow-sm">
-                       Limited Time
+                       限时
                     </div>
-                    <h3 className="font-black text-xl mb-2">Get 5 Free Credits</h3>
+                    <h3 className="font-black text-xl mb-2">获赠 5 个免费积分</h3>
                     <p className="text-indigo-100 text-sm leading-relaxed">
-                       Invite your friends and earn rewards for each signup!
+                       邀请好友注册即可获得奖励！
                     </p>
                  </div>
                  
                  <button className="w-full py-3 bg-white text-indigo-600 rounded-xl font-bold text-sm hover:bg-indigo-50 transition-colors shadow-lg shadow-indigo-900/10 relative z-10 flex items-center justify-center gap-2">
-                    <Share2 size={16} /> Invite Friends
+                    <Share2 size={16} /> 邀请好友
                  </button>
               </div>
 

@@ -71,11 +71,11 @@ const PlanetDiscovery = ({ className }: { className?: string }) => (
 );
 
 const SUGGESTIONS: Record<string, string[]> = {
-  language: ['English', 'Spanish', 'Mandarin', 'French', 'Japanese', 'German'],
-  fitness: ['Yoga', 'HIIT', 'Running', 'Weightlifting', 'Pilates', 'Meditation'],
-  tech: ['Python', 'React', 'JavaScript', 'AI/ML', 'Data Science', 'Rust'],
-  design: ['Figma', 'Photoshop', 'UI/UX', 'Illustration', '3D Modeling', 'Canva'],
-  other: ['Astronomy', 'History', 'Photography', 'Writing', 'Travel', 'Cooking']
+  language: ['英语', '西班牙语', '普通话', '法语', '日语', '德语'],
+  fitness: ['瑜伽', 'HIIT', '跑步', '举重', '普拉提', '冥想'],
+  tech: ['Python', 'React', 'JavaScript', 'AI/ML', '数据科学', 'Rust'],
+  design: ['Figma', 'Photoshop', 'UI/UX', '插画', '3D 建模', 'Canva'],
+  other: ['天文学', '历史', '摄影', '写作', '旅行', '烹饪']
 };
 
 
@@ -88,7 +88,7 @@ const FloatingFish: React.FC<{ className?: string }> = ({ className }) => (
     <path
       d="M4 12 Q 12 4 24 6 Q 30 8 34 4 L 34 20 Q 30 16 24 18 Q 12 20 4 12 Z"
       fill="#FACC15"
-    />
+      />
     <circle cx="8" cy="10" r="1.6" fill="#92400E" />
   </svg>
 );
@@ -102,7 +102,7 @@ const NavButtons = ({ onBack, onClose, showBack = true }: { onBack?: () => void,
           onClick={onBack}
           className="flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-slate-600 tracking-widest uppercase transition-colors"
         >
-          <ArrowRight className="rotate-180 w-4 h-4" /> Back
+          <ArrowRight className="rotate-180 w-4 h-4" /> 返回
         </button>
       )}
       {!showBack && <div></div>} {/* Spacer */}
@@ -110,7 +110,7 @@ const NavButtons = ({ onBack, onClose, showBack = true }: { onBack?: () => void,
         onClick={onClose}
         className="text-sm font-bold text-slate-400 hover:text-slate-600 tracking-widest uppercase transition-colors"
       >
-        CLOSE
+        关闭
       </button>
     </div>
   </div>
@@ -136,11 +136,11 @@ const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
 
   // Galaxy Data with Components
   const galaxies = [
-    { id: 'language', label: 'Language', Component: PlanetLanguage },
-    { id: 'fitness', label: 'Fitness', Component: PlanetFitness },
-    { id: 'tech', label: 'Tech', Component: PlanetTech },
-    { id: 'design', label: 'Design', Component: PlanetDesign },
-    { id: 'other', label: 'Other', Component: PlanetDiscovery }
+    { id: 'language', label: '语言', Component: PlanetLanguage },
+    { id: 'fitness', label: '健身', Component: PlanetFitness },
+    { id: 'tech', label: '技术', Component: PlanetTech },
+    { id: 'design', label: '设计', Component: PlanetDesign },
+    { id: 'other', label: '其他', Component: PlanetDiscovery }
   ];
 
   // Helper: Handle Step 2 (Teach)
@@ -229,25 +229,25 @@ const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
           </motion.div>
 
           <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-2 font-heading">
-            Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">SkillSwap</span>
+            欢迎来到 <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">SkillSwap</span>
           </h1>
           <p className="text-base md:text-lg text-slate-500 font-medium mb-6 leading-relaxed">
-            The place where skills are currency. <br/>
-            Connect, teach, and learn for free.
+            在这里，技能就是货币。<br/>
+            免费连接、教学和学习。
           </p>
 
           {/* Login Options (Light Theme) */}
           <div className="w-full space-y-3 mb-4">
             <button className="w-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold py-3 rounded-xl flex items-center justify-center gap-3 transition-all shadow-sm hover:shadow-md">
                <Chrome size={20} className="text-slate-400" />
-               Continue with Google
+               通过 Google 继续
             </button>
             <div className="grid grid-cols-2 gap-3">
                <button className="w-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow-md">
                  <Command size={18} className="text-slate-400" /> Apple
                </button>
                <button className="w-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow-md">
-                 <Mail size={18} className="text-slate-400" /> Email
+                 <Mail size={18} className="text-slate-400" /> 邮箱
                </button>
             </div>
           </div>
@@ -256,7 +256,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-slate-200"></div>
             </div>
-            <span className="relative bg-white/50 px-4 text-xs text-slate-400 font-bold uppercase tracking-wider backdrop-blur-sm">No account yet?</span>
+            <span className="relative bg-white/50 px-4 text-xs text-slate-400 font-bold uppercase tracking-wider backdrop-blur-sm">还没有账号？</span>
           </div>
 
           {/* Guest Mode CTA */}
@@ -264,7 +264,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
             onClick={() => setStep(2)}
             className="w-full bg-slate-900 hover:bg-indigo-600 text-white font-bold py-3.5 rounded-xl shadow-xl shadow-indigo-200 flex items-center justify-center gap-2 text-lg group transition-all"
           >
-            Explore as Guest
+            以访客身份浏览
             <ArrowRight className="group-hover:translate-x-1 transition-transform" />
           </button>
 
@@ -293,9 +293,9 @@ const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
 
           <div className="text-center mb-10">
             <h2 className="text-3xl md:text-5xl font-black mb-4 text-textMain drop-shadow-sm font-heading">
-              What represents your expertise?
+              你的专长是什么？
             </h2>
-            <p className="text-textLight text-lg font-medium">Select the galaxies where your skills shine the brightest</p>
+            <p className="text-textLight text-lg font-medium">选择你技能最闪耀的星系</p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 md:gap-8 mb-16 px-4">
@@ -342,13 +342,13 @@ const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
                 disabled={teachGalaxies.length === 0}
                 className="px-12 py-4 rounded-2xl text-xl font-bold transition-all duration-300 shadow-xl flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none bg-slate-900 hover:bg-indigo-600 text-white shadow-indigo-200"
              >
-                Continue
+                继续
              </button>
              <button
                 onClick={onFinish}
                 className="mt-6 text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors tracking-wide hover:underline underline-offset-4"
              >
-                Skip for now
+                暂时跳过
              </button>
           </div>
         </motion.div>
@@ -389,7 +389,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
                      onClick={() => setIsTeachInputStep(false)}
                      className="absolute top-6 left-6 text-slate-400 hover:text-slate-600 transition-colors flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide"
                    >
-                     <ArrowRight className="rotate-180 w-3 h-3" /> Change Galaxy
+                     <ArrowRight className="rotate-180 w-3 h-3" /> 更改星系
                    </button>
                    
                   <div className="flex items-center gap-4 mb-6 mt-4">
@@ -404,8 +404,8 @@ const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
                         })}
                     </div>
                     <div>
-                       <h3 className="text-2xl font-black text-slate-900 leading-tight">I can teach...</h3>
-                       <p className="text-slate-500 font-medium text-sm">Add up to 3 skills you're great at</p>
+                       <h3 className="text-2xl font-black text-slate-900 leading-tight">我可以教...</h3>
+                       <p className="text-slate-500 font-medium text-sm">添加最多3项你擅长的技能</p>
                     </div>
                   </div>
 
@@ -430,7 +430,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
                              addTeachTag(teachInputValue.trim());
                           }
                        }}
-                       placeholder={teachTags.length >= 3 ? "Max 3 skills reached" : "Type a skill & hit Enter"}
+                       placeholder={teachTags.length >= 3 ? "已达到最大3项技能" : "输入技能并回车"}
                        disabled={teachTags.length >= 3}
                        className="w-full bg-white border border-slate-200 focus:border-indigo-400 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 outline-none transition-all shadow-inner font-medium text-lg disabled:bg-slate-50 disabled:text-slate-400"
                        autoFocus
@@ -442,7 +442,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
 
                   {/* Suggestions */}
                   <div className="mb-6">
-                     <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-2">Suggested for you</p>
+                     <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-2">为你推荐</p>
                      <div className="flex flex-wrap gap-2 max-h-[100px] overflow-y-auto pr-2 custom-scrollbar">
                         {teachGalaxies.flatMap(gid => SUGGESTIONS[gid] || []).map((s, idx) => (
                            <button 
@@ -465,7 +465,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
                         disabled={teachTags.length === 0}
                         className="w-full shadow-lg shadow-purple-500/20 rounded-xl py-3 text-lg transition-all"
                      >
-                        Continue
+                        继续
                      </Button>
                   </div>
                 </div>
@@ -495,9 +495,9 @@ const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
           
           <div className="text-center mb-10">
             <h2 className="text-3xl md:text-5xl font-black mb-4 text-textMain drop-shadow-sm font-heading">
-              What do you want to learn next?
+              接下来你想学什么？
             </h2>
-            <p className="text-textLight text-lg font-medium">Pick galaxies to expand your horizons</p>
+            <p className="text-textLight text-lg font-medium">选择星系以拓展视野</p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 md:gap-8 mb-16 px-4">
@@ -543,13 +543,13 @@ const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
                 disabled={learnGalaxies.length === 0}
                 className="px-12 py-4 rounded-2xl text-xl font-bold transition-all duration-300 shadow-xl flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none bg-slate-900 hover:bg-indigo-600 text-white shadow-indigo-200"
              >
-                Continue
+                继续
              </button>
              <button
                 onClick={onFinish}
                 className="mt-6 text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors tracking-wide hover:underline underline-offset-4"
              >
-                Skip for now
+                暂时跳过
              </button>
           </div>
         </motion.div>
@@ -586,7 +586,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
                      onClick={() => setIsLearnInputStep(false)}
                      className="absolute top-6 left-6 text-slate-400 hover:text-slate-600 transition-colors flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide"
                    >
-                     <ArrowRight className="rotate-180 w-3 h-3" /> Change Galaxy
+                     <ArrowRight className="rotate-180 w-3 h-3" /> 更改星系
                    </button>
                   
                   <div className="flex items-center gap-4 mb-6 mt-4">
@@ -601,8 +601,8 @@ const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
                         })}
                     </div>
                     <div>
-                       <h3 className="text-2xl font-black text-slate-900 leading-tight">I want to learn...</h3>
-                       <p className="text-slate-500 font-medium text-sm">Add up to 3 skills you want to master</p>
+                       <h3 className="text-2xl font-black text-slate-900 leading-tight">我想学...</h3>
+                       <p className="text-slate-500 font-medium text-sm">添加最多3项你想掌握的技能</p>
                     </div>
                   </div>
 
@@ -627,7 +627,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
                              addLearnTag(learnInputValue.trim());
                           }
                        }}
-                       placeholder={learnTags.length >= 3 ? "Max 3 skills reached" : "Type a skill & hit Enter"}
+                       placeholder={learnTags.length >= 3 ? "已达到最大3项技能" : "输入技能并回车"}
                        disabled={learnTags.length >= 3}
                        className="w-full bg-white border border-slate-200 focus:border-indigo-400 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 outline-none transition-all shadow-inner font-medium text-lg disabled:bg-slate-50 disabled:text-slate-400"
                        autoFocus
@@ -639,7 +639,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
 
                   {/* Suggestions */}
                   <div className="mb-6">
-                     <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-2">Suggested for you</p>
+                     <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-2">为你推荐</p>
                      <div className="flex flex-wrap gap-2 max-h-[100px] overflow-y-auto pr-2 custom-scrollbar">
                         {learnGalaxies.flatMap(gid => SUGGESTIONS[gid] || []).map((s, idx) => (
                            <button 
@@ -662,7 +662,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
                         disabled={learnTags.length === 0}
                         className="w-full shadow-lg shadow-purple-500/20 rounded-xl py-3 text-lg transition-all"
                      >
-                        Find My Match
+                        寻找匹配
                      </Button>
                   </div>
                 </div>
@@ -686,8 +686,8 @@ const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
                 <div className="absolute top-3/4 left-1/2 -translate-x-1/2 w-20 h-32 bg-orange-400 rounded-full mix-blend-screen filter blur-xl opacity-80 animate-pulse"></div>
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-purple-400 rounded-full mix-blend-multiply filter blur-2xl opacity-30 animate-blob"></div>
              </div>
-             <h2 className="text-3xl font-black text-textMain mb-3">Scanning the galaxy...</h2>
-             <p className="text-textLight font-medium animate-pulse">Analyzing 12,403 vibes nearby</p>
+             <h2 className="text-3xl font-black text-textMain mb-3">正在扫描星系...</h2>
+             <p className="text-textLight font-medium animate-pulse">正在分析附近的 12,403 个信号</p>
           </div>
         ) : (
           <div className="max-w-md w-full perspective-1000">
@@ -698,7 +698,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
                   {/* Badge */}
                   <div className="flex justify-between items-start mb-8">
                      <div className="bg-gradient-to-r from-emerald-400 to-teal-500 text-white text-xs font-black uppercase tracking-wider py-1.5 px-4 rounded-full shadow-lg shadow-emerald-200">
-                        92% Match
+                        92% 匹配度
                      </div>
                      <div className="text-3xl animate-pulse">✨</div>
                   </div>
@@ -712,29 +712,29 @@ const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
                         <h3 className="text-3xl font-black text-textMain mb-1">Sarah J.</h3>
                         <div className="text-sm font-bold text-textLight flex items-center gap-1.5 bg-gray-100 py-1 px-3 rounded-full w-fit">
                           <Globe size={14} className="text-blue-500" /> 
-                          <span>2.5km away</span>
+                          <span>2.5公里外</span>
                         </div>
                      </div>
                   </div>
 
                   {/* AI Reason */}
                   <div className="bg-purple-50 rounded-3xl p-6 mb-8 relative border border-purple-100">
-                     <div className="absolute -top-3 left-6 bg-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full text-purple-600 shadow-sm border border-purple-50">AI Insight</div>
+                     <div className="absolute -top-3 left-6 bg-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full text-purple-600 shadow-sm border border-purple-50">AI 洞察</div>
                      <p className="text-textMain font-medium text-base leading-relaxed mt-1">
-                       "Sarah is a pro at <span className="font-bold text-purple-600 bg-purple-100 px-1 rounded">{learnTags[0] || 'Design'}</span> and has been dying to learn <span className="font-bold text-purple-600 bg-purple-100 px-1 rounded">{teachTags[0] || 'Code'}</span>. You both value practical projects!"
+                       "Sarah 是 <span className="font-bold text-purple-600 bg-purple-100 px-1 rounded">{learnTags[0] || '设计'}</span> 专家，并且一直想学 <span className="font-bold text-purple-600 bg-purple-100 px-1 rounded">{teachTags[0] || '编程'}</span>。你们都看重实践项目！"
                      </p>
                   </div>
 
                   {/* Actions */}
                   <div className="space-y-3">
                      <Button variant="secondary" onClick={onFinish} className="w-full rounded-2xl flex items-center justify-center gap-2 py-4 shadow-xl shadow-purple-900/10 transition-transform hover:scale-[1.02]">
-                        <MessageCircle size={20} /> Say "Hi" to Sarah
+                        <MessageCircle size={20} /> 向 Sarah 打招呼
                      </Button>
                      <button 
                         onClick={onFinish}
                         className="w-full py-2 text-xs font-bold text-slate-400 hover:text-slate-600 transition-colors uppercase tracking-widest hover:underline underline-offset-4"
                      >
-                        Maybe later
+                        以后再说
                      </button>
                   </div>
 

@@ -18,6 +18,12 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const navItems = [
+    { name: '关于', id: 'about' },
+    { name: '探索', id: 'explore' },
+    { name: '社区', id: 'community' }
+  ];
+
   return (
     <nav 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -37,17 +43,17 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick }) => {
 
         <div className="hidden md:flex items-center gap-8">
           <div className="flex items-center gap-8">
-            {['About', 'Explore', 'Community'].map((item) => (
+            {navItems.map((item) => (
               <a 
-                key={item} 
-                href={`#${item.toLowerCase()}`} 
+                key={item.id} 
+                href={`#${item.id}`} 
                 className="text-lg font-bold text-textLight hover:text-textMain transition-colors"
               >
-                {item}
+                {item.name}
               </a>
             ))}
           </div>
-          <Button onClick={onLoginClick} variant="primary" size="md" className="rounded-full px-8 !text-lg">Log In</Button>
+          <Button onClick={onLoginClick} variant="primary" size="md" className="rounded-full px-8 !text-lg">登录</Button>
         </div>
 
         <button 
@@ -61,18 +67,18 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick }) => {
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="absolute top-full left-0 right-0 bg-white border-t border-slate-100 shadow-xl p-6 md:hidden flex flex-col gap-4 animate-in slide-in-from-top-5">
-           {['About', 'Explore', 'Community'].map((item) => (
+           {navItems.map((item) => (
             <a 
-              key={item} 
-              href={`#${item.toLowerCase()}`} 
+              key={item.id} 
+              href={`#${item.id}`} 
               className="text-lg font-bold text-textMain py-2 border-b border-slate-50"
               onClick={() => setMobileMenuOpen(false)}
             >
-              {item}
+              {item.name}
             </a>
           ))}
           <div className="flex flex-col gap-3 mt-4">
-            <Button onClick={onLoginClick} variant="primary" size="md" className="w-full">Log In</Button>
+            <Button onClick={onLoginClick} variant="primary" size="md" className="w-full">登录</Button>
           </div>
         </div>
       )}

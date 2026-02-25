@@ -5,22 +5,22 @@ const values: ValueProp[] = [
   {
     id: 1,
     icon: "🧠",
-    title: "Vibe Match",
-    description: "Gemini AI senses your learning style and pairs you with your skill soulmate.",
+    title: "灵魂契合",
+    description: "Gemini AI 感知你的学习风格，为你匹配技能灵魂伴侣。",
     color: "bg-pastelPurple"
   },
   {
     id: 2,
     icon: "✨",
-    title: "Aura Badges",
-    description: "Collect beautiful NFT badges that reflect your growing skill aura.",
+    title: "光环徽章",
+    description: "收集精美的 NFT 徽章，映照你不断增长的技能光环。",
     color: "bg-pastelPink"
   },
   {
     id: 3,
     icon: "🌏",
-    title: "Global Circle",
-    description: "Join a safe, cozy circle of learners from every corner of the planet.",
+    title: "全球圈子",
+    description: "加入一个安全、温馨的学习圈子，连接来自世界各地的伙伴。",
     color: "bg-pastelBlue"
   }
 ];
@@ -31,10 +31,10 @@ const ValueProps: React.FC = () => {
       <div className="container mx-auto px-6">
         <div className="text-center max-w-2xl mx-auto mb-16">
           <h2 className="text-3xl md:text-5xl font-black text-textMain mb-4 font-heading">
-            Your Safe Space to Grow
+            你的成长避风港
           </h2>
           <p className="text-lg text-textLight">
-            Learning shouldn't be stressful. We kept the good vibes and removed the price tags.
+            学习不应充满压力。我们保留了良好的氛围，去除了价格标签。
           </p>
         </div>
 

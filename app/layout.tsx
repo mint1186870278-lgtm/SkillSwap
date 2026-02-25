@@ -15,8 +15,8 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: 'SkillSwap - Find Your Skill Vibe',
-  description: 'The place where skills are currency. Connect, teach, and learn for free.',
+  title: 'SkillSwap - 找到你的技能共鸣',
+  description: '在这里，技能就是货币。免费连接、教学和学习。',
 };
 
 export default function RootLayout({
@@ -25,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="zh">
       <body className={`${poppins.variable} ${nunito.variable} bg-transparent`}>
         {children}
       </body>

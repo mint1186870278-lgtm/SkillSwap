@@ -8,11 +8,11 @@ interface HeroProps {
 
 const Hero: React.FC<HeroProps> = ({ onStart }) => {
   const skills = [
-    { icon: Globe, label: 'Language', color: 'bg-pastelBlue', delay: '0s' },
-    { icon: Dumbbell, label: 'Fitness', color: 'bg-pastelPink', delay: '0.1s' },
-    { icon: Rocket, label: 'Tech', color: 'bg-pastelPurple', delay: '0.2s' },
-    { icon: Palette, label: 'Design', color: 'bg-pastelYellow', delay: '0.3s' },
-    { icon: Compass, label: 'Other', color: 'bg-pastelGreen', delay: '0.4s' }
+    { icon: Globe, label: '语言', color: 'bg-pastelBlue', delay: '0s' },
+    { icon: Dumbbell, label: '健身', color: 'bg-pastelPink', delay: '0.1s' },
+    { icon: Rocket, label: '技术', color: 'bg-pastelPurple', delay: '0.2s' },
+    { icon: Palette, label: '设计', color: 'bg-pastelYellow', delay: '0.3s' },
+    { icon: Compass, label: '其他', color: 'bg-pastelGreen', delay: '0.4s' }
   ];
 
   return (
@@ -22,14 +22,14 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
         <div className="flex flex-col items-center text-center">
           
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-4 text-textMain font-heading tracking-tight drop-shadow-sm">
-            What's your <br />
+            你的技能星系 <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 animate-pulse">
-              Skill Galaxy?
+              是什么？
             </span>
           </h1>
 
           <p className="text-lg md:text-xl mb-8 text-textLight max-w-2xl font-medium leading-relaxed">
-            Connect with people who vibe with what you want to learn. No money, just pure exchange.
+            连接志同道合的学习伙伴。零费用，纯粹的技能交换。
           </p>
 
           {/* Interactive "Galaxy" Tracker for Skills */}
@@ -53,7 +53,7 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
 
           <div className="flex flex-col sm:flex-row gap-4">
             <Button onClick={onStart} variant="secondary" size="lg" className="rounded-full px-10 py-3 text-base">
-              Start Swapping
+              开始交换
             </Button>
           </div>
 
@@ -64,15 +64,15 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
                   <Globe size={20} />
                </div>
                <div>
-                 <div className="text-xs font-bold text-textLight">New Match</div>
-                 <div className="text-sm font-bold text-textMain">Sarah can teach UX!</div>
+                 <div className="text-xs font-bold text-textLight">新匹配</div>
+                 <div className="text-sm font-bold text-textMain">Sarah 可以教 UX！</div>
                </div>
              </div>
           </div>
 
           <div className="absolute top-1/3 right-4 md:right-20 hidden lg:block animate-float" style={{ animationDelay: '2s' }}>
              <div className="glass-panel p-4 rounded-3xl text-center w-40">
-               <div className="text-xs font-bold text-textLight mb-2">Weekly Goal</div>
+               <div className="text-xs font-bold text-textLight mb-2">周目标</div>
                <div className="w-full h-2 bg-white/50 rounded-full overflow-hidden mb-1">
                  <div className="w-[80%] h-full bg-pastelPink rounded-full"></div>
                </div>

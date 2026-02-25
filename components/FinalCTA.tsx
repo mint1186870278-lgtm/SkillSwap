@@ -16,20 +16,20 @@ const FinalCTA: React.FC<FinalCTAProps> = ({ onStart }) => {
 
           <div className="relative z-10">
             <h2 className="text-4xl md:text-6xl font-black text-textMain mb-6 font-heading">
-              Ready to find <br/> your people?
+              准备好找到 <br/> 你的伙伴了吗？
             </h2>
             <p className="text-textLight text-lg mb-8 font-medium max-w-lg mx-auto">
-              Join the softest, friendliest corner of the internet for learning.
+              加入互联网上最温柔、最友好的学习角落。
             </p>
             
             <Button onClick={onStart} variant="secondary" size="lg" className="rounded-full shadow-2xl scale-110">
-              🚀 Join the Circle
+              🚀 加入圈子
             </Button>
 
             <div className="mt-8 flex justify-center gap-4 opacity-50">
-               <span>🌱 Free Forever</span>
-               <span>✨ No Ads</span>
-               <span>🤝 Real Humans</span>
+               <span>🌱 永久免费</span>
+               <span>✨ 无广告</span>
+               <span>🤝 真人互动</span>
             </div>
           </div>
 

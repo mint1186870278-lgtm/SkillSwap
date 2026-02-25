@@ -9,10 +9,10 @@ const Footer: React.FC = () => {
         </div>
         
         <div className="flex gap-6 text-sm text-textLight font-bold">
-          <a href="/case-study" className="hover:text-textMain transition-colors">Case Study</a>
-          <a href="#" className="hover:text-textMain transition-colors">Vibes</a>
-          <a href="#" className="hover:text-textMain transition-colors">Privacy</a>
-          <a href="#" className="hover:text-textMain transition-colors">Contact</a>
+          <a href="/case-study" className="hover:text-textMain transition-colors">案例研究</a>
+          <a href="#" className="hover:text-textMain transition-colors">氛围</a>
+          <a href="#" className="hover:text-textMain transition-colors">隐私</a>
+          <a href="#" className="hover:text-textMain transition-colors">联系</a>
         </div>
 
         <div className="text-xs text-textLight opacity-60">

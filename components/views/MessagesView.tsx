@@ -47,13 +47,13 @@ const MessagesView = () => {
     if (!lastThemMsg?.text) return;
     try {
       const result = await processAI({ action: 'translate', context: lastThemMsg.text, targetLanguage: 'zh-CN' });
-      setMessages(prev => [...prev, { id: Date.now(), sender: 'system', type: 'ai_trans', text: `Translation: ${result.result}`, icon: 'Globe' }]);
+      setMessages(prev => [...prev, { id: Date.now(), sender: 'system', type: 'ai_trans', text: `翻译: ${result.result}`, icon: 'Globe' }]);
     } catch (e) {
       console.error('AI translate failed:', e);
     }
   };
 
-  if (!activeContact) return <div className="flex items-center justify-center h-full text-slate-400">Loading...</div>;
+  if (!activeContact) return <div className="flex items-center justify-center h-full text-slate-400">加载中...</div>;
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-6 h-full">
@@ -65,12 +65,12 @@ const MessagesView = () => {
         <div className="w-80 border-r border-slate-100 flex flex-col bg-slate-50/50">
           {/* Search */}
           <div className="p-5">
-             <h2 className="text-2xl font-black text-slate-900 mb-4">Messages</h2>
+             <h2 className="text-2xl font-black text-slate-900 mb-4">消息</h2>
              <div className="relative">
                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input 
                   type="text" 
-                  placeholder="Search chats..." 
+                  placeholder="搜索聊天..." 
                   className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm font-medium focus:ring-2 focus:ring-indigo-100 outline-none transition-all"
                 />
              </div>
@@ -130,7 +130,7 @@ const MessagesView = () => {
                        {activeContact.name}
                        <span className="px-1.5 py-0.5 bg-indigo-50 text-indigo-600 text-[9px] font-black uppercase rounded tracking-wide">Pro</span>
                     </h3>
-                    <p className="text-xs text-slate-500">Exchanging: <span className="font-medium text-slate-700">Spanish ⇄ Figma</span></p>
+                    <p className="text-xs text-slate-500">交换中: <span className="font-medium text-slate-700">西班牙语 ⇄ Figma</span></p>
                  </div>
               </div>
               <div className="flex items-center gap-2">
@@ -151,7 +151,7 @@ const MessagesView = () => {
            <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {/* Date Divider */}
               <div className="flex justify-center">
-                 <span className="px-3 py-1 bg-slate-100 text-slate-400 text-[10px] font-bold rounded-full uppercase tracking-wide">Today</span>
+                 <span className="px-3 py-1 bg-slate-100 text-slate-400 text-[10px] font-bold rounded-full uppercase tracking-wide">今天</span>
               </div>
 
               {messages.map((msg) => (
@@ -178,26 +178,26 @@ const MessagesView = () => {
                                    <Calendar size={16} />
                                 </div>
                                 <div>
-                                   <h4 className="font-bold text-slate-800 text-sm">Swap Proposal</h4>
-                                   <p className="text-[10px] text-slate-400">Proposed by You</p>
+                                   <h4 className="font-bold text-slate-800 text-sm">交换提议</h4>
+                                   <p className="text-[10px] text-slate-400">由你发起</p>
                                 </div>
                              </div>
                              <div className="space-y-2 mb-4">
                                 <div className="flex justify-between text-xs">
-                                   <span className="text-slate-500">Time</span>
+                                   <span className="text-slate-500">时间</span>
                                    <span className="font-bold text-slate-800">{msg.time_slot}</span>
                                 </div>
                                 <div className="flex justify-between text-xs">
-                                   <span className="text-slate-500">You Teach</span>
+                                   <span className="text-slate-500">你教</span>
                                    <span className="font-bold text-indigo-600">{msg.skill_me}</span>
                                 </div>
                                 <div className="flex justify-between text-xs">
-                                   <span className="text-slate-500">You Learn</span>
+                                   <span className="text-slate-500">你学</span>
                                    <span className="font-bold text-emerald-600">{msg.skill_them}</span>
                                 </div>
                              </div>
                              <button className="w-full py-2 bg-slate-100 text-slate-400 text-xs font-bold rounded-lg cursor-not-allowed">
-                                Waiting for response...
+                                等待回应...
                              </button>
                           </div>
                        ) : (
@@ -226,7 +226,7 @@ const MessagesView = () => {
               {/* AI Tools Bar */}
               <div className="flex gap-2 mb-3 overflow-x-auto no-scrollbar">
                  <button onClick={handleAITranslate} className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded-full hover:bg-indigo-100 transition-colors">
-                    <Bot size={12} /> AI Translate
+                    <Bot size={12} /> AI 翻译
                  </button>
                  <button onClick={async () => {
                     const context = messages.map(m => `${m.sender}: ${m.text || ''}`).join('\n');
@@ -235,7 +235,7 @@ const MessagesView = () => {
                       setMessages(prev => [...prev, { id: Date.now(), sender: 'system', type: 'ai_trans', text: result.result, icon: 'Globe' }]);
                     } catch(e) { console.error(e); }
                  }} className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full hover:bg-emerald-100 transition-colors">
-                    <Calendar size={12} /> Suggest Time
+                    <Calendar size={12} /> 建议时间
                  </button>
                  <button onClick={async () => {
                     const context = messages.map(m => `${m.sender}: ${m.text || ''}`).join('\n');
@@ -244,7 +244,7 @@ const MessagesView = () => {
                       setMessages(prev => [...prev, { id: Date.now(), sender: 'system', type: 'ai_trans', text: result.result, icon: 'Globe' }]);
                     } catch(e) { console.error(e); }
                  }} className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-600 text-[10px] font-bold rounded-full hover:bg-amber-100 transition-colors">
-                    <FileText size={12} /> Draft Contract
+                    <FileText size={12} /> 起草合同
                  </button>
               </div>
 
@@ -253,7 +253,7 @@ const MessagesView = () => {
                     <Paperclip size={20} />
                  </button>
                  <textarea 
-                    placeholder="Type a message..." 
+                    placeholder="输入消息..." 
                     className="flex-1 bg-transparent border-none outline-none text-sm font-medium text-slate-700 min-h-[40px] max-h-[120px] py-2 resize-none"
                     rows={1}
                     value={inputText}
@@ -273,7 +273,7 @@ const MessagesView = () => {
 
       {/* 3. RIGHT GROUP: CONTEXT SIDEBAR */}
       <div className="hidden xl:flex flex-col bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 h-full overflow-y-auto">
-         <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-6">Current Exchange</h3>
+         <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-6">当前交换</h3>
          
          <div className="flex flex-col items-center text-center mb-8">
             <div className="w-20 h-20 rounded-2xl bg-slate-100 mb-4 overflow-hidden shadow-md rotate-3">
@@ -281,7 +281,7 @@ const MessagesView = () => {
             </div>
             <h2 className="text-lg font-black text-slate-900 mb-1">{activeContact.name}</h2>
             <div className="flex items-center gap-1 text-slate-500 text-xs font-medium">
-               <MapPin size={12} /> Madrid, Spain
+               <MapPin size={12} /> 西班牙马德里
             </div>
             <div className="flex gap-1 mt-3">
                {[1,2,3,4,5].map(i => <Star key={i} size={12} className="fill-yellow-400 text-yellow-400" />)}
@@ -292,8 +292,8 @@ const MessagesView = () => {
          {/* Skill Swap Info Card */}
          <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 mb-6">
             <div className="flex justify-between items-center mb-3">
-               <span className="text-[10px] font-bold text-slate-400 uppercase">The Deal</span>
-               <span className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Drafting</span>
+               <span className="text-[10px] font-bold text-slate-400 uppercase">协议</span>
+               <span className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">起草中</span>
             </div>
             
             <div className="space-y-3 relative">
@@ -303,30 +303,30 @@ const MessagesView = () => {
                <div className="flex gap-3 relative z-10">
                   <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-sm text-lg">🇪🇸</div>
                   <div>
-                     <p className="text-xs font-bold text-slate-800">Conversational Spanish</p>
-                     <p className="text-[10px] text-slate-400">Offer (30m)</p>
+                     <p className="text-xs font-bold text-slate-800">会话西班牙语</p>
+                     <p className="text-[10px] text-slate-400">提供 (30m)</p>
                   </div>
                </div>
 
                <div className="flex gap-3 relative z-10">
                   <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-sm text-lg">🎨</div>
                   <div>
-                     <p className="text-xs font-bold text-slate-800">Figma Auto-Layout</p>
-                     <p className="text-[10px] text-slate-400">Receive (30m)</p>
+                     <p className="text-xs font-bold text-slate-800">Figma 自动布局</p>
+                     <p className="text-[10px] text-slate-400">接收 (30m)</p>
                   </div>
                </div>
             </div>
          </div>
 
          <div className="mt-auto">
-            <h4 className="text-xs font-bold text-slate-800 mb-3">Shared Files</h4>
+            <h4 className="text-xs font-bold text-slate-800 mb-3">共享文件</h4>
             <div className="space-y-2">
                <div className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-xl cursor-pointer transition-colors group">
                   <div className="w-8 h-8 bg-blue-50 text-blue-500 rounded-lg flex items-center justify-center group-hover:bg-blue-100 transition-colors">
                      <FileText size={14} />
                   </div>
                   <div className="flex-1 min-w-0">
-                     <p className="text-xs font-bold text-slate-700 truncate">grammar_notes.pdf</p>
+                     <p className="text-xs font-bold text-slate-700 truncate">语法笔记.pdf</p>
                      <p className="text-[10px] text-slate-400">2.4 MB</p>
                   </div>
                </div>
@@ -335,8 +335,8 @@ const MessagesView = () => {
                      <FileText size={14} />
                   </div>
                   <div className="flex-1 min-w-0">
-                     <p className="text-xs font-bold text-slate-700 truncate">project_v2.fig</p>
-                     <p className="text-[10px] text-slate-400">Link</p>
+                     <p className="text-xs font-bold text-slate-700 truncate">项目_v2.fig</p>
+                     <p className="text-[10px] text-slate-400">链接</p>
                   </div>
                </div>
             </div>

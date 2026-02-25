@@ -26,16 +26,16 @@ const ExchangeView = () => {
       {/* Header & Tabs */}
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
         <div>
-           <h1 className="text-3xl font-black text-slate-900 tracking-tight">My Exchanges</h1>
-           <p className="text-slate-500 font-medium text-sm mt-1">Manage your upcoming sessions and history.</p>
+           <h1 className="text-3xl font-black text-slate-900 tracking-tight">我的交换</h1>
+           <p className="text-slate-500 font-medium text-sm mt-1">管理你的即将到来的会话和历史记录。</p>
         </div>
         
         {/* Tab Switcher */}
         <div className="flex bg-white p-1.5 rounded-2xl border border-slate-100 shadow-sm">
            {[
-              { id: 'upcoming', label: 'Upcoming' },
-              { id: 'pending', label: 'Pending' },
-              { id: 'past', label: 'Past' }
+              { id: 'upcoming', label: '即将到来' },
+              { id: 'pending', label: '待定' },
+              { id: 'past', label: '历史' }
            ].map(tab => (
               <button 
                  key={tab.id}
@@ -87,12 +87,12 @@ const ExchangeView = () => {
                                     session.type === 'upcoming' ? 'bg-indigo-50 text-indigo-700' : 
                                     session.type === 'pending' ? 'bg-amber-50 text-amber-700' : 'bg-slate-50 text-slate-500'
                                  }`}>
-                                    <span className="text-[10px] font-bold uppercase tracking-wider">{session.date === 'Today' || session.date === 'Tomorrow' ? session.date : session.date?.split(',')[0]}</span>
+                                    <span className="text-[10px] font-bold uppercase tracking-wider">{session.date === 'Today' ? '今天' : session.date === 'Tomorrow' ? '明天' : session.date?.split(',')[0]}</span>
                                     <span className="text-xl font-black">{session.time.split('-')[0].trim()}</span>
                                  </div>
                                  <div className="md:hidden">
                                     <h4 className="font-bold text-slate-900">{session.skill}</h4>
-                                    <p className="text-xs text-slate-500">with {session.partner}</p>
+                                    <p className="text-xs text-slate-500">与 {session.partner}</p>
                                  </div>
                               </div>
 
@@ -102,7 +102,7 @@ const ExchangeView = () => {
                                     {session.skill}
                                     {session.type === 'upcoming' && (
                                        <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
-                                          <div className="w-1.5 h-1.5 rounded-full bg-green-600 animate-pulse"></div> Live in 2h
+                                          <div className="w-1.5 h-1.5 rounded-full bg-green-600 animate-pulse"></div> 2小时后开始
                                        </span>
                                     )}
                                  </h3>
@@ -110,7 +110,7 @@ const ExchangeView = () => {
                                     <div className="w-5 h-5 rounded-full overflow-hidden border border-slate-100">
                                        <ImageWithFallback src={session.avatar} alt={session.partner} className="w-full h-full object-cover" />
                                     </div>
-                                    <span className="text-sm text-slate-500 font-medium">with <strong className="text-slate-700">{session.partner}</strong></span>
+                                    <span className="text-sm text-slate-500 font-medium">与 <strong className="text-slate-700">{session.partner}</strong></span>
                                  </div>
                               </div>
 
@@ -119,7 +119,7 @@ const ExchangeView = () => {
                                  {session.type === 'upcoming' && (
                                     <>
                                        <button className="flex-1 md:flex-none px-6 py-3 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-indigo-600 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-indigo-200/50">
-                                          <Video size={16} /> Join Room
+                                          <Video size={16} /> 进入房间
                                        </button>
                                        <button className="w-12 h-11 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:border-slate-300 hover:text-slate-700 transition-colors">
                                           <MessageCircle size={18} />
@@ -130,20 +130,20 @@ const ExchangeView = () => {
                                  {session.type === 'pending' && (
                                     <div className="flex flex-col items-end gap-1 w-full md:w-auto">
                                        <div className="flex items-center gap-1.5 text-xs text-amber-600 font-bold bg-amber-50 px-3 py-1.5 rounded-lg w-full md:w-auto justify-center">
-                                          <Hourglass size={14} /> Awaiting Confirmation
+                                          <Hourglass size={14} /> 等待确认
                                        </div>
-                                       <button className="text-[10px] font-bold text-slate-400 hover:text-red-500 transition-colors">Cancel Request</button>
+                                       <button className="text-[10px] font-bold text-slate-400 hover:text-red-500 transition-colors">取消请求</button>
                                     </div>
                                  )}
 
                                  {session.type === 'past' && (
                                     !session.rated ? (
                                        <button className="flex-1 md:flex-none px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 shadow-md hover:shadow-indigo-200 transition-all flex items-center justify-center gap-2 group">
-                                          <Star size={16} className="fill-white/20 group-hover:fill-white transition-all" /> Rate & Earn XP
+                                          <Star size={16} className="fill-white/20 group-hover:fill-white transition-all" /> 评价并赚取XP
                                        </button>
                                     ) : (
                                        <div className="flex items-center gap-2 text-xs font-bold text-slate-400 bg-slate-50 px-4 py-2 rounded-xl">
-                                          <CheckCircle size={14} className="text-green-500" /> Completed
+                                          <CheckCircle size={14} className="text-green-500" /> 已完成
                                        </div>
                                     )
                                  )}
@@ -161,10 +161,10 @@ const ExchangeView = () => {
                      <div className="w-20 h-20 bg-slate-50 rounded-full mx-auto mb-6 flex items-center justify-center text-4xl shadow-inner">
                         {filter === 'upcoming' ? '📅' : filter === 'pending' ? '⏳' : '🏁'}
                      </div>
-                     <h3 className="font-bold text-xl text-slate-900 mb-2">No {filter} exchanges</h3>
-                     <p className="text-slate-500 mb-6">You don't have any {filter} sessions at the moment.</p>
+                     <h3 className="font-bold text-xl text-slate-900 mb-2">没有 {filter === 'upcoming' ? '即将到来' : filter === 'pending' ? '待定' : '历史'} 的交换</h3>
+                     <p className="text-slate-500 mb-6">你目前没有任何 {filter === 'upcoming' ? '即将到来' : filter === 'pending' ? '待定' : '历史'} 的会话。</p>
                      <button className="px-6 py-3 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-indigo-600 transition-colors">
-                        Find a Skill to Swap
+                        寻找技能交换
                      </button>
                   </motion.div>
                )}
@@ -178,20 +178,20 @@ const ExchangeView = () => {
             <div className="bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[2rem] p-6 text-white shadow-xl shadow-indigo-200 relative overflow-hidden group">
                <div className="relative z-10">
                   <h3 className="font-bold opacity-80 text-sm mb-1 flex items-center gap-2">
-                     <Clock size={16} /> Total Time Swapped
+                     <Clock size={16} /> 总交换时长
                   </h3>
-                  <div className="text-5xl font-black mb-4 tracking-tight">24.5 <span className="text-lg font-medium opacity-60">hrs</span></div>
+                  <div className="text-5xl font-black mb-4 tracking-tight">24.5 <span className="text-lg font-medium opacity-60">小时</span></div>
                   
                   {/* Progress Bar */}
                   <div className="relative pt-2">
                      <div className="flex justify-between text-[10px] font-bold uppercase tracking-wide mb-1 opacity-80">
-                        <span>Level 3</span>
-                        <span>Level 4</span>
+                        <span>等级 3</span>
+                        <span>等级 4</span>
                      </div>
                      <div className="h-1.5 bg-black/20 rounded-full overflow-hidden">
                         <div className="h-full w-[70%] bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)]"></div>
                      </div>
-                     <p className="text-[10px] mt-2 opacity-70 font-medium">5.5 hrs to unlock "Master Swapper"</p>
+                     <p className="text-[10px] mt-2 opacity-70 font-medium">还需 5.5 小时解锁“交换大师”</p>
                   </div>
                </div>
                
@@ -204,23 +204,23 @@ const ExchangeView = () => {
                <div className="absolute top-0 right-0 w-24 h-24 bg-green-50 rounded-bl-[4rem] -z-0"></div>
                
                <h3 className="font-black text-slate-900 mb-6 flex items-center gap-2 relative z-10">
-                  <TrendingUp size={20} className="text-green-500" /> Value Generated
+                  <TrendingUp size={20} className="text-green-500" /> 创造价值
                </h3>
                
                <div className="space-y-5 relative z-10">
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                     <div className="text-xs font-bold text-slate-500">Money Saved</div>
+                     <div className="text-xs font-bold text-slate-500">节省资金</div>
                      <span className="text-lg font-black text-green-600">$1,250</span>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-3">
                      <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 text-center">
                         <div className="text-2xl font-black text-slate-900">12</div>
-                        <div className="text-[10px] font-bold text-slate-400 uppercase">Friends Made</div>
+                        <div className="text-[10px] font-bold text-slate-400 uppercase">结交好友</div>
                      </div>
                      <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 text-center">
                         <div className="text-2xl font-black text-slate-900">4</div>
-                        <div className="text-[10px] font-bold text-slate-400 uppercase">New Skills</div>
+                        <div className="text-[10px] font-bold text-slate-400 uppercase">新技能</div>
                      </div>
                   </div>
                </div>
@@ -231,8 +231,8 @@ const ExchangeView = () => {
                <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl grayscale">
                   🏅
                </div>
-               <h4 className="font-bold text-slate-800 text-sm">Next Milestone</h4>
-               <p className="text-xs text-slate-500 mt-1">Complete 5 more sessions to earn the "Consistent Learner" badge.</p>
+               <h4 className="font-bold text-slate-800 text-sm">下一个里程碑</h4>
+               <p className="text-xs text-slate-500 mt-1">再完成 5 个会话以获得“持之以恒”徽章。</p>
             </div>
 
          </div>

@@ -1,3 +1,4 @@
+import { ClerkProvider } from '@clerk/nextjs';
 import './globals.css';
 import { Inter, Poppins, Nunito, Noto_Sans_SC } from 'next/font/google';
 
@@ -30,10 +31,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={`${poppins.variable} ${nunito.variable} ${notoSansSC.variable} font-sans bg-transparent`}>
-        {children}
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body className={`${poppins.variable} ${nunito.variable} ${notoSansSC.variable} font-sans bg-transparent`}>
+          {children}
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

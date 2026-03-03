@@ -13,13 +13,21 @@ import MainAppLayout from './MainAppLayout';
 import { LanguageProvider } from '../contexts/LanguageContext';
 import { ToastProvider } from '../contexts/ToastContext';
 import { AuthProvider } from '../contexts/AuthContext';
+import { useUser } from '@clerk/nextjs';
 
 const ClientApp: React.FC = () => {
   const [view, setView] = useState<'landing' | 'onboarding' | 'dashboard'>('landing');
+  const { isSignedIn, user } = useUser();
 
   useEffect(() => {
     document.documentElement.style.scrollBehavior = 'smooth';
   }, []);
+
+  useEffect(() => {
+    if (isSignedIn) {
+      setView('dashboard');
+    }
+  }, [isSignedIn]);
 
   const handleStart = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -76,7 +84,7 @@ const ClientApp: React.FC = () => {
           )}
 
           {view === 'dashboard' && (
-            <MainAppLayout user={{ name: "Guest User" }} />
+            <MainAppLayout user={{ name: user?.fullName || user?.firstName || "Guest User" }} />
           )}
         </div>
       </div>

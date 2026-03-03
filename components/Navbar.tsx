@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Button from './Button';
 import { Menu, X, Languages, ChevronDown, Check } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 
 interface NavbarProps {
   onLoginClick: () => void;
@@ -106,7 +107,14 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick }) => {
             )}
           </div>
 
-          <Button onClick={onLoginClick} variant="primary" size="md" className="rounded-full px-8 !text-lg">{t('navbar.login')}</Button>
+          <SignedOut>
+            <SignInButton mode="modal">
+              <Button variant="primary" size="md" className="rounded-full px-8 !text-lg">{t('navbar.login')}</Button>
+            </SignInButton>
+          </SignedOut>
+          <SignedIn>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
         </div>
 
         <div className="md:hidden flex items-center gap-4">
@@ -155,7 +163,16 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick }) => {
           </div>
 
           <div className="flex flex-col gap-3 mt-2">
-            <Button onClick={onLoginClick} variant="primary" size="md" className="w-full">{t('navbar.login')}</Button>
+            <SignedOut>
+              <SignInButton mode="modal">
+                <Button variant="primary" size="md" className="w-full">{t('navbar.login')}</Button>
+              </SignInButton>
+            </SignedOut>
+            <SignedIn>
+              <div className="flex justify-center py-2">
+                <UserButton afterSignOutUrl="/" />
+              </div>
+            </SignedIn>
           </div>
         </div>
       )}

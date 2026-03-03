@@ -1,6 +1,48 @@
 // Replaced real API calls with static mock data to ensure deployment stability on ModelScope
 // This bypasses any backend/database requirements for the demo.
 
+// --- API Client Infrastructure (Ready for Real Backend) ---
+const API_BASE = '/api';
+
+/**
+ * Standard fetch wrapper with Auth & Error handling.
+ * Switch to using this function when backend is ready.
+ */
+async function _realFetchApi<T>(url: string, options?: RequestInit): Promise<T> {
+  const token = localStorage.getItem('auth_token');
+  const headers: any = { 'Content-Type': 'application/json', ...options?.headers };
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(`${API_BASE}${url}`, { ...options, headers });
+  
+  if (res.status === 401) {
+    // Handle unauthorized (e.g., redirect to login)
+    localStorage.removeItem('auth_token');
+    window.location.href = '/';
+    throw new Error('Unauthorized');
+  }
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error(error.error || 'API request failed');
+  }
+  
+  return res.json();
+}
+
+// --- Auth Helpers ---
+export const auth = {
+  getToken: () => localStorage.getItem('auth_token'),
+  setToken: (token: string) => localStorage.setItem('auth_token', token),
+  logout: () => {
+    localStorage.removeItem('auth_token');
+    window.location.href = '/';
+  }
+};
+
 // --- Mock Data Definitions ---
 
 const CURRENT_USER = {

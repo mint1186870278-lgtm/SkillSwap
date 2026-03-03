@@ -11,6 +11,8 @@ import Footer from './Footer';
 import Onboarding from './Onboarding';
 import MainAppLayout from './MainAppLayout';
 import { LanguageProvider } from '../contexts/LanguageContext';
+import { ToastProvider } from '../contexts/ToastContext';
+import { AuthProvider } from '../contexts/AuthContext';
 
 const ClientApp: React.FC = () => {
   const [view, setView] = useState<'landing' | 'onboarding' | 'dashboard'>('landing');
@@ -30,7 +32,9 @@ const ClientApp: React.FC = () => {
 
   return (
     <LanguageProvider>
-      <div className="relative w-full min-h-screen overflow-x-hidden text-textMain selection:bg-pastelPurple selection:text-white">
+      <AuthProvider>
+        <ToastProvider>
+          <div className="relative w-full min-h-screen overflow-x-hidden text-textMain selection:bg-pastelPurple selection:text-white">
         
         {/* --- BACKGROUND LAYER START --- */}
         <div className="fixed inset-0 w-full h-full z-0 pointer-events-none">
@@ -76,6 +80,8 @@ const ClientApp: React.FC = () => {
           )}
         </div>
       </div>
+        </ToastProvider>
+      </AuthProvider>
     </LanguageProvider>
   );
 };

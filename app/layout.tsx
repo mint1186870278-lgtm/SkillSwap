@@ -1,5 +1,6 @@
 import { ClerkProvider } from '@clerk/nextjs';
 import './globals.css';
+import type { Metadata } from 'next';
 import { Inter, Poppins, Nunito, Noto_Sans_SC } from 'next/font/google';
 
 const poppins = Poppins({

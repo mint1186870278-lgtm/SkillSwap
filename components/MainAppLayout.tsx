@@ -4,7 +4,8 @@ import {
   Home, MessageCircle, User, Calendar, Search, Bell, 
   Menu, Filter, MapPin, Star, Heart, Share2, MoreHorizontal,
   Zap, ChevronRight, Clock, Sparkles, Compass, Video, BookOpen,
-  LayoutGrid, Image as ImageIcon, Plus, X, Play, Languages, ChevronDown, Check
+  LayoutGrid, Image as ImageIcon, Plus, X, Play, Languages, ChevronDown, Check,
+  Bot, ChevronLeft, Send, Loader2
 } from 'lucide-react';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -16,7 +17,8 @@ import MyExchangesView from './views/ExchangeView';
 import MessagesView from './views/MessagesView';
 
 import { ViewType } from '../types';
-import { fetchSkills, fetchSessions, fetchPosts, fetchCommunityUpdates } from '../lib/api-client';
+import { fetchSkills, fetchSessions, fetchPosts, fetchCommunityUpdates, sendAiMatchMessage } from '../lib/api-client';
+import { CARD_HEIGHT, SIDEBAR_CARD_HEIGHT, GAP_ABOVE_TOP_PICKS, GAP_ABOVE_PRO_MEMBER } from '../lib/layout-config';
 
 // Helper to merge translation if language is ZH
 const useTranslatedData = (data: any[], type: 'posts' | 'skills' | 'community_updates' | 'sessions') => {
@@ -141,7 +143,7 @@ const PostDetailModal = ({ item, onClose }: { item: any, onClose: () => void }) 
                 {/* Comment Input */}
                 <div className="relative">
                    <div className="w-8 h-8 rounded-full bg-slate-200 absolute left-1 top-1 overflow-hidden">
-                      <ImageWithFallback src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" className="w-full h-full object-cover" />
+                      <ImageWithFallback src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="" className="w-full h-full object-cover" />
                    </div>
                    <input 
                       type="text" 
@@ -287,7 +289,7 @@ const SkillCard = ({ item, onClick, className = "", isPlaceholder = false }: { i
 
   if (isPlaceholder) {
     return (
-      <div className={`bg-white rounded-2xl border border-slate-100 overflow-hidden flex flex-col shadow-sm pointer-events-none ${className}`}>
+      <div className={`bg-white rounded-2xl border border-slate-100 overflow-hidden flex flex-col shadow-sm pointer-events-none ${className}`} style={{ height: CARD_HEIGHT }}>
         {CardContent}
       </div>
     );
@@ -299,6 +301,7 @@ const SkillCard = ({ item, onClick, className = "", isPlaceholder = false }: { i
       onClick={onClick}
       whileHover={{ y: -4 }}
       className={`bg-white rounded-2xl border border-slate-100 overflow-hidden cursor-pointer group flex flex-col hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 ${className}`}
+      style={{ height: CARD_HEIGHT }}
     >
       {CardContent}
     </motion.div>
@@ -375,7 +378,7 @@ const CommunityPostCard = ({ post, onClick, className = "", isPlaceholder = fals
 
   if (isPlaceholder) {
     return (
-      <div className={`bg-white rounded-[1.5rem] overflow-hidden shadow-sm flex flex-col h-full pointer-events-none border border-slate-100 ${className}`}>
+      <div className={`bg-white rounded-[1.5rem] overflow-hidden shadow-sm flex flex-col pointer-events-none border border-slate-100 ${className}`} style={{ height: CARD_HEIGHT }}>
         {CardContent}
       </div>
     );
@@ -386,7 +389,8 @@ const CommunityPostCard = ({ post, onClick, className = "", isPlaceholder = fals
       layoutId={`card-${post.id}`} // Shared layout ID (Ensure IDs are unique globally or prefixed if data sources mix)
       whileHover={{ y: -4 }}
       onClick={onClick}
-      className={`bg-white rounded-[1.5rem] overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer group mb-0 break-inside-avoid border border-slate-100 flex flex-col h-[365px] ${className}`}
+      className={`bg-white rounded-[1.5rem] overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer group mb-0 break-inside-avoid border border-slate-100 flex flex-col ${className}`}
+      style={{ height: CARD_HEIGHT }}
     >
       {CardContent}
     </motion.div>
@@ -396,7 +400,7 @@ const CommunityPostCard = ({ post, onClick, className = "", isPlaceholder = fals
 // --- Views ---
 
 // 1. HOME VIEW: Personal Dashboard
-const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcomingSessions, communityUpdates }: { onOpenDetail: (item: any) => void, onExplore: () => void, selectedItem: any, skills: any[], upcomingSessions: any[], communityUpdates: any[] }) => {
+const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcomingSessions, communityUpdates, testMode }: { onOpenDetail: (item: any) => void, onExplore: () => void, selectedItem: any, skills: any[], upcomingSessions: any[], communityUpdates: any[], testMode?: boolean }) => {
   const { t } = useLanguage();
   const translatedSkills = useTranslatedData(skills, 'skills');
   const translatedSessions = useTranslatedData(upcomingSessions, 'sessions');
@@ -414,10 +418,7 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcoming
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-         {/* Left Column: Schedule & Tasks */}
-         <div className="lg:col-span-2 space-y-8">
-            
-            {/* Upcoming Sessions */}
+         <div className="space-y-8 lg:col-span-2">
             <section>
                <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
@@ -433,8 +434,6 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcoming
                   ))}
                </div>
             </section>
-
-            {/* Quick Actions / Progress */}
             <section className="grid grid-cols-2 gap-4">
                <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-[2rem] p-6 text-white relative overflow-hidden shadow-lg shadow-indigo-200 group cursor-pointer hover:scale-[1.02] transition-transform">
                   <div className="relative z-10">
@@ -449,7 +448,6 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcoming
                   </div>
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-700"></div>
                </div>
-               
                <div className="bg-white border border-slate-100 rounded-[2rem] p-6 relative overflow-hidden shadow-sm group cursor-pointer hover:scale-[1.02] transition-transform hover:border-pink-200">
                   <div className="relative z-10">
                      <div className="w-10 h-10 bg-pink-100 rounded-xl flex items-center justify-center mb-4 text-pink-500">
@@ -460,9 +458,8 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcoming
                   </div>
                </div>
             </section>
-
-            {/* Recommended for You (Grid Layout) */}
-            <section>
+            {testMode && <div className="h-8" />}
+            <section style={{ marginTop: GAP_ABOVE_TOP_PICKS }}>
                <div className="flex items-center justify-between mb-4">
                  <h3 className="text-lg font-black text-slate-800">{t('dashboard.top_picks')}</h3>
                  <button onClick={onExplore} className="text-xs font-bold text-slate-400 hover:text-indigo-600">{t('dashboard.see_all')}</button>
@@ -470,24 +467,19 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcoming
                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                   {translatedSkills.slice(0, 4).map((item: any) => (
                     <div key={item.id} className="relative">
-                       {/* Placeholder (Visible if selected) */}
                        {selectedItem?.id === item.id && <SkillCard item={item} isPlaceholder className="absolute inset-0 z-0" />}
-                       
-                       {/* Animated Card (Hidden by layoutId when active) */}
                        <SkillCard item={item} onClick={() => onOpenDetail(item)} className="relative z-10" />
                     </div>
                   ))}
                </div>
             </section>
          </div>
-
-         {/* Right Column: Community & Stats */}
          <div className="space-y-6">
-            <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2rem] p-6 shadow-sm mt-[44px]">
-                <h3 className="font-black text-lg text-slate-800 mb-6 flex items-center gap-2">
+            <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2rem] p-6 shadow-sm mt-[44px] flex flex-col overflow-hidden" style={{ height: SIDEBAR_CARD_HEIGHT }}>
+                <h3 className="font-black text-lg text-slate-800 mb-6 flex items-center gap-2 shrink-0">
                    <Zap size={20} className="fill-yellow-400 text-yellow-400"/> {t('dashboard.activity')}
                 </h3>
-                <div className="space-y-6 relative">
+                <div className="relative space-y-6 flex-1 overflow-y-auto min-h-0">
                    <div className="absolute left-2 top-2 bottom-2 w-0.5 bg-slate-100"></div>
                    {translatedUpdates.map((u: any) => (
                      <div key={u.id} className="flex gap-4 items-start relative z-10">
@@ -501,8 +493,8 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcoming
                    ))}
                 </div>
             </div>
-
-            <div className="bg-[#111] text-white rounded-[2rem] p-6 relative overflow-hidden shadow-xl">
+            {testMode && <div className="h-8" />}
+            <div className="bg-[#111] text-white rounded-[2rem] p-6 relative overflow-hidden shadow-xl" style={{ marginTop: GAP_ABOVE_PRO_MEMBER }}>
                <div className="relative z-10">
                   <h4 className="font-black text-xl mb-2">{t('dashboard.pro_member')}</h4>
                   <p className="text-gray-400 text-xs leading-relaxed mb-4">{t('dashboard.upgrade_text')}</p>
@@ -523,10 +515,56 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcoming
 };
 
 // 2. EXPLORE VIEW: Discovery
-const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdates }: { onOpenDetail: (item: any) => void, selectedItem: any, skills: any[], posts: any[], communityUpdates: any[] }) => {
+const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdates, testMode }: { onOpenDetail: (item: any) => void, selectedItem: any, skills: any[], posts: any[], communityUpdates: any[], testMode?: boolean }) => {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'skills' | 'community'>('skills');
-  const [selectedCategory, setSelectedCategory] = useState<string>('All Skills'); // Using English ID for logic, label separate
+  const [selectedCategory, setSelectedCategory] = useState<string>('All Skills');
+  const [aiAssistantOpen, setAiAssistantOpen] = useState(false);
+  const [aiPanelHeight, setAiPanelHeight] = useState(540);
+  const [aiMessages, setAiMessages] = useState<{ role: 'user' | 'assistant'; text: string; skillIds?: number[] }[]>([]);
+  const [aiInputValue, setAiInputValue] = useState('');
+  const [aiSending, setAiSending] = useState(false);
+  const aiMessagesEndRef = useRef<HTMLDivElement>(null);
+
+  const handleSendAiMessage = async () => {
+    const text = aiInputValue.trim();
+    if (!text || aiSending) return;
+    setAiMessages(prev => [...prev, { role: 'user', text }]);
+    setAiInputValue('');
+    setAiSending(true);
+    try {
+      const history = aiMessages.map(m => ({ role: m.role, text: m.text }));
+      const res = await sendAiMatchMessage([...history, { role: 'user', text }]);
+      setAiMessages(prev => [...prev, { role: 'assistant', text: res.text, skillIds: res.skillIds }]);
+    } catch (err) {
+      setAiMessages(prev => [...prev, { role: 'assistant', text: t('explore.ai_error') }]);
+    } finally {
+      setAiSending(false);
+    }
+  };
+
+  useEffect(() => {
+    aiMessagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [aiMessages]);
+  const trendingSectionRef = useRef<HTMLDivElement>(null);
+  const rightColRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const updateHeight = () => {
+      if (trendingSectionRef.current && rightColRef.current) {
+        const trendingRect = trendingSectionRef.current.getBoundingClientRect();
+        const colRect = rightColRef.current.getBoundingClientRect();
+        setAiPanelHeight(Math.round(trendingRect.bottom - colRect.top));
+      }
+    };
+    updateHeight();
+    const el = rightColRef.current;
+    if (el) {
+      const ro = new ResizeObserver(updateHeight);
+      ro.observe(el);
+      return () => ro.disconnect();
+    }
+  }, [activeTab, aiAssistantOpen]);
 
   const translatedSkills = useTranslatedData(skills, 'skills');
   const translatedPosts = useTranslatedData(posts, 'posts');
@@ -543,8 +581,40 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdat
     });
 
   return (
-  <div className="pb-20">
+  <div className="pb-20 relative">
      
+      {/* 测试页：首屏大图区（与 landing 颜色体系对齐） */}
+      {testMode && (
+        <div className="mb-4 relative overflow-hidden rounded-xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-4 md:p-5 text-white shadow-lg border border-white/20">
+          <div className="relative z-10 max-w-2xl flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+            <div>
+              <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-md px-2 py-0.5 rounded-full text-[10px] font-bold mb-1.5 border border-white/30 text-white">
+                <Sparkles className="w-2.5 h-2.5 text-amber-300 fill-amber-300" />
+                NEW: 智能技能匹配
+              </div>
+              <h1 className="text-xl md:text-2xl font-extrabold mb-1 leading-tight text-white">
+                没找到合适的？让 AI 帮你精准匹配专家
+              </h1>
+              <p className="text-white/90 text-sm mb-0 sm:mb-2">
+                描述你的目标，AI 将分析数千名导师背景，为你找到最契合的交换伙伴。
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2 shrink-0">
+              <button 
+                onClick={() => setAiAssistantOpen(true)}
+                className="bg-white text-indigo-600 px-4 py-2 rounded-lg font-bold hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center gap-1 group text-sm shadow-md"
+              >
+                立即开始 AI 匹配
+                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
+          </div>
+          <div className="absolute top-1/2 right-4 -translate-y-1/2 opacity-20 pointer-events-none hidden lg:block">
+            <Sparkles className="w-32 h-32 rotate-12 text-pastelPurple" />
+          </div>
+        </div>
+      )}
+
       {/* Main Layout: Grid Structure for Perfect Alignment */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 items-start">
          
@@ -638,33 +708,24 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdat
             </AnimatePresence>
          </div>
 
-         {/* Right: Community Sidebar (Desktop Only) - GRID COLUMN */}
-         <div className="hidden lg:block w-80">
-             
-             {/* STICKY CONTAINER: Keeps all right-side content fixed on scroll */}
+         {/* Right: 红框内 - 侧边栏始终存在，AI 助手为悬浮层 */}
+         <div ref={rightColRef} className="hidden lg:block w-80 relative">
+             {/* 侧边栏内容 - 始终渲染，不被替换 */}
              <div className="sticky top-4 flex flex-col">
-             
-                 {/* 1. ACTION BUTTON - Aligned with "Find Skills" */}
                  <div className={`h-[40px] w-full flex items-center ${activeTab === 'skills' ? 'mb-[60px]' : 'mb-5'}`}>
                      <button className="w-full h-full bg-slate-900 text-white rounded-xl flex items-center justify-center gap-2 font-black text-lg shadow-lg shadow-slate-200 hover:bg-slate-800 transition-all active:scale-95">
                         {activeTab === 'skills' ? <Plus size={20} strokeWidth={3} /> : <ImageIcon size={20} strokeWidth={3} />}
                         <span>{activeTab === 'skills' ? t('explore.list_skill') : t('explore.share_post')}</span>
                      </button>
                  </div>
-
-                 {/* 2. COMMUNITY UPDATES (Aligned with First Row) */}
-                 {/* Adjusted height to match SkillCard approx height (~365px) and margin to align with grid */}
-                 <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2rem] p-5 shadow-sm flex flex-col h-[365px] mb-5">
+                 <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2rem] p-5 shadow-sm flex flex-col mb-5" style={{ height: SIDEBAR_CARD_HEIGHT }}>
                      <div className="flex items-center justify-between mb-3 shrink-0">
                        <h3 className="font-black text-sm text-slate-800 flex items-center gap-2">
                          <Zap size={16} className="fill-yellow-400 text-yellow-400"/> {t('explore.community')}
                        </h3>
                        <button className="text-[10px] font-bold text-indigo-600 hover:text-indigo-700">{t('explore.view_all')}</button>
                      </div>
-                     
-                     {/* Auto-Scrolling List */}
                      <div className="relative flex-1 overflow-hidden group scroll-mask">
-                       {/* Styles for animation */}
                        <style>{`
                          @keyframes scroll-vertical {
                            0% { transform: translateY(0); }
@@ -682,9 +743,7 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdat
                            -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
                          }
                        `}</style>
-
                        <div className="animate-scroll-vertical">
-                         {/* Render Twice for Seamless Loop */}
                          {[...translatedUpdates, ...translatedUpdates].map((u: any, index: any) => (
                            <div key={`${u.id}-${index}`} className="flex gap-3 items-start relative z-10 mb-4 px-1">
                              <div className="absolute left-2.5 top-0 bottom-[-16px] w-0.5 bg-slate-200/50 rounded-full"></div>
@@ -695,16 +754,12 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdat
                                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{u.time}</span>
                              </div>
                            </div>
-                           
                          ))}
                        </div>
                      </div>
                  </div>
-
-                 {/* 3 & 4. TRENDING & INVITE (Compact Group) */}
                  <div className={`flex flex-col ${activeTab === 'skills' ? 'gap-2' : 'gap-10'}`}>
-                    {/* TRENDING TAGS */}
-                    <div className="bg-white/40 border border-white/50 rounded-2xl p-2.5 hover:bg-white/60 transition-colors">
+                    <div ref={trendingSectionRef} className="bg-white/40 border border-white/50 rounded-2xl p-2.5 hover:bg-white/60 transition-colors">
                        <h3 className="font-black text-xs text-slate-800 mb-1.5 flex items-center gap-2">
                          {t('explore.trending')}
                        </h3>
@@ -716,30 +771,181 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdat
                           ))}
                        </div>
                     </div>
-
-                    {/* INVITE CARD */}
+                    {!testMode && (
                     <div className="bg-white/40 border border-white/50 rounded-2xl p-2.5 hover:bg-white/60 transition-colors group shrink-0">
-                        <div className="flex items-center justify-between gap-2">
-                           <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-indigo-500 shadow-sm border border-slate-100 shrink-0 group-hover:scale-110 transition-transform">
-                                  <Share2 size={14} />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <h4 className="font-black text-slate-800 text-xs">{t('explore.invite')}</h4>
-                                <p className="text-slate-400 text-[9px] font-medium truncate">{t('explore.grow')}</p>
+                       <button 
+                          onClick={() => setAiAssistantOpen(true)}
+                          className="w-full flex items-center justify-between gap-2 group text-left"
+                       >
+                          <div className="flex items-center gap-2 min-w-0">
+                             <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-indigo-500 shadow-sm border border-slate-100 shrink-0 group-hover:scale-110 transition-transform">
+                                <Bot size={14} />
+                             </div>
+                             <div className="min-w-0">
+                                <h4 className="font-black text-slate-800 text-xs">{t('explore.ai_assistant')}</h4>
+                                <p className="text-slate-400 text-[9px] font-medium truncate">{t('explore.ai_assistant_subtitle')}</p>
+                             </div>
+                          </div>
+                          <ChevronRight size={14} className="text-slate-400 shrink-0" />
+                       </button>
+                    </div>
+                    )}
+                 </div>
+             </div>
+
+             {/* AI 配对助手 - 悬浮层（非 testMode 时显示） */}
+             {!testMode && (
+             <AnimatePresence>
+               {aiAssistantOpen && (
+                  <motion.div
+                     initial={{ opacity: 0, scale: 0.96 }}
+                     animate={{ opacity: 1, scale: 1 }}
+                     exit={{ opacity: 0, scale: 0.96 }}
+                     transition={{ duration: 0.2, ease: 'easeOut' }}
+                     className="absolute top-0 left-0 right-0 z-10 flex flex-col rounded-2xl overflow-hidden border border-slate-100 shadow-xl shadow-slate-200/50 bg-white"
+                     style={{ height: aiPanelHeight }}
+                  >
+                     <div className="bg-slate-900 text-white px-4 py-3 flex items-center gap-3 shrink-0">
+                        <button onClick={() => setAiAssistantOpen(false)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors">
+                           <ChevronLeft size={20} />
+                        </button>
+                        <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                           <Bot size={16} />
+                        </div>
+                        <span className="font-black text-sm truncate">{t('explore.ai_assistant')}</span>
+                     </div>
+                     <div className="flex-1 min-h-[280px] overflow-y-auto p-4 space-y-3 bg-[#F8FAFC]">
+                        <div className="flex justify-start">
+                           <div className="max-w-[85%] px-4 py-2.5 bg-white text-slate-700 text-sm rounded-2xl rounded-bl-none border border-slate-100 shadow-sm">
+                              {t('explore.ai_bot_welcome')}
+                           </div>
+                        </div>
+                        {aiMessages.map((m, i) => (
+                           <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                              <div className={`max-w-[85%] px-4 py-2.5 text-sm rounded-2xl border shadow-sm ${
+                                 m.role === 'user'
+                                    ? 'bg-indigo-500 text-white rounded-br-none border-indigo-500'
+                                    : 'bg-white text-slate-700 rounded-bl-none border-slate-100'
+                              }`}>
+                                 {m.text}
                               </div>
                            </div>
-                           
-                           <button className="px-2 py-1 bg-white text-indigo-600 border border-slate-100 rounded-lg text-[9px] font-bold shadow-sm hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all">
-                             {t('explore.copy')}
+                        ))}
+                        {aiSending && (
+                           <div className="flex justify-start">
+                              <div className="max-w-[85%] px-4 py-2.5 bg-white text-slate-500 text-sm rounded-2xl rounded-bl-none border border-slate-100 shadow-sm animate-pulse">
+                                 {t('explore.ai_loading')}
+                              </div>
+                           </div>
+                        )}
+                        <div ref={aiMessagesEndRef} />
+                     </div>
+                     <div className="p-4 border-t border-slate-100 bg-white shrink-0">
+                        <form onSubmit={(e) => { e.preventDefault(); handleSendAiMessage(); }} className="flex items-center gap-2 bg-slate-100/50 hover:bg-slate-100 rounded-full px-4 py-2.5 border border-transparent focus-within:ring-2 focus-within:ring-indigo-100 focus-within:border-indigo-200 transition-all">
+                           <input 
+                              type="text" 
+                              value={aiInputValue}
+                              onChange={(e) => setAiInputValue(e.target.value)}
+                              onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendAiMessage(); } }}
+                              placeholder={t('explore.ai_type_message')} 
+                              disabled={aiSending}
+                              className="flex-1 bg-transparent border-none outline-none text-sm font-medium text-slate-700 placeholder:text-slate-400 disabled:opacity-60"
+                           />
+                           <button type="submit" disabled={!aiInputValue.trim() || aiSending} className="p-1.5 text-slate-400 hover:text-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg transition-colors shrink-0">
+                              <Send size={18} />
                            </button>
-                        </div>
-                    </div>
-                 </div>
-
-            </div> {/* End Sticky */}
+                        </form>
+                     </div>
+                  </motion.div>
+               )}
+             </AnimatePresence>
+             )}
         </div>
      </div>
+
+      {/* 测试页：悬浮 AI 助手 */}
+      {testMode && (
+        <div className="fixed bottom-6 right-6 z-[60] flex flex-col items-end gap-4">
+          {aiAssistantOpen ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="w-[350px] md:w-[400px] h-[500px] bg-white rounded-3xl shadow-2xl border border-slate-100 flex flex-col overflow-hidden"
+            >
+              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-4 text-white flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-2">
+                  <div className="bg-white/20 p-1.5 rounded-lg backdrop-blur-sm">
+                    <Sparkles className="w-4 h-4 text-yellow-300 fill-yellow-300" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-sm">{t('explore.ai_assistant')}</h4>
+                    <p className="text-[10px] opacity-80">智能匹配中...</p>
+                  </div>
+                </div>
+                <button onClick={() => setAiAssistantOpen(false)} className="hover:bg-white/20 p-1.5 rounded-lg transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
+                <div className="flex justify-start">
+                  <div className="max-w-[85%] p-3 rounded-2xl rounded-tl-none bg-white text-slate-700 border border-slate-100 shadow-sm text-sm">
+                    {t('explore.ai_bot_welcome')}
+                  </div>
+                </div>
+                {aiMessages.map((m, i) => (
+                  <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[85%] p-3 rounded-2xl text-sm shadow-sm ${
+                      m.role === 'user' ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none'
+                    }`}>
+                      {m.text}
+                    </div>
+                  </div>
+                ))}
+                {aiSending && (
+                  <div className="flex justify-start">
+                    <div className="bg-white p-3 rounded-2xl rounded-tl-none border border-slate-100 flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+                      <span className="text-xs text-slate-400">{t('explore.ai_loading')}</span>
+                    </div>
+                  </div>
+                )}
+                <div ref={aiMessagesEndRef} />
+              </div>
+              <form onSubmit={(e) => { e.preventDefault(); handleSendAiMessage(); }} className="p-4 bg-white border-t border-slate-100 flex items-center gap-2">
+                <input 
+                  type="text" 
+                  value={aiInputValue}
+                  onChange={(e) => setAiInputValue(e.target.value)}
+                  placeholder={t('explore.ai_type_message')} 
+                  disabled={aiSending}
+                  className="flex-1 bg-slate-100 border-none rounded-xl py-2 px-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none"
+                />
+                <button type="submit" disabled={!aiInputValue.trim() || aiSending} className="bg-indigo-600 text-white p-2 rounded-xl hover:bg-indigo-700 transition-colors disabled:opacity-50">
+                  <Send className="w-5 h-5" />
+                </button>
+              </form>
+            </motion.div>
+          ) : (
+            <div className="flex flex-col items-end gap-3">
+              <div 
+                className="bg-white p-4 rounded-2xl shadow-xl border border-slate-100 max-w-[200px] cursor-pointer hover:shadow-2xl transition-shadow" 
+                onClick={() => setAiAssistantOpen(true)}
+                style={{ animation: 'bounce-subtle 3s infinite ease-in-out' }}
+              >
+                <p className="text-xs font-bold text-slate-700">👋 需要我帮你找找看最合适的匹配吗？</p>
+              </div>
+              <button 
+                onClick={() => setAiAssistantOpen(true)}
+                className="relative w-16 h-16 bg-gradient-to-tr from-indigo-600 to-purple-500 rounded-full flex items-center justify-center shadow-xl shadow-indigo-200 hover:scale-110 transition-all active:scale-95"
+              >
+                <div className="absolute inset-0 bg-indigo-500 rounded-full animate-ping opacity-20" style={{ animationDuration: '2s' }} />
+                <Sparkles className="w-7 h-7 text-white" />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
   </div>
   );
 };
@@ -747,10 +953,12 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdat
 // --- Layout ---
 
 interface MainAppProps {
-  user: any; 
+  user: any;
+  testMode?: boolean;
+  appMode?: 'demo' | 'guest' | 'authenticated';
 }
 
-const MainAppLayout: React.FC<MainAppProps> = ({ user }) => {
+const MainAppLayout: React.FC<MainAppProps> = ({ user, testMode, appMode }) => {
   const { t, language, setLanguage } = useLanguage();
   const [currentView, setCurrentView] = useState<ViewType>('explore');
   const [selectedItem, setSelectedItem] = useState<any>(null); // State for modal (Inspiration/Community)
@@ -769,7 +977,7 @@ const MainAppLayout: React.FC<MainAppProps> = ({ user }) => {
     fetchSessions({ dashboard: true }).then(setUpcomingSessions).catch(console.error);
     fetchPosts().then(setPosts).catch(console.error);
     fetchCommunityUpdates().then(setCommunityUpdates).catch(console.error);
-  }, []);
+  }, [appMode]);
 
   // Close language menu when clicking outside
   useEffect(() => {
@@ -821,14 +1029,13 @@ const MainAppLayout: React.FC<MainAppProps> = ({ user }) => {
          )}
       </AnimatePresence>
 
-      {/* Global background from App.tsx is now visible */}
-
+      <div className="flex-1 flex flex-col min-w-0 min-h-0">
       {/* --- Top Navigation Bar --- */}
-      <header className="relative z-50 shrink-0 bg-white/80 backdrop-blur-xl border-b border-slate-100 px-6 lg:px-10 py-3 flex items-center justify-between">
+      <header className={`relative z-50 shrink-0 bg-white/80 backdrop-blur-xl border-b border-slate-100 flex items-center justify-between px-6 lg:px-10 ${testMode ? 'h-16' : 'py-3'}`}>
          
          {/* Left: Logo */}
          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setCurrentView('explore')}>
-            <div className="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-lg shadow-slate-200 transform transition-transform group-hover:rotate-12">S</div>
+            <div className={`bg-slate-900 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-slate-200 transform transition-transform group-hover:rotate-12 ${testMode ? 'w-10 h-10 text-lg' : 'w-9 h-9 text-lg'}`}>S</div>
             <span className="font-black text-xl tracking-tight text-slate-900 hidden sm:block">SkillSwap</span>
          </div>
 
@@ -879,13 +1086,13 @@ const MainAppLayout: React.FC<MainAppProps> = ({ user }) => {
                )}
             </div>
 
-            <div className="flex items-center gap-3">
-               <button className="relative w-9 h-9 hover:bg-slate-100 rounded-full flex items-center justify-center text-slate-500 transition-all">
-                  <Bell size={18} />
+            <div className={`flex items-center gap-3 ${testMode ? 'gap-4' : ''}`}>
+               <button className={`relative hover:bg-slate-100 rounded-full flex items-center justify-center text-slate-500 transition-all ${testMode ? 'w-10 h-10' : 'w-9 h-9'}`}>
+                  <Bell size={testMode ? 20 : 18} />
                   <span className="absolute top-2 right-2.5 w-1.5 h-1.5 bg-red-500 rounded-full border border-white"></span>
                </button>
 
-               <div className="w-9 h-9 rounded-full border border-slate-200 shadow-sm overflow-hidden cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setCurrentView('profile')}>
+               <div className={`rounded-full border border-slate-200 shadow-sm overflow-hidden cursor-pointer hover:opacity-80 transition-opacity ${testMode ? 'w-10 h-10' : 'w-9 h-9'}`} onClick={() => setCurrentView('profile')}>
                   <ImageWithFallback src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="Me" className="w-full h-full object-cover" />
                </div>
             </div>
@@ -893,27 +1100,36 @@ const MainAppLayout: React.FC<MainAppProps> = ({ user }) => {
       </header>
 
       {/* --- Main Content Area --- */}
-      <main className="relative z-10 flex-1 overflow-hidden">
+      <main className="relative z-10 flex-1 min-h-0 overflow-hidden">
         
-        {/* Content View */}
-        <div className="h-full px-6 lg:px-10 pb-4 pt-6 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+        {/* Content View (testMode: 内容区约束在红线范围内) */}
+        <div className={`h-full min-h-0 px-6 lg:px-10 pb-4 pt-6 overflow-x-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] ${
+          currentView === 'messages' ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'
+        }`}>
+            <div className={`${testMode ? 'max-w-[1400px] mx-auto' : ''} ${currentView === 'messages' ? 'flex-1 min-h-0 flex flex-col' : ''}`}>
             <AnimatePresence mode="wait">
-             <motion.div 
-               key={currentView}
-               initial={{opacity: 0, y: 10}} 
-               animate={{opacity: 1, y: 0}} 
-               exit={{opacity: 0, y: -10}} 
-               transition={{duration: 0.25}}
-               className="h-full"
-             >
-               {currentView === 'home' && <DashboardView selectedItem={selectedItem} onOpenDetail={handleOpenDetail} onExplore={() => setCurrentView('explore')} skills={skills} upcomingSessions={upcomingSessions} communityUpdates={communityUpdates} />}
-               {currentView === 'explore' && <ExploreView selectedItem={selectedItem} onOpenDetail={handleOpenDetail} skills={skills} posts={posts} communityUpdates={communityUpdates} />}
-               {currentView === 'exchange' && <MyExchangesView />}
-               {currentView === 'messages' && <MessagesView />}
-               {/* Detail view is now handled by overlay */}
-               {currentView === 'profile' && <UserProfileView />}
-             </motion.div>
+               {currentView === 'profile' ? (
+                 <div key="profile" className="h-full overflow-y-auto"><UserProfileView /></div>
+               ) : currentView === 'messages' ? (
+                 <div key="messages" className="flex-1 min-h-0 flex flex-col overflow-hidden">
+                   <MessagesView />
+                 </div>
+               ) : (
+                 <motion.div 
+                   key={currentView}
+                   initial={{opacity: 0, y: 10}} 
+                   animate={{opacity: 1, y: 0}} 
+                   exit={{opacity: 0, y: -10}} 
+                   transition={{duration: 0.25}}
+                   className="h-full overflow-y-auto"
+                 >
+                   {currentView === 'home' && <DashboardView selectedItem={selectedItem} onOpenDetail={handleOpenDetail} onExplore={() => setCurrentView('explore')} skills={skills} upcomingSessions={upcomingSessions} communityUpdates={communityUpdates} testMode={testMode} />}
+                   {currentView === 'explore' && <ExploreView selectedItem={selectedItem} onOpenDetail={handleOpenDetail} skills={skills} posts={posts} communityUpdates={communityUpdates} testMode={testMode} />}
+                   {currentView === 'exchange' && <MyExchangesView />}
+                 </motion.div>
+               )}
            </AnimatePresence>
+            </div>
         </div>
 
         {/* Mobile Bottom Nav */}
@@ -927,6 +1143,7 @@ const MainAppLayout: React.FC<MainAppProps> = ({ user }) => {
             <NavBarItem icon={User} label="" active={currentView === 'profile'} onClick={() => setCurrentView('profile')} />
         </nav>
       </main>
+      </div>
     </div>
   );
 };

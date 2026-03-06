@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
 import { 
   Settings, MapPin, Calendar, Star, Zap, Crown, 
   Wallet, Gift, ShieldCheck, Heart, MessageCircle, Share2,
@@ -10,6 +9,7 @@ import { ImageWithFallback } from '../../figma/ImageWithFallback';
 import { fetchUserPosts, fetchReviews } from '../../lib/api-client';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { MOCK_DATA_ZH } from '../../lib/mock-data-zh';
+import { ACHIEVEMENT_BADGE_CARD_HEIGHT } from '../../lib/layout-config';
 
 // -----------------------------------------------------------------------------
 // PREMIUM BADGE COMPONENT
@@ -18,11 +18,12 @@ const PremiumBadge = ({
   icon: Icon, 
   title, 
   variant = 'gold', // gold, blue, purple, holographic
-  earnedDate
+  earnedDate,
+  cardHeight = ACHIEVEMENT_BADGE_CARD_HEIGHT
 }: any) => {
   
   // Variant styles configuration
-  const styles = {
+  const stylesMap = {
     gold: {
       outer: "bg-gradient-to-br from-amber-300 via-amber-100 to-orange-200",
       border: "border-amber-200/40",
@@ -51,22 +52,23 @@ const PremiumBadge = ({
       glow: "shadow-pink-400/30",
       innerGlow: "bg-white/40"
     }
-  }[variant] || styles.gold;
+  };
+  const styles = stylesMap[variant as keyof typeof stylesMap] || stylesMap.gold;
 
   return (
-    <div className="group relative flex flex-col items-center">
+    <div className="group relative flex flex-col items-center" style={{ minHeight: cardHeight }}>
       
       {/* GLOW EFFECT (Behind) */}
       <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 ${styles.glow}`}></div>
 
       {/* 3D GEMSTONE CONTAINER */}
-      <div className="relative w-20 h-20 mb-3 transition-transform duration-500 ease-out group-hover:-translate-y-2 group-hover:scale-105 perspective-1000">
+      <div className="relative w-16 h-16 mb-2 transition-transform duration-500 ease-out group-hover:-translate-y-2 group-hover:scale-105 perspective-1000">
         
         {/* The Gemstone Body */}
-        <div className={`absolute inset-0 rounded-[1.6rem] rotate-45 shadow-xl transition-all duration-500 group-hover:shadow-2xl ${styles.outer} p-[1px]`}>
+        <div className={`absolute inset-0 rounded-[1.2rem] rotate-45 shadow-xl transition-all duration-500 group-hover:shadow-2xl ${styles.outer} p-[1px]`}>
            
            {/* Glassy Surface */}
-           <div className="w-full h-full bg-white/80 backdrop-blur-xl rounded-[1.55rem] flex items-center justify-center relative overflow-hidden border border-white/60">
+           <div className="w-full h-full bg-white/80 backdrop-blur-xl rounded-[1.15rem] flex items-center justify-center relative overflow-hidden border border-white/60">
               
               <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full blur-xl opacity-60 ${styles.innerGlow}`}></div>
               <div className="absolute -inset-[100%] bg-gradient-to-r from-transparent via-white/40 to-transparent rotate-45 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out z-20 pointer-events-none"></div>
@@ -74,10 +76,10 @@ const PremiumBadge = ({
 
               {/* Icon Container */}
               <div className={`relative z-20 -rotate-45 transform transition-transform group-hover:rotate-0 duration-500 ease-out scale-110`}>
-                 <Icon size={28} className={`${styles.icon} transition-all duration-500 group-hover:scale-110`} strokeWidth={2} />
+                 <Icon size={22} className={`${styles.icon} transition-all duration-500 group-hover:scale-110`} strokeWidth={2} />
               </div>
 
-              <div className="absolute bottom-1 right-1 w-full h-full rounded-[1.55rem] shadow-[inset_-2px_-2px_6px_rgba(0,0,0,0.05)] pointer-events-none z-10"></div>
+              <div className="absolute bottom-1 right-1 w-full h-full rounded-[1.15rem] shadow-[inset_-2px_-2px_6px_rgba(0,0,0,0.05)] pointer-events-none z-10"></div>
            </div>
         </div>
       </div>
@@ -157,37 +159,37 @@ const UserProfileView = () => {
   });
 
   return (
-    <div className="flex flex-col w-full max-w-7xl mx-auto pb-20">
+    <div className="flex flex-col w-full max-w-7xl mx-auto pb-20 -mt-2">
         
-        {/* 1. HEADER SECTION - RESTORED BALANCE */}
-        <div className="relative mb-6">
-           {/* Cover Image - Medium height */}
-           <div className="h-36 rounded-t-[2.5rem] bg-gradient-to-r from-indigo-200 via-purple-200 to-pink-200 opacity-30 relative overflow-hidden">
+        {/* 1. HEADER SECTION - Compact */}
+        <div className="relative mb-4">
+           {/* Cover Image - Reduced height */}
+           <div className="h-20 rounded-t-[2rem] bg-gradient-to-r from-indigo-200 via-purple-200 to-pink-200 opacity-30 relative overflow-hidden">
               <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
            </div>
            
-           <div className="bg-white rounded-[2.5rem] px-8 py-6 shadow-sm border border-slate-100 -mt-12 relative z-10">
-              <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-                 {/* Avatar Group - Medium Size */}
-                 <div className="relative shrink-0 -mt-2 md:-mt-10">
-                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-full border-[5px] border-white shadow-lg overflow-hidden bg-white">
+           <div className="bg-white rounded-[2rem] px-6 py-4 shadow-sm border border-slate-100 -mt-8 relative z-10">
+              <div className="flex flex-col md:flex-row items-center md:items-start gap-4">
+                 {/* Avatar Group - Compact */}
+                 <div className="relative shrink-0 -mt-0 md:-mt-6">
+                    <div className="w-20 h-20 md:w-28 md:h-28 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white">
                        <ImageWithFallback src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80" alt="Me" className="w-full h-full object-cover" />
                     </div>
                  </div>
 
                  {/* User Info */}
-                 <div className="flex-1 w-full text-center md:text-left pt-2">
+                 <div className="flex-1 w-full text-center md:text-left pt-0">
                     <div className="flex flex-col md:flex-row md:justify-between items-center md:items-start gap-4">
                        
                        {/* Identity */}
                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
-                             <h1 className="text-2xl font-black text-slate-900 truncate">Jessica Parker</h1>
+                          <div className="flex items-center justify-center md:justify-start gap-3 mb-1">
+                             <h1 className="text-xl font-black text-slate-900 truncate">Jessica Parker</h1>
                              <span className="px-2.5 py-0.5 bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-200 text-yellow-900 border border-yellow-200/50 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-sm shrink-0">
                                 <Crown size={12} strokeWidth={3} /> {t('profile.pro')}
                              </span>
                           </div>
-                          <p className="text-slate-500 font-medium text-xs mb-3 flex flex-wrap justify-center md:justify-start items-center gap-x-3 gap-y-1">
+                          <p className="text-slate-500 font-medium text-xs mb-2 flex flex-wrap justify-center md:justify-start items-center gap-x-3 gap-y-1">
                              <span className="text-indigo-600 font-bold">@jess_creates</span>
                              <span className="w-1 h-1 rounded-full bg-slate-300"></span>
                              <span>{translate('Digital Designer & Potter', 'job')}</span>
@@ -200,18 +202,18 @@ const UserProfileView = () => {
                           </p>
                        </div>
 
-                       {/* Stats Cards - Restored visibility */}
-                       <div className="flex gap-3 shrink-0 mt-4 md:mt-0">
-                          <div className="flex flex-col items-center justify-center bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-100 min-w-[80px] hover:bg-slate-100 transition-colors group">
-                             <span className="block text-xl font-black text-slate-800 leading-none mb-1 group-hover:text-indigo-600 transition-colors">12</span>
+                       {/* Stats Cards */}
+                       <div className="flex gap-2 shrink-0 mt-3 md:mt-0">
+                          <div className="flex flex-col items-center justify-center bg-slate-50 px-3 py-2 rounded-xl border border-slate-100 min-w-[70px] hover:bg-slate-100 transition-colors group">
+                             <span className="block text-lg font-black text-slate-800 leading-none mb-0.5 group-hover:text-indigo-600 transition-colors">12</span>
                              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">{t('profile.exchanges')}</span>
                           </div>
-                          <div className="flex flex-col items-center justify-center bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-100 min-w-[80px] hover:bg-slate-100 transition-colors group">
-                             <span className="block text-xl font-black text-slate-800 leading-none mb-1 group-hover:text-indigo-600 transition-colors">4.9</span>
+                          <div className="flex flex-col items-center justify-center bg-slate-50 px-3 py-2 rounded-xl border border-slate-100 min-w-[70px] hover:bg-slate-100 transition-colors group">
+                             <span className="block text-lg font-black text-slate-800 leading-none mb-0.5 group-hover:text-indigo-600 transition-colors">4.9</span>
                              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">{t('profile.rating')}</span>
                           </div>
-                          <div className="flex flex-col items-center justify-center bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-100 min-w-[80px] hover:bg-slate-100 transition-colors group">
-                             <span className="block text-xl font-black text-slate-800 leading-none mb-1 group-hover:text-indigo-600 transition-colors">48h</span>
+                          <div className="flex flex-col items-center justify-center bg-slate-50 px-3 py-2 rounded-xl border border-slate-100 min-w-[70px] hover:bg-slate-100 transition-colors group">
+                             <span className="block text-lg font-black text-slate-800 leading-none mb-0.5 group-hover:text-indigo-600 transition-colors">48h</span>
                              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">{t('profile.learned')}</span>
                           </div>
                        </div>
@@ -221,17 +223,17 @@ const UserProfileView = () => {
            </div>
         </div>
 
-        {/* 2. MAIN GRID LAYOUT - ADJUSTED GAPS */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* 2. MAIN GRID LAYOUT */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
            
            {/* LEFT COLUMN (Content) - Spans 8 cols */}
-           <div className="lg:col-span-8 flex flex-col gap-4"> {/* Reduced gap from 8 to 4 */}
+           <div className="lg:col-span-8 flex flex-col gap-4">
               
-              {/* BADGES WALL (Loop 2) */}
-              <section className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm relative overflow-hidden">
+              {/* BADGES WALL - Compact for first-screen visibility */}
+              <section className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm relative overflow-hidden">
                  <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full mix-blend-multiply blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2"></div>
                  
-                 <div className="flex items-center justify-between mb-8 relative z-10">
+                 <div className="flex items-center justify-between mb-5 relative z-10">
                     <div>
                         <h3 className="font-black text-xl text-slate-900 flex items-center gap-2">
                             <Trophy size={20} className="text-amber-500 fill-amber-500/20" /> 
@@ -244,7 +246,7 @@ const UserProfileView = () => {
                     </button>
                  </div>
                  
-                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 relative z-10">
+                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 relative z-10">
                     <PremiumBadge 
                        icon={Star} 
                        title={t('profile.super_teacher')} 
@@ -272,7 +274,7 @@ const UserProfileView = () => {
                  </div>
 
                  {/* Progress Bar */}
-                 <div className="mt-8 pt-6 border-t border-slate-100 relative z-10">
+                 <div className="mt-5 pt-4 border-t border-slate-100 relative z-10">
                     <div className="flex justify-between text-[10px] font-bold mb-2 uppercase tracking-wide">
                         <span className="text-slate-500">Next: Master Mentor Badge</span>
                         <span className="text-indigo-600">8/10 Sessions</span>
@@ -497,10 +499,10 @@ const UserProfileView = () => {
                     </div>
                  )}
               </section>
-           </div>
+        </div>
 
-           {/* RIGHT COLUMN (Sidebar) - Spans 4 cols */}
-           <div className="lg:col-span-4 space-y-4 lg:sticky lg:top-6">
+        {/* RIGHT: 三张卡片 */}
+        <div className="lg:col-span-4 flex flex-col gap-4">
               
               {/* 1. TRUST SCORE CARD */}
               <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm relative overflow-hidden">
@@ -515,7 +517,6 @@ const UserProfileView = () => {
                  </div>
                  
                  <div className="flex items-center gap-5">
-                    {/* Circle Chart */}
                     <div className="relative w-20 h-20 shrink-0">
                        <svg className="w-full h-full transform -rotate-90">
                           <defs>
@@ -531,11 +532,8 @@ const UserProfileView = () => {
                           <span className="text-2xl font-black">60</span>
                        </div>
                     </div>
-                    
                     <div className="flex-1">
-                       <div className="text-xs font-medium text-slate-600 leading-snug mb-2">
-                          {t('profile.top_percent')}
-                       </div>
+                       <div className="text-xs font-medium text-slate-600 leading-snug mb-2">{t('profile.top_percent')}</div>
                        <button className="text-[10px] font-bold text-slate-400 hover:text-indigo-600 underline">{t('profile.view_report')}</button>
                     </div>
                  </div>
@@ -543,10 +541,8 @@ const UserProfileView = () => {
 
               {/* 2. WALLET CARD */}
               <div className="bg-slate-900 rounded-[2rem] p-6 text-white shadow-xl shadow-slate-200 relative overflow-hidden group">
-                 {/* Abstract Shapes */}
                  <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500 rounded-full blur-[60px] opacity-40 translate-x-10 -translate-y-10"></div>
                  <div className="absolute bottom-0 left-0 w-24 h-24 bg-pink-500 rounded-full blur-[60px] opacity-30 -translate-x-10 translate-y-10"></div>
-                 
                  <div className="flex items-center justify-between mb-6 relative z-10">
                     <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-wider">
                        <Wallet size={16} /> {t('profile.balance')}
@@ -555,13 +551,11 @@ const UserProfileView = () => {
                        {t('profile.top_up')}
                     </button>
                  </div>
-                 
                  <div className="relative z-10 mb-4">
                     <div className="text-4xl font-black flex items-baseline gap-2">
                        24 <span className="text-sm font-bold text-slate-400">{t('profile.credits')}</span>
                     </div>
                  </div>
-
                  <div className="relative z-10 pt-4 border-t border-white/10 flex items-center justify-between text-xs">
                      <span className="text-slate-400">{t('profile.expires')}</span>
                      <button className="flex items-center gap-1 font-bold text-indigo-300 hover:text-white transition-colors">
@@ -575,17 +569,13 @@ const UserProfileView = () => {
                  <div className="absolute -right-6 -top-6 p-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500 group-hover:rotate-12 transform">
                     <Gift size={120} />
                  </div>
-                 
                  <div className="relative z-10 mb-6">
                     <div className="inline-block bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wide mb-3 border border-white/20 shadow-sm">
                        {t('profile.limited')}
                     </div>
                     <h3 className="font-black text-xl mb-2">{t('profile.get_credits')}</h3>
-                    <p className="text-indigo-100 text-sm leading-relaxed">
-                       {t('profile.invite_text')}
-                    </p>
+                    <p className="text-indigo-100 text-sm leading-relaxed">{t('profile.invite_text')}</p>
                  </div>
-                 
                  <button className="w-full py-3 bg-white text-indigo-600 rounded-xl font-bold text-sm hover:bg-indigo-50 transition-colors shadow-lg shadow-indigo-900/10 relative z-10 flex items-center justify-center gap-2">
                     <Share2 size={16} /> {t('profile.invite_btn')}
                  </button>

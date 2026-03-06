@@ -10,6 +10,43 @@ import { fetchContacts, fetchMessages, sendMessage as sendMessageApi, processAI 
 import { useLanguage } from '../../contexts/LanguageContext';
 import { MOCK_DATA_ZH } from '../../lib/mock-data-zh';
 
+// Per-contact exchange info (layout same as Elena, different content)
+const CONTACT_EXCHANGE_INFO: Record<number, { location: { en: string; zh: string }; skillMe: { en: string; zh: string }; skillThem: { en: string; zh: string }; skillMeIcon: string; skillThemIcon: string; files: { name: { en: string; zh: string }; size: string }[] }> = {
+  1: {
+    location: { en: 'Madrid, Spain', zh: '马德里, 西班牙' },
+    skillMe: { en: 'Spanish Conversation', zh: '西班牙语会话' },
+    skillThem: { en: 'Figma Auto-Layout', zh: 'Figma 自动布局' },
+    skillMeIcon: '🇪🇸',
+    skillThemIcon: '🎨',
+    files: [
+      { name: { en: 'Grammar Notes.pdf', zh: '语法笔记.pdf' }, size: '2.4 MB' },
+      { name: { en: 'Project_v2.fig', zh: 'Project_v2.fig' }, size: 'Link' },
+    ],
+  },
+  2: {
+    location: { en: 'San Francisco, CA', zh: '旧金山, 加州' },
+    skillMe: { en: 'Figma Design Review', zh: 'Figma 设计评审' },
+    skillThem: { en: 'React & Tailwind', zh: 'React & Tailwind' },
+    skillMeIcon: '🎨',
+    skillThemIcon: '⚛️',
+    files: [
+      { name: { en: 'Component Library.fig', zh: '组件库.fig' }, size: 'Link' },
+      { name: { en: 'React Setup Guide.pdf', zh: 'React 配置指南.pdf' }, size: '1.2 MB' },
+    ],
+  },
+  3: {
+    location: { en: 'Portland, OR', zh: '波特兰, 俄勒冈' },
+    skillMe: { en: 'Pottery Basics', zh: '陶艺入门' },
+    skillThem: { en: 'Urban Photography', zh: '城市摄影' },
+    skillMeIcon: '🏺',
+    skillThemIcon: '📷',
+    files: [
+      { name: { en: 'Photo Tips.pdf', zh: '摄影技巧.pdf' }, size: '0.8 MB' },
+      { name: { en: 'Glazing Guide.pdf', zh: '上釉指南.pdf' }, size: '1.5 MB' },
+    ],
+  },
+};
+
 const MessagesView = () => {
   const { t, language } = useLanguage();
   const [activeContactId, setActiveContactId] = useState(1);
@@ -40,6 +77,7 @@ const MessagesView = () => {
   });
 
   const activeContact = translatedContacts.find(c => c.id === activeContactId) || translatedContacts[0];
+  const exchangeInfo = CONTACT_EXCHANGE_INFO[activeContactId] || CONTACT_EXCHANGE_INFO[1];
 
   // Translate messages
   const translatedMessages = messages.map(m => {
@@ -51,17 +89,29 @@ const MessagesView = () => {
 
     // Translate dynamic fields if proposal
     if (m.type === 'proposal') {
-      // If mock data doesn't cover this specific proposal (id 8 covers it in seed), we might need logic.
-      // id 8 in seed corresponds to the proposal message.
       if (trans) {
          newMsg = { ...newMsg, ...trans };
-      } else {
-         // Fallback translation for proposal if no ID match
+      } else if (isZh) {
+         const slotZh: Record<string, string> = {
+            'Tomorrow, 2:00 PM': '明天, 下午 2:00',
+            'Thursday, 4:00 PM': '周四, 下午 4:00',
+            'Saturday, 10:00 AM': '周六, 上午 10:00',
+         };
+         const skillMeZh: Record<string, string> = {
+            'Figma Skills': 'Figma 技能',
+            'Figma Design Review': 'Figma 设计评审',
+            'Pottery Basics': '陶艺入门',
+         };
+         const skillThemZh: Record<string, string> = {
+            'Spanish Practice': '西班牙语练习',
+            'React & Tailwind': 'React & Tailwind',
+            'Urban Photography': '城市摄影',
+         };
          newMsg = {
             ...newMsg,
-            skill_me: m.skill_me === 'Figma Skills' ? 'Figma 技能' : m.skill_me,
-            skill_them: m.skill_them === 'Spanish Practice' ? '西班牙语练习' : m.skill_them,
-            time_slot: m.time_slot === 'Tomorrow, 2:00 PM' ? '明天, 下午 2:00' : m.time_slot
+            skill_me: skillMeZh[m.skill_me] || m.skill_me,
+            skill_them: skillThemZh[m.skill_them] || m.skill_them,
+            time_slot: slotZh[m.time_slot || ''] || m.time_slot,
          };
       }
     }
@@ -100,13 +150,13 @@ const MessagesView = () => {
   if (!activeContact) return <div className="flex items-center justify-center h-full text-slate-400">Loading...</div>;
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-6 h-full">
+    <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-6 h-full min-h-0 flex-1">
       
-      {/* LEFT GROUP: CONTACTS + CHAT */}
-      <div className="flex h-full bg-white rounded-[2rem] overflow-hidden shadow-sm border border-slate-100">
+      {/* LEFT GROUP: CONTACTS + CHAT - 布局与图片一致，切换联系人不变 */}
+      <div className="flex min-h-0 flex-1 bg-white rounded-[2rem] overflow-hidden shadow-sm border border-slate-100">
         
         {/* 1. LEFT SIDEBAR: CONTACTS */}
-        <div className="w-80 border-r border-slate-100 flex flex-col bg-slate-50/50">
+        <div className="w-80 shrink-0 border-r border-slate-100 flex flex-col min-h-0 bg-slate-50/50">
           {/* Search */}
           <div className="p-5">
              <h2 className="text-2xl font-black text-slate-900 mb-4">{t('messages.title')}</h2>
@@ -158,7 +208,7 @@ const MessagesView = () => {
         </div>
 
         {/* 2. MIDDLE: CHAT AREA */}
-        <div className="flex-1 flex flex-col bg-[#F8FAFC]">
+        <div className="flex-1 min-h-0 flex flex-col bg-[#F8FAFC]">
            
            {/* Chat Header */}
            <div className="bg-white/80 backdrop-blur-md px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0 z-10">
@@ -174,7 +224,7 @@ const MessagesView = () => {
                        {activeContact.name}
                        <span className="px-1.5 py-0.5 bg-indigo-50 text-indigo-600 text-[9px] font-black uppercase rounded tracking-wide">Pro</span>
                     </h3>
-                    <p className="text-xs text-slate-500">{t('messages.current_exchange')}: <span className="font-medium text-slate-700">{isZh ? '西班牙语 ⇄ Figma' : 'Spanish ⇄ Figma'}</span></p>
+                    <p className="text-xs text-slate-500">{t('messages.current_exchange')}: <span className="font-medium text-slate-700">{isZh ? `${exchangeInfo.skillMe.zh} ⇄ ${exchangeInfo.skillThem.zh}` : `${exchangeInfo.skillMe.en} ⇄ ${exchangeInfo.skillThem.en}`}</span></p>
                  </div>
               </div>
               <div className="flex items-center gap-2">
@@ -316,7 +366,7 @@ const MessagesView = () => {
       </div>
 
       {/* 3. RIGHT GROUP: CONTEXT SIDEBAR */}
-      <div className="hidden xl:flex flex-col bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 h-full overflow-y-auto">
+      <div className="hidden xl:flex flex-col min-h-0 bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 overflow-y-auto">
          <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-6">{t('messages.current_exchange')}</h3>
          
          <div className="flex flex-col items-center text-center mb-8">
@@ -325,7 +375,7 @@ const MessagesView = () => {
             </div>
             <h2 className="text-lg font-black text-slate-900 mb-1">{activeContact.name}</h2>
             <div className="flex items-center gap-1 text-slate-500 text-xs font-medium">
-               <MapPin size={12} /> {isZh ? '马德里, 西班牙' : 'Madrid, Spain'}
+               <MapPin size={12} /> {isZh ? exchangeInfo.location.zh : exchangeInfo.location.en}
             </div>
             <div className="flex gap-1 mt-3">
                {[1,2,3,4,5].map(i => <Star key={i} size={12} className="fill-yellow-400 text-yellow-400" />)}
@@ -345,17 +395,17 @@ const MessagesView = () => {
                <div className="absolute left-[15px] top-8 bottom-4 w-0.5 bg-slate-200 border-l border-dashed border-slate-300"></div>
 
                <div className="flex gap-3 relative z-10">
-                  <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-sm text-lg">🇪🇸</div>
+                  <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-sm text-lg">{exchangeInfo.skillMeIcon}</div>
                   <div>
-                     <p className="text-xs font-bold text-slate-800">{isZh ? '西班牙语会话' : 'Conversational Spanish'}</p>
+                     <p className="text-xs font-bold text-slate-800">{isZh ? exchangeInfo.skillMe.zh : exchangeInfo.skillMe.en}</p>
                      <p className="text-[10px] text-slate-400">{t('messages.offer')} (30m)</p>
                   </div>
                </div>
 
                <div className="flex gap-3 relative z-10">
-                  <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-sm text-lg">🎨</div>
+                  <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-sm text-lg">{exchangeInfo.skillThemIcon}</div>
                   <div>
-                     <p className="text-xs font-bold text-slate-800">{isZh ? 'Figma 自动布局' : 'Figma Auto-Layout'}</p>
+                     <p className="text-xs font-bold text-slate-800">{isZh ? exchangeInfo.skillThem.zh : exchangeInfo.skillThem.en}</p>
                      <p className="text-[10px] text-slate-400">{t('messages.receive')} (30m)</p>
                   </div>
                </div>
@@ -365,24 +415,17 @@ const MessagesView = () => {
          <div className="mt-auto">
             <h4 className="text-xs font-bold text-slate-800 mb-3">{t('messages.shared_files')}</h4>
             <div className="space-y-2">
-               <div className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-xl cursor-pointer transition-colors group">
-                  <div className="w-8 h-8 bg-blue-50 text-blue-500 rounded-lg flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-                     <FileText size={14} />
+               {exchangeInfo.files.map((f, i) => (
+                  <div key={i} className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-xl cursor-pointer transition-colors group">
+                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center group-hover:opacity-90 transition-colors ${i === 0 ? 'bg-blue-50 text-blue-500' : 'bg-purple-50 text-purple-500'}`}>
+                        <FileText size={14} />
+                     </div>
+                     <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-slate-700 truncate">{isZh ? f.name.zh : f.name.en}</p>
+                        <p className="text-[10px] text-slate-400">{f.size}</p>
+                     </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                     <p className="text-xs font-bold text-slate-700 truncate">{isZh ? '语法笔记.pdf' : 'Grammar Notes.pdf'}</p>
-                     <p className="text-[10px] text-slate-400">2.4 MB</p>
-                  </div>
-               </div>
-               <div className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-xl cursor-pointer transition-colors group">
-                  <div className="w-8 h-8 bg-purple-50 text-purple-500 rounded-lg flex items-center justify-center group-hover:bg-purple-100 transition-colors">
-                     <FileText size={14} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                     <p className="text-xs font-bold text-slate-700 truncate">Project_v2.fig</p>
-                     <p className="text-[10px] text-slate-400">Link</p>
-                  </div>
-               </div>
+               ))}
             </div>
          </div>
 

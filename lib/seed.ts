@@ -3,6 +3,46 @@ import { getDb } from './db';
 export function seedDatabase() {
   const db = getDb();
 
+  // Migration: ensure messages for David (2) and Sarah (3) exist (runs even for already-seeded DBs)
+  const msgCount2 = db.prepare('SELECT COUNT(*) as count FROM messages WHERE contact_id = 2').get() as any;
+  const msgCount3 = db.prepare('SELECT COUNT(*) as count FROM messages WHERE contact_id = 3').get() as any;
+  if (msgCount2.count === 0 || msgCount3.count === 0) {
+    const insertMessage = db.prepare(`
+      INSERT INTO messages (contact_id, sender, text, time, type, status, skill_me, skill_them, time_slot, icon)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    const messages2 = [
+      [2, 'them', 'Hey Jessica! Saw your Figma work on the community. Really clean component structure.', '9:15 AM', 'text', null, null, null, null, null],
+      [2, 'me', 'Thanks David! I\'d love to level up my React skills. Your Tailwind setup looks amazing.', '9:18 AM', 'text', null, null, null, null, null],
+      [2, 'them', 'Happy to help! I need someone to review my design system in Figma before I hand off to dev.', '9:20 AM', 'text', null, null, null, null, null],
+      [2, 'me', 'Perfect trade. I can do a design review and you teach me React + Tailwind patterns?', '9:22 AM', 'text', null, null, null, null, null],
+      [2, 'them', 'Deal! I sent you the project files. Check the components folder when you have time.', '9:25 AM', 'text', null, null, null, null, null],
+      [2, 'system', 'Translation: Deal! I sent you the project files. Check the components folder when you have time.', null, 'ai_trans', null, null, null, null, 'Globe'],
+      [2, 'me', 'Got them, thanks! How about Thursday 4pm for our first session?', '9:30 AM', 'text', null, null, null, null, null],
+      [2, 'me', null, null, 'proposal', 'pending', 'Figma Design Review', 'React & Tailwind', 'Thursday, 4:00 PM', null],
+    ];
+    const messages3 = [
+      [3, 'them', 'Jessica! Your pottery post was so inspiring. I\'ve been wanting to try hand-building.', 'Yesterday 3:45 PM', 'text', null, null, null, null, null],
+      [3, 'me', 'Sarah! I\'d love to teach you. And I\'ve been dying to learn urban photography from you.', 'Yesterday 3:50 PM', 'text', null, null, null, null, null],
+      [3, 'them', 'That\'s a great swap! I can show you composition and lighting downtown. Very photogenic spots.', 'Yesterday 3:52 PM', 'text', null, null, null, null, null],
+      [3, 'me', 'Amazing. Should we do pottery first at my studio, then a photo walk?', 'Yesterday 3:55 PM', 'text', null, null, null, null, null],
+      [3, 'them', 'Yes! I\'ll bring my camera. Thanks for the pottery tips you shared in the group!', 'Yesterday 4:00 PM', 'text', null, null, null, null, null],
+      [3, 'me', null, null, 'proposal', 'pending', 'Pottery Basics', 'Urban Photography', 'Saturday, 10:00 AM', null],
+    ];
+    const migrate = db.transaction(() => {
+      if (msgCount2.count === 0) {
+        for (const m of messages2) insertMessage.run(...m);
+        db.prepare('UPDATE contacts SET last_msg = ?, time = ?, skill = ? WHERE id = 2').run('Got them, thanks! How about Thursday 4pm for our first session?', '9:30 AM', 'React & Tailwind');
+      }
+      if (msgCount3.count === 0) {
+        for (const m of messages3) insertMessage.run(...m);
+        db.prepare('UPDATE contacts SET last_msg = ?, time = ?, skill = ? WHERE id = 3').run('Yes! I\'ll bring my camera. Thanks for the pottery tips you shared in the group!', 'Yesterday 4:00 PM', 'Urban Photography');
+      }
+    });
+    migrate();
+    console.log('Messages migration: David & Sarah conversations added.');
+  }
+
   // Check if already seeded
   const userCount = db.prepare('SELECT COUNT(*) as count FROM users').get() as any;
   if (userCount.count > 0) return;
@@ -109,15 +149,15 @@ export function seedDatabase() {
     // --- Contacts ---
     const contacts = [
       [1, 'Elena Rodriguez', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80', 'Hola! Are we still on for tomorrow?', '2m ago', 2, 'online', 'Conversational Spanish'],
-      [2, 'David Kim', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80', 'I sent you the project files.', '1h ago', 0, 'offline', 'React Mentorship'],
-      [3, 'Sarah Jenks', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80', 'Thanks for the pottery tips!', '1d ago', 0, 'online', 'Pottery Basics'],
+      [2, 'David Kim', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80', 'Got them, thanks! How about Thursday 4pm for our first session?', '9:30 AM', 0, 'online', 'React & Tailwind'],
+      [3, 'Sarah Jenks', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80', 'Yes! I\'ll bring my camera. Thanks for the pottery tips you shared in the group!', 'Yesterday 4:00 PM', 0, 'online', 'Urban Photography'],
     ];
     for (const c of contacts) {
       insertContact.run(...c);
     }
 
-    // --- Messages (for contact 1: Elena) ---
-    const messages = [
+    // --- Messages (contact 1: Elena - Spanish ⇄ Figma) ---
+    const messages1 = [
       [1, 1, 'them', 'Hola Jessica! I noticed you were interested in improving your Spanish conversation skills.', '10:30 AM', 'text', null, null, null, null, null],
       [2, 1, 'me', 'Hi Elena! Yes, I took some classes in college but I really need practice speaking.', '10:32 AM', 'text', null, null, null, null, null],
       [3, 1, 'them', 'Perfect! I would love to help you. I am looking for someone to help me with Figma auto-layout.', '10:33 AM', 'text', null, null, null, null, null],
@@ -127,7 +167,27 @@ export function seedDatabase() {
       [7, 1, 'them', 'Sounds fair. When are you free?', '10:36 AM', 'text', null, null, null, null, null],
       [8, 1, 'me', null, null, 'proposal', 'pending', 'Figma Skills', 'Spanish Practice', 'Tomorrow, 2:00 PM', null],
     ];
-    for (const m of messages) {
+    // --- Messages (contact 2: David Kim - Figma ⇄ React) ---
+    const messages2 = [
+      [9, 2, 'them', 'Hey Jessica! Saw your Figma work on the community. Really clean component structure.', '9:15 AM', 'text', null, null, null, null, null],
+      [10, 2, 'me', 'Thanks David! I’d love to level up my React skills. Your Tailwind setup looks amazing.', '9:18 AM', 'text', null, null, null, null, null],
+      [11, 2, 'them', 'Happy to help! I need someone to review my design system in Figma before I hand off to dev.', '9:20 AM', 'text', null, null, null, null, null],
+      [12, 2, 'me', 'Perfect trade. I can do a design review and you teach me React + Tailwind patterns?', '9:22 AM', 'text', null, null, null, null, null],
+      [13, 2, 'them', 'Deal! I sent you the project files. Check the components folder when you have time.', '9:25 AM', 'text', null, null, null, null, null],
+      [14, 2, 'system', 'Translation: Deal! I sent you the project files. Check the components folder when you have time.', null, 'ai_trans', null, null, null, null, 'Globe'],
+      [15, 2, 'me', 'Got them, thanks! How about Thursday 4pm for our first session?', '9:30 AM', 'text', null, null, null, null, null],
+      [16, 2, 'me', null, null, 'proposal', 'pending', 'Figma Design Review', 'React & Tailwind', 'Thursday, 4:00 PM', null],
+    ];
+    // --- Messages (contact 3: Sarah Jenks - Pottery ⇄ Photography) ---
+    const messages3 = [
+      [17, 3, 'them', 'Jessica! Your pottery post was so inspiring. I’ve been wanting to try hand-building.', 'Yesterday 3:45 PM', 'text', null, null, null, null, null],
+      [18, 3, 'me', 'Sarah! I’d love to teach you. And I’ve been dying to learn urban photography from you.', 'Yesterday 3:50 PM', 'text', null, null, null, null, null],
+      [19, 3, 'them', 'That’s a great swap! I can show you composition and lighting downtown. Very photogenic spots.', 'Yesterday 3:52 PM', 'text', null, null, null, null, null],
+      [20, 3, 'me', 'Amazing. Should we do pottery first at my studio, then a photo walk?', 'Yesterday 3:55 PM', 'text', null, null, null, null, null],
+      [21, 3, 'them', 'Yes! I’ll bring my camera. Thanks for the pottery tips you shared in the group!', 'Yesterday 4:00 PM', 'text', null, null, null, null, null],
+      [22, 3, 'me', null, null, 'proposal', 'pending', 'Pottery Basics', 'Urban Photography', 'Saturday, 10:00 AM', null],
+    ];
+    for (const m of [...messages1, ...messages2, ...messages3]) {
       insertMessage.run(...m);
     }
 

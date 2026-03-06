@@ -84,9 +84,9 @@ export const MOCK_DATA_ZH: Record<string, any> = {
 
   // --- Contacts ---
   contacts: {
-    // 1: { lastMsg: "Hola! Are we still on for tomorrow?", skill: "Spanish Practice" },
-    // 2: { lastMsg: "I sent you the project files.", skill: "React Mentoring" },
-    // 3: { lastMsg: "Thanks for the pottery tips!", skill: "Pottery Basics" }
+    1: { lastMsg: "Hola! 明天还约吗？", skill: "西班牙语会话" },
+    2: { lastMsg: "收到了，谢谢！周四下午4点我们第一次课怎么样？", skill: "React & Tailwind" },
+    3: { lastMsg: "好！我会带相机。谢谢你在群里分享的陶艺技巧！", skill: "城市摄影" },
   },
 
   // --- Messages ---

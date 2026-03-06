@@ -6,6 +6,7 @@ export const translations = {
       explore: "Explore",
       community: "Community",
       login: "Log In",
+      go_to_app: "Go to App",
       profile: "Profile"
     },
     hero: {
@@ -13,6 +14,7 @@ export const translations = {
       title_suffix: "Skill Galaxy?",
       subtitle: "Connect with people who vibe with what you want to learn. No money, just pure exchange.",
       start_button: "Start Swapping",
+      mock_page: "Mock Page",
       skills: {
         language: "Language",
         fitness: "Fitness",
@@ -80,6 +82,9 @@ export const translations = {
       welcome: "Welcome to",
       subtitle: "The place where skills are currency.\nConnect, teach, and learn for free.",
       google: "Continue with Google",
+      apple: "Apple",
+      email: "Email",
+      login: "Log in with Google, Apple or Email",
       guest: "Explore as Guest",
       no_account: "No account yet?",
       step2_title: "What represents your expertise?",
@@ -128,7 +133,14 @@ export const translations = {
       trending: "Trending Now",
       invite: "Invite Friends",
       copy: "Copy",
-      grow: "Grow our galaxy"
+      grow: "Grow our galaxy",
+      ai_assistant: "AI Matching Assistant",
+      ai_assistant_subtitle: "Find your skill soulmate",
+      ai_bot_welcome: "Welcome! Tell me what you want to learn or teach, and I'll find the best matches for you.",
+      ai_reply_placeholder: "Got it! Matching you with the best skill swap partners...",
+      ai_type_message: "Type a message...",
+      ai_error: "Something went wrong. Please try again.",
+      ai_loading: "Matching..."
     },
     exchange: {
       title: "My Exchanges",
@@ -264,6 +276,7 @@ export const translations = {
       explore: "发现",
       community: "社区动态",
       login: "登录",
+      go_to_app: "进入应用",
       profile: "个人中心"
     },
     hero: {
@@ -271,6 +284,7 @@ export const translations = {
       title_suffix: "值得被整片星系看见",
       subtitle: "连接灵魂契合的学习伙伴。拒绝金钱交易，回归纯粹的技能互换。",
       start_button: "开启交换之旅",
+      mock_page: "Mock页面",
       skills: {
         language: "语言",
         fitness: "健身",
@@ -338,6 +352,9 @@ export const translations = {
       welcome: "欢迎来到",
       subtitle: "在这里，技能即货币。\n连接、分享、免费学习。",
       google: "通过 Google 继续",
+      apple: "Apple",
+      email: "邮箱",
+      login: "使用 Google、Apple 或邮箱登录",
       guest: "以访客身份浏览",
       no_account: "还没有账号？",
       step2_title: "你的擅长领域是？",
@@ -386,7 +403,14 @@ export const translations = {
       trending: "当前热门",
       invite: "邀请好友",
       copy: "复制",
-      grow: "壮大我们的星系"
+      grow: "壮大我们的星系",
+      ai_assistant: "AI配对助手",
+      ai_assistant_subtitle: "帮你找到技能灵魂伴侣",
+      ai_bot_welcome: "你好！告诉我你想学什么或能教什么，我会为你找到最合适的匹配。",
+      ai_reply_placeholder: "收到！正在为你匹配最合适的技能交换伙伴...",
+      ai_error: "出错了，请稍后重试。",
+      ai_loading: "正在匹配...",
+      ai_type_message: "输入消息..."
     },
     exchange: {
       title: "我的交换",

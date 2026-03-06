@@ -14,9 +14,20 @@ import { LanguageProvider } from '../contexts/LanguageContext';
 import { ToastProvider } from '../contexts/ToastContext';
 import { AuthProvider } from '../contexts/AuthContext';
 import { useUser } from '@clerk/nextjs';
+import { setAppMode, type AppMode } from '../lib/app-mode';
 
-const ClientApp: React.FC = () => {
-  const [view, setView] = useState<'landing' | 'onboarding' | 'dashboard'>('landing');
+const ONBOARDING_RETURN_KEY = 'skillswap_return_to_onboarding_step';
+
+const ClientApp: React.FC<{ testMode?: boolean; initialView?: 'landing' | 'onboarding' | 'dashboard' }> = ({ testMode, initialView }) => {
+  const [view, setView] = useState<'landing' | 'onboarding' | 'dashboard'>(
+    initialView ?? (testMode ? 'dashboard' : 'landing')
+  );
+  const [appMode, setAppModeState] = useState<AppMode>(testMode ? 'guest' : 'guest');
+
+  useEffect(() => {
+    if (testMode && view === 'dashboard') setAppMode('guest');
+  }, [testMode, view]);
+  const [onboardingInitialStep, setOnboardingInitialStep] = useState<1 | 2 | 3 | 4 | undefined>(undefined);
   const { isSignedIn, user } = useUser();
 
   useEffect(() => {
@@ -25,16 +36,36 @@ const ClientApp: React.FC = () => {
 
   useEffect(() => {
     if (isSignedIn) {
-      setView('dashboard');
+      const returnStep = typeof window !== 'undefined' ? sessionStorage.getItem(ONBOARDING_RETURN_KEY) : null;
+      if (returnStep) {
+        sessionStorage.removeItem(ONBOARDING_RETURN_KEY);
+        setOnboardingInitialStep(Number(returnStep) as 1 | 2 | 3 | 4);
+        setView('onboarding');
+      }
     }
   }, [isSignedIn]);
 
   const handleStart = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    setOnboardingInitialStep(undefined);
     setView('onboarding');
   };
 
   const handleFinishOnboarding = () => {
+    setView('dashboard');
+  };
+
+  /** Mock页面：Mock 数据，浏览发现页 */
+  const handleMockPage = () => {
+    setAppMode('guest');
+    setAppModeState('guest');
+    setView('dashboard');
+  };
+
+  /** 进入应用：已登录用户，真实 API */
+  const handleGoToDashboard = () => {
+    setAppMode('authenticated');
+    setAppModeState('authenticated');
     setView('dashboard');
   };
 
@@ -69,7 +100,7 @@ const ClientApp: React.FC = () => {
         <div className="relative z-10 flex flex-col min-h-screen">
           {view === 'landing' && (
             <>
-              <Navbar onLoginClick={handleStart} />
+              <Navbar onLoginClick={handleStart} onGoToDashboard={handleGoToDashboard} />
               <Hero onStart={handleStart} />
               <ValueProps />
               <ProductPreview />
@@ -80,11 +111,11 @@ const ClientApp: React.FC = () => {
           )}
 
           {view === 'onboarding' && (
-            <Onboarding onFinish={handleFinishOnboarding} />
+            <Onboarding onFinish={handleFinishOnboarding} initialStep={onboardingInitialStep} onMockPage={handleMockPage} />
           )}
 
           {view === 'dashboard' && (
-            <MainAppLayout user={{ name: user?.fullName || user?.firstName || "Guest User" }} />
+            <MainAppLayout user={{ name: user?.fullName || user?.firstName || "Guest User" }} testMode={true} appMode={appMode} />
           )}
         </div>
       </div>

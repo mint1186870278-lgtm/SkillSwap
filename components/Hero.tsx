@@ -33,7 +33,7 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
           
           <h1 className={`${titleSizeClass} font-extrabold mb-4 text-textMain font-heading tracking-tight drop-shadow-sm leading-[1.1]`}>
             {t('hero.title_prefix')} <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 animate-pulse">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 animate-pulse">
               {t('hero.title_suffix')}
             </span>
           </h1>
@@ -62,7 +62,7 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4">
-            <Button onClick={onStart} variant="secondary" size="lg" className="rounded-full px-10 py-3 text-base">
+            <Button onClick={onStart} variant="primary" size="lg" className="rounded-full px-10 py-3 text-base !bg-white !text-indigo-600 hover:!bg-indigo-50">
               {t('hero.start_button')}
             </Button>
           </div>

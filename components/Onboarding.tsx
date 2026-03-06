@@ -1,12 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { SignInButton } from '@clerk/nextjs';
 import Button from './Button';
-import { Globe, Dumbbell, Rocket, Palette, CheckCircle2, Search, Sparkles, MessageCircle, ArrowRight, Check, Mail, Github, Smartphone, Chrome, Command, X, Plus, Languages, ChevronDown } from 'lucide-react';
+import { Globe, Dumbbell, Rocket, Palette, CheckCircle2, Search, Sparkles, MessageCircle, ArrowRight, Check, X, Plus, Languages, ChevronDown } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+
+const ONBOARDING_RETURN_KEY = 'skillswap_return_to_onboarding_step';
 const mascotImage = "/Gemini_Generated_Image.png";
 
 interface OnboardingProps {
   onFinish: () => void;
+  initialStep?: 1 | 2 | 3 | 4;
+  onMockPage?: () => void;
 }
 
   // --- Planet Icons (Light Mode Optimized) ---
@@ -171,9 +176,21 @@ const NavButtons = ({ onBack, onClose, showBack = true }: { onBack?: () => void,
   );
 };
 
-const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
+const Onboarding: React.FC<OnboardingProps> = ({ onFinish, initialStep, onMockPage }) => {
   const { t } = useLanguage();
-  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(initialStep ?? 1);
+
+  const handleLoginClick = () => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem(ONBOARDING_RETURN_KEY, '2');
+    }
+  };
+
+  useEffect(() => {
+    if (initialStep != null) {
+      setStep(initialStep);
+    }
+  }, [initialStep]);
   
   // Step 2 State: Skill Identity
   const [teachGalaxies, setTeachGalaxies] = useState<string[]>([]);
@@ -291,20 +308,17 @@ const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
             {t('onboarding.subtitle')}
           </p>
 
-          {/* Login Options (Light Theme) */}
-          <div className="w-full space-y-3 mb-4">
-            <button className="w-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold py-3 rounded-xl flex items-center justify-center gap-3 transition-all shadow-sm hover:shadow-md">
-               <Chrome size={20} className="text-slate-400" />
-               {t('onboarding.google')}
-            </button>
-            <div className="grid grid-cols-2 gap-3">
-               <button className="w-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow-md">
-                 <Command size={18} className="text-slate-400" /> Apple
-               </button>
-               <button className="w-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow-md">
-                 <Mail size={18} className="text-slate-400" /> Email
-               </button>
-            </div>
+          {/* 登录 - 与 Landing 页共用同一套 Clerk 登录弹窗 */}
+          <div className="w-full mb-4">
+            <SignInButton mode="modal">
+              <button
+                onClick={handleLoginClick}
+                className="w-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold py-3.5 rounded-xl flex items-center justify-center gap-3 transition-all shadow-sm hover:shadow-md"
+              >
+                 <Sparkles size={20} className="text-indigo-500" />
+                 {t('onboarding.login')}
+              </button>
+            </SignInButton>
           </div>
 
           <div className="relative w-full flex items-center justify-center py-2 mb-2">
@@ -322,6 +336,15 @@ const Onboarding: React.FC<OnboardingProps> = ({ onFinish }) => {
             {t('onboarding.guest')}
             <ArrowRight className="group-hover:translate-x-1 transition-transform" />
           </button>
+
+          {onMockPage && (
+            <button 
+              onClick={onMockPage}
+              className="mt-4 text-xs text-slate-400 hover:text-slate-600 transition-colors underline underline-offset-2"
+            >
+              {t('hero.mock_page')}
+            </button>
+          )}
 
         </div>
       </motion.div>

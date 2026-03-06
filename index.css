@@ -29,3 +29,12 @@ body {
   background: linear-gradient(to bottom, #A78BFA, #8B5CF6);
 }
 
+/* Hide scrollbar for horizontal scroll sections (e.g. Community Voices) */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Calendar, Clock, MessageCircle, MapPin, Star, Shield, 
   ChevronLeft, Video, Play, Globe, CheckCircle2, Heart,
-  Languages, GraduationCap, ChevronRight, Zap, Bot, ImageIcon, Trophy
+  Languages, ChevronRight, Zap, Bot, ImageIcon, Trophy
 } from 'lucide-react';
 import { ImageWithFallback } from '../../figma/ImageWithFallback';
 import { fetchSimilarExperts, fetchUserNFTs, fetchNFTDetail } from '../../lib/api-client';
@@ -16,7 +16,7 @@ interface SkillDetailProps {
 
 const SkillDetailView: React.FC<SkillDetailProps> = ({ onBack, item }) => {
   const { t, language } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'about' | 'teacher' | 'lessons'>('about');
+  const [activeTab, setActiveTab] = useState<'about' | 'lessons'>('about');
   const [similarExperts, setSimilarExperts] = useState<any[]>([]);
   const [providerNfts, setProviderNfts] = useState<any[]>([]);
   const [showProviderNftModal, setShowProviderNftModal] = useState(false);
@@ -185,7 +185,6 @@ const SkillDetailView: React.FC<SkillDetailProps> = ({ onBack, item }) => {
               <div className="flex items-center gap-8 border-b border-slate-200">
                  {[
                     { id: 'about', label: t('skill_detail.about_me') },
-                    { id: 'teacher', label: t('skill_detail.as_teacher') },
                     { id: 'lessons', label: t('skill_detail.swap_ways') }
                  ].map((tab) => (
                     <button 
@@ -301,33 +300,7 @@ const SkillDetailView: React.FC<SkillDetailProps> = ({ onBack, item }) => {
               </>
               )}
 
-              {/* 4. My Skills (teacher tab) */}
-              {activeTab === 'teacher' && (
-              <div className="space-y-6">
-                 <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm">
-                    <h3 className="font-black text-lg text-slate-800 mb-4">{t('skill_detail.as_teacher')}</h3>
-                    <div className="space-y-4">
-                       <div className="flex gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
-                             <GraduationCap size={20} />
-                          </div>
-                          <div>
-                             <h4 className="font-bold text-slate-800">{title}</h4>
-                             <p className="text-sm text-slate-500">{language === 'zh' ? '可互换技能' : 'Skill for swap'}</p>
-                          </div>
-                       </div>
-                       <p className="text-slate-600 text-sm leading-relaxed">{description}</p>
-                       <div className="flex flex-wrap gap-2 pt-2">
-                          {[speaks, 'English'].map((lang, i) => (
-                             <span key={i} className="px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-full">{lang}</span>
-                          ))}
-                       </div>
-                    </div>
-                 </div>
-              </div>
-              )}
-
-              {/* 5. 交换方式 - 技能交换导向 */}
+              {/* 4. 交换方式 - 技能交换导向 */}
               {activeTab === 'lessons' && (
               <>
               {/* TA 擅长 / TA 想学 - 强调互相交换 */}

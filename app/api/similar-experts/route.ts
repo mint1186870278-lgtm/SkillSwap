@@ -13,7 +13,7 @@ export async function GET() {
       image: e.image,
       lessons: e.lessons,
       rating: e.rating,
-      price: e.price,
+      price: parseInt(String(e.price || '1'), 10) || 1,
     }));
 
     return NextResponse.json(result);

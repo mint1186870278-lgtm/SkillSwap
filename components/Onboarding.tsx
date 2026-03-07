@@ -4,6 +4,9 @@ import { SignInButton } from '@clerk/nextjs';
 import Button from './Button';
 import { Globe, Dumbbell, Rocket, Palette, CheckCircle2, Search, Sparkles, MessageCircle, ArrowRight, Check, X, Plus, Languages, ChevronDown } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useUserSkills } from '../contexts/UserSkillsContext';
+import { PlanetLanguage, PlanetFitness, PlanetTech, PlanetDesign, PlanetDiscovery } from './PlanetIcons';
+import { SUGGESTIONS } from '../lib/skills-config';
 
 const ONBOARDING_RETURN_KEY = 'skillswap_return_to_onboarding_step';
 const mascotImage = "/Gemini_Generated_Image.png";
@@ -13,76 +16,6 @@ interface OnboardingProps {
   initialStep?: 1 | 2 | 3 | 4;
   onMockPage?: () => void;
 }
-
-  // --- Planet Icons (Light Mode Optimized) ---
-const PlanetBase = ({ color, children }: { color: string, children: React.ReactNode }) => (
-  <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-xl" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="50" cy="50" r="48" fill={color} />
-    <mask id={`mask-${color}`} maskUnits="userSpaceOnUse" x="2" y="2" width="96" height="96">
-      <circle cx="50" cy="50" r="48" fill="white" />
-    </mask>
-    <g mask={`url(#mask-${color})`}>
-      {children}
-    </g>
-    <path d="M75 25 Q 85 35 80 45" stroke="white" strokeWidth="3" strokeLinecap="round" opacity="0.4" />
-  </svg>
-);
-
-const PlanetLanguage = ({ className }: { className?: string }) => (
-  <div className={className}>
-    <PlanetBase color="#A78BFA">
-      <path d="M-10 20L110 80" stroke="#C4B5FD" strokeWidth="12" strokeLinecap="round" />
-      <path d="M-10 50L110 110" stroke="#C4B5FD" strokeWidth="12" strokeLinecap="round" />
-    </PlanetBase>
-  </div>
-);
-const PlanetFitness = ({ className }: { className?: string }) => (
-  <div className={className}>
-    <PlanetBase color="#F472B6">
-      <circle cx="30" cy="30" r="8" fill="#FBCFE8" />
-      <circle cx="70" cy="40" r="12" fill="#FBCFE8" />
-      <circle cx="45" cy="70" r="10" fill="#FBCFE8" />
-    </PlanetBase>
-  </div>
-);
-const PlanetTech = ({ className }: { className?: string }) => (
-  <div className={className}>
-    <PlanetBase color="#60A5FA">
-      <path d="M10 50 Q 50 20 90 50" stroke="#93C5FD" strokeWidth="8" strokeLinecap="round" fill="none" />
-      <path d="M10 50 Q 50 80 90 50" stroke="#93C5FD" strokeWidth="8" strokeLinecap="round" fill="none" />
-    </PlanetBase>
-  </div>
-);
-const PlanetDesign = ({ className }: { className?: string }) => (
-  <div className={className}>
-    <PlanetBase color="#FCD34D">
-      <path d="M15 40 Q 50 50 85 40" stroke="#FEF3C7" strokeWidth="6" fill="none" />
-      <path d="M15 60 Q 50 70 85 60" stroke="#FEF3C7" strokeWidth="6" fill="none" />
-      <path d="M10 65 Q 50 45 90 45" stroke="#7DD3FC" strokeWidth="8" strokeLinecap="round" />
-    </PlanetBase>
-  </div>
-);
-const PlanetDiscovery = ({ className }: { className?: string }) => (
-  <div className={className}>
-    <PlanetBase color="#34D399">
-      {/* Saturn-like Ring Effect */}
-      <circle cx="50" cy="50" r="20" fill="#10B981" opacity="0.5" />
-      <path d="M-10 65 Q 50 35 110 65" stroke="#6EE7B7" strokeWidth="12" fill="none" />
-      <path d="M-10 45 Q 50 15 110 45" stroke="#D1FAE5" strokeWidth="6" fill="none" opacity="0.8" />
-      {/* Moons */}
-      <circle cx="80" cy="30" r="6" fill="#ECFDF5" />
-      <circle cx="20" cy="70" r="4" fill="#ECFDF5" />
-    </PlanetBase>
-  </div>
-);
-
-const SUGGESTIONS: Record<string, string[]> = {
-  language: ['English', 'Spanish', 'Mandarin', 'French', 'Japanese', 'German'],
-  fitness: ['Yoga', 'HIIT', 'Running', 'Weightlifting', 'Pilates', 'Meditation'],
-  tech: ['Python', 'React', 'JavaScript', 'AI/ML', 'Data Science', 'Rust'],
-  design: ['Figma', 'Photoshop', 'UI/UX', 'Illustration', '3D Modeling', 'Canva'],
-  other: ['Astronomy', 'History', 'Photography', 'Writing', 'Travel', 'Cooking']
-};
 
 
 const FloatingFish: React.FC<{ className?: string }> = ({ className }) => (
@@ -178,6 +111,7 @@ const NavButtons = ({ onBack, onClose, showBack = true }: { onBack?: () => void,
 
 const Onboarding: React.FC<OnboardingProps> = ({ onFinish, initialStep, onMockPage }) => {
   const { t } = useLanguage();
+  const { setSkills } = useUserSkills();
   const [step, setStep] = useState<1 | 2 | 3 | 4>(initialStep ?? 1);
 
   const handleLoginClick = () => {
@@ -805,11 +739,11 @@ const Onboarding: React.FC<OnboardingProps> = ({ onFinish, initialStep, onMockPa
 
                   {/* Actions */}
                   <div className="space-y-3">
-                     <Button variant="secondary" onClick={onFinish} className="w-full rounded-2xl flex items-center justify-center gap-2 py-4 shadow-xl shadow-purple-900/10 transition-transform hover:scale-[1.02]">
+                     <Button variant="secondary" onClick={() => { setSkills({ teachGalaxies, teachTags, learnGalaxies, learnTags }); onFinish(); }} className="w-full rounded-2xl flex items-center justify-center gap-2 py-4 shadow-xl shadow-purple-900/10 transition-transform hover:scale-[1.02]">
                         <MessageCircle size={20} /> {t('onboarding.say_hi')}
                      </Button>
                      <button 
-                        onClick={onFinish}
+                        onClick={() => { setSkills({ teachGalaxies, teachTags, learnGalaxies, learnTags }); onFinish(); }}
                         className="w-full py-2 text-xs font-bold text-slate-400 hover:text-slate-600 transition-colors uppercase tracking-widest hover:underline underline-offset-4"
                      >
                         {t('onboarding.maybe_later')}

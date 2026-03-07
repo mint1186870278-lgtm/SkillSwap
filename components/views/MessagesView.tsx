@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { 
   Search, Phone, Video, MoreVertical, Paperclip, Mic, Send, 
   Bot, Clock, Calendar, CheckCircle, XCircle, Shield, Globe, 
-  FileText, ChevronRight, Star, MapPin
+  FileText, ChevronRight, Star, MapPin, MessageCircle, Compass,
+  Zap, Sparkles
 } from 'lucide-react';
 import { ImageWithFallback } from '../../figma/ImageWithFallback';
 import { motion } from 'motion/react';
 import { fetchContacts, fetchMessages, sendMessage as sendMessageApi, processAI } from '../../lib/api-client';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { MOCK_DATA_ZH } from '../../lib/mock-data-zh';
+import { MOCK_CONTACT_EXCHANGE_PROGRESS } from '../../lib/mock-data';
 
 // Per-contact exchange info (layout same as Elena, different content)
 const CONTACT_EXCHANGE_INFO: Record<number, { location: { en: string; zh: string }; skillMe: { en: string; zh: string }; skillThem: { en: string; zh: string }; skillMeIcon: string; skillThemIcon: string; files: { name: { en: string; zh: string }; size: string }[] }> = {
@@ -47,20 +49,24 @@ const CONTACT_EXCHANGE_INFO: Record<number, { location: { en: string; zh: string
   },
 };
 
-const MessagesView = () => {
+const MessagesView = ({ onNavigateToExplore }: { onNavigateToExplore?: () => void }) => {
   const { t, language } = useLanguage();
-  const [activeContactId, setActiveContactId] = useState(1);
+  const [activeContactId, setActiveContactId] = useState<number | null>(null);
   const [contacts, setContacts] = useState<any[]>([]);
+  const [contactsLoaded, setContactsLoaded] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
   const [inputText, setInputText] = useState('');
 
   const isZh = language === 'zh';
 
   useEffect(() => {
-    fetchContacts().then(data => {
-      setContacts(data);
-      if (data.length > 0) setActiveContactId(data[0].id);
-    }).catch(console.error);
+    fetchContacts()
+      .then(data => {
+        setContacts(data);
+        if (data.length > 0) setActiveContactId(data[0].id);
+        setContactsLoaded(true);
+      })
+      .catch(() => setContactsLoaded(true));
   }, []);
 
   useEffect(() => {
@@ -77,7 +83,8 @@ const MessagesView = () => {
   });
 
   const activeContact = translatedContacts.find(c => c.id === activeContactId) || translatedContacts[0];
-  const exchangeInfo = CONTACT_EXCHANGE_INFO[activeContactId] || CONTACT_EXCHANGE_INFO[1];
+  const exchangeInfo = activeContactId ? (CONTACT_EXCHANGE_INFO[activeContactId] || CONTACT_EXCHANGE_INFO[1]) : null;
+  const exchangeProgress = activeContactId ? (MOCK_CONTACT_EXCHANGE_PROGRESS[activeContactId] || { stage: 0, totalStages: 5, achievements: [] }) : null;
 
   // Translate messages
   const translatedMessages = messages.map(m => {
@@ -147,7 +154,34 @@ const MessagesView = () => {
     }
   };
 
-  if (!activeContact) return <div className="flex items-center justify-center h-full text-slate-400">Loading...</div>;
+  if (!contactsLoaded) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-pulse text-slate-400 text-sm font-medium">Loading...</div>
+      </div>
+    );
+  }
+
+  if (contacts.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full min-h-[400px] px-6">
+        <div className="w-20 h-20 rounded-full bg-indigo-50 flex items-center justify-center mb-6">
+          <MessageCircle size={40} className="text-indigo-400" />
+        </div>
+        <h3 className="text-xl font-black text-slate-800 mb-2 text-center">{t('messages.empty_title')}</h3>
+        <p className="text-slate-500 text-sm text-center max-w-sm mb-8 leading-relaxed">{t('messages.empty_text')}</p>
+        <button
+          onClick={onNavigateToExplore}
+          className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-indigo-600 transition-colors flex items-center gap-2 shadow-lg shadow-slate-200"
+        >
+          <Compass size={20} />
+          {t('messages.empty_btn')}
+        </button>
+      </div>
+    );
+  }
+
+  if (!activeContact) return null;
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-6 h-full min-h-0 flex-1">
@@ -211,34 +245,67 @@ const MessagesView = () => {
         <div className="flex-1 min-h-0 flex flex-col bg-[#F8FAFC]">
            
            {/* Chat Header */}
-           <div className="bg-white/80 backdrop-blur-md px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0 z-10">
-              <div className="flex items-center gap-3">
-                 <div className="relative">
-                    <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-100">
-                       <ImageWithFallback src={activeContact.avatar} alt={activeContact.name} className="w-full h-full object-cover" />
+           <div className="bg-white/80 backdrop-blur-md px-6 py-4 border-b border-slate-100 shrink-0 z-10">
+              <div className="flex items-center justify-between">
+                 <div className="flex items-center gap-3">
+                    <div className="relative">
+                       <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-100">
+                          <ImageWithFallback src={activeContact.avatar} alt={activeContact.name} className="w-full h-full object-cover" />
+                       </div>
+                       <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></div>
                     </div>
-                    <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></div>
+                    <div>
+                       <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                          {activeContact.name}
+                          <span className="px-1.5 py-0.5 bg-indigo-50 text-indigo-600 text-[9px] font-black uppercase rounded tracking-wide">Pro</span>
+                       </h3>
+                       <p className="text-xs text-slate-500">{t('messages.current_exchange')}: <span className="font-medium text-slate-700">{exchangeInfo ? (isZh ? `${exchangeInfo.skillMe.zh} ⇄ ${exchangeInfo.skillThem.zh}` : `${exchangeInfo.skillMe.en} ⇄ ${exchangeInfo.skillThem.en}`) : ''}</span></p>
+                    </div>
                  </div>
-                 <div>
-                    <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                       {activeContact.name}
-                       <span className="px-1.5 py-0.5 bg-indigo-50 text-indigo-600 text-[9px] font-black uppercase rounded tracking-wide">Pro</span>
-                    </h3>
-                    <p className="text-xs text-slate-500">{t('messages.current_exchange')}: <span className="font-medium text-slate-700">{isZh ? `${exchangeInfo.skillMe.zh} ⇄ ${exchangeInfo.skillThem.zh}` : `${exchangeInfo.skillMe.en} ⇄ ${exchangeInfo.skillThem.en}`}</span></p>
+                 <div className="flex items-center gap-2">
+                    <button className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors">
+                       <Phone size={20} />
+                    </button>
+                    <button className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors">
+                       <Video size={20} />
+                    </button>
+                    <div className="w-[1px] h-6 bg-slate-200 mx-1"></div>
+                    <button className="p-2 text-slate-400 hover:text-slate-600 rounded-full transition-colors">
+                       <MoreVertical size={20} />
+                    </button>
                  </div>
               </div>
-              <div className="flex items-center gap-2">
-                 <button className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors">
-                    <Phone size={20} />
-                 </button>
-                 <button className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors">
-                    <Video size={20} />
-                 </button>
-                 <div className="w-[1px] h-6 bg-slate-200 mx-1"></div>
-                 <button className="p-2 text-slate-400 hover:text-slate-600 rounded-full transition-colors">
-                    <MoreVertical size={20} />
-                 </button>
-              </div>
+              {/* 交换进度 & 阶段成就 (Soul 式) */}
+              {exchangeProgress && exchangeProgress.achievements.length > 0 && (
+                 <div className="mt-4 pt-4 border-t border-slate-100">
+                    <div className="flex items-center justify-between mb-2">
+                       <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">{t('messages.exchange_progress')}</span>
+                       <span className="text-xs font-black text-indigo-600">{exchangeProgress.stage}/{exchangeProgress.totalStages}</span>
+                    </div>
+                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden mb-3">
+                       <div 
+                          className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-500" 
+                          style={{ width: `${(exchangeProgress.stage / exchangeProgress.totalStages) * 100}%` }}
+                       />
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                       {exchangeProgress.achievements.map((a) => (
+                          <span 
+                             key={a.id} 
+                             className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold transition-all ${
+                                a.unlocked 
+                                   ? 'bg-amber-50 text-amber-700 border border-amber-200 shadow-sm' 
+                                   : 'bg-slate-50 text-slate-400 border border-slate-100'
+                             }`}
+                             title={a.unlocked ? t('messages.achievement_unlocked') : t('messages.achievement_locked')}
+                          >
+                             {a.unlocked ? <Sparkles size={10} className="text-amber-500" /> : <Zap size={10} className="opacity-50" />}
+                             {isZh ? a.label : (a.labelEn || a.label)}
+                          </span>
+                       ))}
+                    </div>
+                 </div>
+              )}
            </div>
 
            {/* Messages List */}

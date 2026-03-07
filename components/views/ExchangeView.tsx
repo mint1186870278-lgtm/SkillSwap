@@ -2,23 +2,30 @@ import React, { useState, useEffect } from 'react';
 import { 
   Calendar, Clock, Video, MessageCircle, Star, 
   MoreVertical, CheckCircle, XCircle, AlertCircle, TrendingUp,
-  ArrowRight, Hourglass
+  ArrowRight, Hourglass, FileText, ChevronRight
 } from 'lucide-react';
 import { ImageWithFallback } from '../../figma/ImageWithFallback';
 import { motion, AnimatePresence } from 'motion/react';
-import { fetchSessions } from '../../lib/api-client';
+import { fetchSessions, fetchExchangeStats, type ExchangeStats } from '../../lib/api-client';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { MOCK_DATA_ZH } from '../../lib/mock-data-zh';
 
-const ExchangeView = () => {
+const ExchangeView = ({ onNavigateToExchangeFeedback }: { onNavigateToExchangeFeedback?: () => void }) => {
   const { t, language } = useLanguage();
   const [filter, setFilter] = useState<'upcoming' | 'pending' | 'past'>('upcoming');
   const [sessions, setSessions] = useState<any[]>([]);
+  const [stats, setStats] = useState<ExchangeStats | null>(null);
 
   useEffect(() => {
     fetchSessions()
       .then(setSessions)
       .catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    fetchExchangeStats()
+      .then(setStats)
+      .catch(() => setStats(null));
   }, []);
 
   const isZh = language === 'zh';
@@ -88,6 +95,25 @@ const ExchangeView = () => {
            ))}
         </div>
       </div>
+
+      {/* 交换反馈帖入口 - 双方确认交换后平台自动创建 */}
+      {onNavigateToExchangeFeedback && (
+        <div 
+          onClick={onNavigateToExchangeFeedback}
+          className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100 flex items-center justify-between cursor-pointer hover:shadow-md transition-all group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600 group-hover:scale-105 transition-transform">
+              <FileText size={20} />
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-800 text-sm">{isZh ? '交换反馈帖' : 'Exchange Feedback'}</h3>
+              <p className="text-slate-500 text-xs">{isZh ? '双方确认交换后平台自动创建，记录学习进度' : 'Auto-created when you confirm a swap'}</p>
+            </div>
+          </div>
+          <ChevronRight size={20} className="text-indigo-400 group-hover:translate-x-1 transition-transform" />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-8 items-start">
          
@@ -207,24 +233,24 @@ const ExchangeView = () => {
          {/* RIGHT: Stats Sidebar (Sticky) */}
          <div className="space-y-6 sticky top-6">
             
-            {/* Impact Card */}
+            {/* Impact Card - 真实数据 */}
             <div className="bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[2rem] p-6 text-white shadow-xl shadow-indigo-200 relative overflow-hidden group">
                <div className="relative z-10">
                   <h3 className="font-bold opacity-80 text-sm mb-1 flex items-center gap-2">
                      <Clock size={16} /> {t('exchange.total_time')}
                   </h3>
-                  <div className="text-5xl font-black mb-4 tracking-tight">24.5 <span className="text-lg font-medium opacity-60">{t('exchange.hours')}</span></div>
+                  <div className="text-5xl font-black mb-4 tracking-tight">{stats?.totalHours ?? 0} <span className="text-lg font-medium opacity-60">{t('exchange.hours')}</span></div>
                   
                   {/* Progress Bar */}
                   <div className="relative pt-2">
                      <div className="flex justify-between text-[10px] font-bold uppercase tracking-wide mb-1 opacity-80">
-                        <span>{t('exchange.level')} 3</span>
-                        <span>{t('exchange.level')} 4</span>
+                        <span>{t('exchange.level')} {stats?.level ?? 1}</span>
+                        <span>{t('exchange.level')} {(stats?.level ?? 1) + 1}</span>
                      </div>
                      <div className="h-1.5 bg-black/20 rounded-full overflow-hidden">
-                        <div className="h-full w-[70%] bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)]"></div>
+                        <div className="h-full bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)] transition-all" style={{ width: `${stats?.levelProgress ?? 0}%` }}></div>
                      </div>
-                     <p className="text-[10px] mt-2 opacity-70 font-medium">5.5 {t('exchange.badge_progress')}</p>
+                     <p className="text-[10px] mt-2 opacity-70 font-medium">{Math.round((stats?.levelProgress ?? 0) / 10) * 0.5} {t('exchange.badge_progress')}</p>
                   </div>
                </div>
                
@@ -232,7 +258,7 @@ const ExchangeView = () => {
                <div className="absolute -right-6 -bottom-6 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
             </div>
 
-            {/* Savings Card */}
+            {/* Savings Card - 真实数据 */}
             <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm relative overflow-hidden">
                <div className="absolute top-0 right-0 w-24 h-24 bg-green-50 rounded-bl-[4rem] -z-0"></div>
                
@@ -243,16 +269,16 @@ const ExchangeView = () => {
                <div className="space-y-5 relative z-10">
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-2xl border border-slate-100">
                      <div className="text-xs font-bold text-slate-500">{t('exchange.money_saved_label')}</div>
-                     <span className="text-lg font-black text-green-600">$1,250</span>
+                     <span className="text-lg font-black text-green-600">${stats?.moneySaved ?? 0}</span>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-3">
                      <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 text-center">
-                        <div className="text-2xl font-black text-slate-900">12</div>
+                        <div className="text-2xl font-black text-slate-900">{stats?.friendsMade ?? 0}</div>
                         <div className="text-[10px] font-bold text-slate-400 uppercase">{t('exchange.friends_made_label')}</div>
                      </div>
                      <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 text-center">
-                        <div className="text-2xl font-black text-slate-900">4</div>
+                        <div className="text-2xl font-black text-slate-900">{stats?.newSkills ?? 0}</div>
                         <div className="text-[10px] font-bold text-slate-400 uppercase">{t('exchange.new_skills_label')}</div>
                      </div>
                   </div>

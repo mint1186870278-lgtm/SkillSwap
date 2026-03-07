@@ -11,14 +11,16 @@ import {
   MOCK_CONTACTS,
   MOCK_MESSAGES,
   MOCK_POSTS,
+  MOCK_EXCHANGE_FEEDBACK_POSTS,
   MOCK_COMMUNITY_UPDATES,
   MOCK_USER_POSTS,
   MOCK_REVIEWS,
   MOCK_SIMILAR_EXPERTS,
+  MOCK_NFTS,
   mockDelay
 } from './mock-data';
 
-const API_BASE = '/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
 async function fetchApi<T>(url: string, options?: RequestInit): Promise<T> {
   const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
@@ -71,8 +73,8 @@ export function fetchCurrentUser() {
 }
 
 // --- Skills ---
-export function fetchSkills(params?: { category?: string; search?: string }) {
-  if (useMockData()) {
+export function fetchSkills(params?: { category?: string; search?: string }, opts?: { forceMock?: boolean }) {
+  if (useMockData() || opts?.forceMock) {
     let result = [...MOCK_SKILLS];
     if (params?.category && params.category !== 'All Skills') {
       if (params.category === 'Design') {
@@ -137,15 +139,21 @@ export function sendMessage(contactId: number, message: {
 }
 
 // --- Posts ---
-export function fetchPosts() {
-  if (useMockData()) return mockDelay(MOCK_POSTS);
+export function fetchPosts(opts?: { forceMock?: boolean }) {
+  if (useMockData() || opts?.forceMock) return mockDelay(MOCK_POSTS);
   return fetchApi<any[]>('/posts');
 }
 
 // --- Community Updates ---
-export function fetchCommunityUpdates() {
-  if (useMockData()) return mockDelay(MOCK_COMMUNITY_UPDATES);
+export function fetchCommunityUpdates(opts?: { forceMock?: boolean }) {
+  if (useMockData() || opts?.forceMock) return mockDelay(MOCK_COMMUNITY_UPDATES);
   return fetchApi<any[]>('/community');
+}
+
+// --- Exchange Feedback Posts (交换反馈帖，双方确认交换后自动创建) ---
+export function fetchExchangeFeedbackPosts(opts?: { forceMock?: boolean }) {
+  if (useMockData() || opts?.forceMock) return mockDelay(MOCK_EXCHANGE_FEEDBACK_POSTS);
+  return fetchApi<any[]>('/exchange-feedback').catch(() => []);
 }
 
 // --- User Posts ---
@@ -166,6 +174,45 @@ export function fetchSimilarExperts() {
   return fetchApi<any[]>('/similar-experts');
 }
 
+// --- Exchange Stats (真实数据：总交换时长、创造价值) ---
+export interface ExchangeStats {
+  totalHours: number;
+  level: number;
+  levelProgress: number;
+  moneySaved: number;
+  friendsMade: number;
+  newSkills: number;
+  nextMilestoneText: string;
+}
+
+const MOCK_EXCHANGE_STATS: ExchangeStats = {
+  totalHours: 24.5,
+  level: 3,
+  levelProgress: 70,
+  moneySaved: 1250,
+  friendsMade: 12,
+  newSkills: 4,
+  nextMilestoneText: 'Complete 5 more sessions for "Consistent" badge.'
+};
+
+export function fetchExchangeStats() {
+  if (useMockData()) return mockDelay(MOCK_EXCHANGE_STATS);
+  return fetchApi<ExchangeStats>('/exchange-stats');
+}
+
+// --- User Learning Stats (真实数据：我的学习、已收藏) ---
+export interface UserLearningStats {
+  learningInProgress: number;
+  savedCount: number;
+}
+
+const MOCK_LEARNING_STATS: UserLearningStats = { learningInProgress: 3, savedCount: 12 };
+
+export function fetchUserLearningStats() {
+  if (useMockData()) return mockDelay(MOCK_LEARNING_STATS);
+  return fetchApi<UserLearningStats>('/user/learning-stats').catch(() => ({ learningInProgress: 0, savedCount: 0 }));
+}
+
 // --- AI (translate / contract / schedule) ---
 export function processAI(data: {
   action: 'translate' | 'contract' | 'schedule';
@@ -183,6 +230,50 @@ export function processAI(data: {
     method: 'POST',
     body: JSON.stringify(data)
   });
+}
+
+// --- NFTs ---
+export interface UserNFT {
+  id: number;
+  title: string;
+  partner: string;
+  partnerAvatar?: string;
+  skillMe: string;
+  skillThem: string;
+  contributionMe: number;
+  contributionThem: number;
+  date?: string;
+}
+
+export interface NFTDetail {
+  id: number;
+  title: string;
+  skillMe: string;
+  skillThem: string;
+  partnerName: string;
+  partnerAvatar?: string;
+  contributionMe: number;
+  contributionThem: number;
+  story: string;
+  createdAt: string;
+  timeline: { label: string; date: string }[];
+}
+
+export function fetchUserNFTs(userId?: string, opts?: { forceMock?: boolean }) {
+  if (useMockData() || opts?.forceMock) {
+    const list = MOCK_NFTS.map(n => ({ id: n.id, title: n.title, partner: n.partner, partnerAvatar: n.partnerAvatar, skillMe: n.skillMe, skillThem: n.skillThem, contributionMe: n.contributionMe, contributionThem: n.contributionThem, date: n.createdAt?.slice(0, 7) }));
+    return mockDelay(list);
+  }
+  const q = userId ? `?userId=${encodeURIComponent(userId)}` : '';
+  return fetchApi<UserNFT[]>(`/nfts${q}`);
+}
+
+export function fetchNFTDetail(id: number, opts?: { forceMock?: boolean }) {
+  if (useMockData() || opts?.forceMock) {
+    const n = MOCK_NFTS.find(x => x.id === id) || MOCK_NFTS[0];
+    return mockDelay({ ...n, partnerName: n.partner });
+  }
+  return fetchApi<NFTDetail>(`/nfts/${id}`);
 }
 
 // --- AI 配对助手 ---

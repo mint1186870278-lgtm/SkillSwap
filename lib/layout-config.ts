@@ -18,4 +18,4 @@ export const GAP_ABOVE_TOP_PICKS = 8;
 export const GAP_ABOVE_PRO_MEMBER = 8;
 
 /** 成就墙每个徽章卡片的最小高度，单位：px。调大则卡片底部下移，调小则更紧凑 */
-export const ACHIEVEMENT_BADGE_CARD_HEIGHT = 210;
+export const ACHIEVEMENT_BADGE_CARD_HEIGHT = 130;

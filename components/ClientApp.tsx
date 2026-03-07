@@ -13,6 +13,7 @@ import MainAppLayout from './MainAppLayout';
 import { LanguageProvider } from '../contexts/LanguageContext';
 import { ToastProvider } from '../contexts/ToastContext';
 import { AuthProvider } from '../contexts/AuthContext';
+import { UserSkillsProvider } from '../contexts/UserSkillsContext';
 import { useUser } from '@clerk/nextjs';
 import { setAppMode, type AppMode } from '../lib/app-mode';
 
@@ -72,6 +73,7 @@ const ClientApp: React.FC<{ testMode?: boolean; initialView?: 'landing' | 'onboa
   return (
     <LanguageProvider>
       <AuthProvider>
+        <UserSkillsProvider>
         <ToastProvider>
           <div className="relative w-full min-h-screen overflow-x-hidden text-textMain selection:bg-pastelPurple selection:text-white">
         
@@ -115,11 +117,12 @@ const ClientApp: React.FC<{ testMode?: boolean; initialView?: 'landing' | 'onboa
           )}
 
           {view === 'dashboard' && (
-            <MainAppLayout user={{ name: user?.fullName || user?.firstName || "Guest User" }} testMode={true} appMode={appMode} />
+            <MainAppLayout user={{ name: user?.fullName || user?.firstName || "Guest User", id: user?.id, imageUrl: user?.imageUrl }} testMode={true} appMode={appMode} />
           )}
         </div>
       </div>
         </ToastProvider>
+        </UserSkillsProvider>
       </AuthProvider>
     </LanguageProvider>
   );

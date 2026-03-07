@@ -137,6 +137,40 @@ export function getDb(): Database.Database {
       time TEXT,
       FOREIGN KEY (user_id) REFERENCES users(id)
     );
+
+    CREATE TABLE IF NOT EXISTS exchange_feedback (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_name TEXT NOT NULL,
+      avatar TEXT NOT NULL,
+      title TEXT NOT NULL,
+      content TEXT,
+      image TEXT,
+      likes INTEGER DEFAULT 0,
+      comments INTEGER DEFAULT 0,
+      tag TEXT,
+      time TEXT,
+      skill_me TEXT,
+      skill_them TEXT,
+      partner TEXT,
+      partner_avatar TEXT,
+      progress_updates TEXT DEFAULT '[]'
+    );
+
+    CREATE TABLE IF NOT EXISTS nfts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT NOT NULL,
+      title TEXT NOT NULL,
+      skill_me TEXT NOT NULL,
+      skill_them TEXT NOT NULL,
+      partner_name TEXT NOT NULL,
+      partner_avatar TEXT,
+      contribution_me INTEGER NOT NULL,
+      contribution_them INTEGER NOT NULL,
+      story TEXT,
+      created_at TEXT NOT NULL,
+      timeline TEXT DEFAULT '[]',
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    );
   `);
 
   return db;

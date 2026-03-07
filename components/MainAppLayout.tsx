@@ -17,8 +17,9 @@ import MyExchangesView from './views/ExchangeView';
 import MessagesView from './views/MessagesView';
 
 import { ViewType } from '../types';
-import { fetchSkills, fetchSessions, fetchPosts, fetchCommunityUpdates, sendAiMatchMessage } from '../lib/api-client';
+import { fetchSkills, fetchSessions, fetchPosts, fetchCommunityUpdates, fetchExchangeFeedbackPosts, fetchUserLearningStats, sendAiMatchMessage } from '../lib/api-client';
 import { CARD_HEIGHT, SIDEBAR_CARD_HEIGHT, GAP_ABOVE_TOP_PICKS, GAP_ABOVE_PRO_MEMBER } from '../lib/layout-config';
+import { getAvatarForUserId } from '../lib/avatar-options';
 
 // Helper to merge translation if language is ZH
 const useTranslatedData = (data: any[], type: 'posts' | 'skills' | 'community_updates' | 'sessions') => {
@@ -160,6 +161,93 @@ const PostDetailModal = ({ item, onClose }: { item: any, onClose: () => void }) 
   );
 };
 
+// --- Exchange Feedback Detail Modal (交换反馈帖详情) ---
+const ExchangeFeedbackDetailModal = ({ item, onClose }: { item: any; onClose: () => void }) => {
+  const { t, language } = useLanguage();
+  const isZh = language === 'zh';
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = 'auto'; };
+  }, []);
+
+  const progressUpdates = item?.progressUpdates || [];
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 sm:p-8"
+    >
+      <motion.div 
+        layoutId={`card-ef-${item.id}`}
+        className="bg-white w-full max-w-2xl max-h-[90vh] rounded-[2rem] overflow-hidden shadow-2xl flex flex-col relative z-[101]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button onClick={onClose} className="absolute top-4 right-4 z-20 w-10 h-10 bg-black/20 hover:bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-colors">
+          <X size={20} strokeWidth={3} />
+        </button>
+
+        <div className="p-6 border-b border-slate-100">
+          <span className="inline-block px-2.5 py-1 bg-indigo-100 text-indigo-700 text-[10px] font-black uppercase rounded-full mb-3">
+            {isZh ? '交换反馈 · 平台自动创建' : 'Exchange Feedback · Auto-created'}
+          </span>
+          <h2 className="text-xl font-black text-slate-900 leading-tight">{item.title}</h2>
+          <div className="flex items-center gap-3 mt-3">
+            <div className="flex -space-x-2">
+              <div className="w-8 h-8 rounded-full border-2 border-white overflow-hidden">
+                <ImageWithFallback src={item.avatar} alt={item.user} className="w-full h-full object-cover" />
+              </div>
+              <div className="w-8 h-8 rounded-full border-2 border-white overflow-hidden">
+                <ImageWithFallback src={item.partnerAvatar} alt={item.partner} className="w-full h-full object-cover" />
+              </div>
+            </div>
+            <div className="text-sm font-bold text-slate-600">
+              {item.skillMe} ⇄ {item.skillThem}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          <p className="text-slate-600 text-sm leading-relaxed">{item.content}</p>
+          
+          {progressUpdates.length > 0 && (
+            <div>
+              <h4 className="font-black text-slate-800 text-sm mb-3 flex items-center gap-2">
+                <Zap size={16} className="text-amber-500" /> {t('exchange_feedback.progress_updates')}
+              </h4>
+              <div className="space-y-3">
+                {progressUpdates.map((u: any, i: number) => (
+                  <div key={i} className="flex gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <span className="text-xs font-bold text-indigo-600 shrink-0">{u.user}</span>
+                    <p className="text-sm text-slate-700 flex-1">{u.text}</p>
+                    <span className="text-[10px] text-slate-400 shrink-0">{u.time}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <button className="w-full py-3 bg-indigo-50 text-indigo-600 rounded-xl text-sm font-bold hover:bg-indigo-100 transition-colors flex items-center justify-center gap-2">
+            <Plus size={18} /> {t('exchange_feedback.add_progress')}
+          </button>
+        </div>
+
+        <div className="p-4 border-t border-slate-100 flex items-center gap-4">
+          <div className="flex items-center gap-1.5 text-slate-500">
+            <Heart size={18} /> <span className="text-sm font-bold">{item.likes}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-slate-500">
+            <MessageCircle size={18} /> <span className="text-sm font-bold">{item.comments}</span>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
 // --- Components ---
 
 const TopNavItem = ({ icon: Icon, label, active, onClick }: any) => (
@@ -173,7 +261,6 @@ const TopNavItem = ({ icon: Icon, label, active, onClick }: any) => (
   >
     <Icon size={20} strokeWidth={active ? 2.5 : 2} className={`transition-transform duration-200 ${active ? "scale-110" : "group-hover:scale-110"}`} />
     <span className={`text-sm ${active ? "font-bold" : "font-medium"}`}>{label}</span>
-    {active && <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-1 h-1 bg-indigo-600 rounded-full" />}
   </button>
 );
 
@@ -188,7 +275,7 @@ const NavBarItem = ({ icon: Icon, label, active, onClick }: any) => ( // Mobile/
 );
 
 const SkillCard = ({ item, onClick, className = "", isPlaceholder = false }: { item: any, onClick?: () => void, className?: string, isPlaceholder?: boolean }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const CardContent = (
     <>
       {/* 1. VIDEO PREVIEW AREA (Italki Style) */}
@@ -268,7 +355,7 @@ const SkillCard = ({ item, onClick, className = "", isPlaceholder = false }: { i
          {/* Description - Fixed Height (Force 2 lines space) */}
          <div className="min-h-[2.5rem] h-[2.5rem]">
             <h4 className="font-bold text-slate-700 text-xs line-clamp-1 mb-0.5">{item.title}</h4>
-            <p className="text-[10px] leading-relaxed text-slate-500 line-clamp-2">{item.description || "Certified teacher with over 6000 lessons taught worldwide. I specialize in clear explanations of grammar."}</p>
+            <p className="text-[10px] leading-relaxed text-slate-500 line-clamp-2">{item.description || (language === 'zh' ? "技能互换达人，专注实战与清晰讲解。" : "Skill swap partner. Focus on practice & clear explanations.")}</p>
          </div>
 
          {/* Footer - Fixed Height */}
@@ -400,8 +487,9 @@ const CommunityPostCard = ({ post, onClick, className = "", isPlaceholder = fals
 // --- Views ---
 
 // 1. HOME VIEW: Personal Dashboard
-const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcomingSessions, communityUpdates, testMode }: { onOpenDetail: (item: any) => void, onExplore: () => void, selectedItem: any, skills: any[], upcomingSessions: any[], communityUpdates: any[], testMode?: boolean }) => {
-  const { t } = useLanguage();
+const DashboardView = ({ onOpenDetail, onExplore, onNavigateToExchangeFeedback, selectedItem, skills, upcomingSessions, communityUpdates, learningStats, testMode }: { onOpenDetail: (item: any) => void, onExplore: () => void, onNavigateToExchangeFeedback?: () => void, selectedItem: any, skills: any[], upcomingSessions: any[], communityUpdates: any[], learningStats: { learningInProgress: number; savedCount: number }, testMode?: boolean }) => {
+  const { t, language } = useLanguage();
+  const isZh = language === 'zh';
   const translatedSkills = useTranslatedData(skills, 'skills');
   const translatedSessions = useTranslatedData(upcomingSessions, 'sessions');
   const translatedUpdates = useTranslatedData(communityUpdates, 'community_updates');
@@ -441,9 +529,9 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcoming
                         <BookOpen size={20} />
                      </div>
                      <h3 className="font-bold text-lg mb-1">{t('dashboard.my_learning')}</h3>
-                     <p className="text-indigo-100 text-sm">{t('dashboard.in_progress')}</p>
+                     <p className="text-indigo-100 text-sm">{learningStats.learningInProgress > 0 ? (isZh ? `${learningStats.learningInProgress} 项技能进行中` : `${learningStats.learningInProgress} skills in progress`) : (isZh ? '暂无进行中的技能' : 'No skills in progress')}</p>
                      <div className="mt-4 w-full bg-black/20 h-1.5 rounded-full overflow-hidden">
-                        <div className="h-full bg-white/80 w-[60%]"></div>
+                        <div className="h-full bg-white/80 transition-all" style={{ width: `${Math.min(100, learningStats.learningInProgress * 20)}%` }}></div>
                      </div>
                   </div>
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-700"></div>
@@ -454,7 +542,7 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcoming
                         <Heart size={20} fill="currentColor" />
                      </div>
                      <h3 className="font-bold text-slate-800 text-lg mb-1">{t('dashboard.saved')}</h3>
-                     <p className="text-slate-400 text-sm">{t('dashboard.saved_text')}</p>
+                     <p className="text-slate-400 text-sm">{learningStats.savedCount > 0 ? (isZh ? `${learningStats.savedCount} 项待尝试技能` : `${learningStats.savedCount} skills to try`) : (isZh ? '暂无收藏' : 'No saved skills')}</p>
                   </div>
                </div>
             </section>
@@ -476,9 +564,16 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcoming
          </div>
          <div className="space-y-6">
             <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2rem] p-6 shadow-sm mt-[44px] flex flex-col overflow-hidden" style={{ height: SIDEBAR_CARD_HEIGHT }}>
-                <h3 className="font-black text-lg text-slate-800 mb-6 flex items-center gap-2 shrink-0">
-                   <Zap size={20} className="fill-yellow-400 text-yellow-400"/> {t('dashboard.activity')}
-                </h3>
+                <div className="flex items-center justify-between mb-6 shrink-0">
+                   <h3 className="font-black text-lg text-slate-800 flex items-center gap-2">
+                      <Zap size={20} className="fill-yellow-400 text-yellow-400"/> {t('dashboard.activity')}
+                   </h3>
+                   {onNavigateToExchangeFeedback && (
+                      <button onClick={onNavigateToExchangeFeedback} className="text-[10px] font-bold text-indigo-600 hover:text-indigo-700">
+                         {t('explore.exchange_feedback')} →
+                      </button>
+                   )}
+                </div>
                 <div className="relative space-y-6 flex-1 overflow-y-auto min-h-0">
                    <div className="absolute left-2 top-2 bottom-2 w-0.5 bg-slate-100"></div>
                    {translatedUpdates.map((u: any) => (
@@ -515,10 +610,17 @@ const DashboardView = ({ onOpenDetail, onExplore, selectedItem, skills, upcoming
 };
 
 // 2. EXPLORE VIEW: Discovery
-const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdates, testMode }: { onOpenDetail: (item: any) => void, selectedItem: any, skills: any[], posts: any[], communityUpdates: any[], testMode?: boolean }) => {
+const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, exchangeFeedbackPosts, communityUpdates, testMode, initialTab, initialCommunityFilter, onMounted }: { onOpenDetail: (item: any) => void, selectedItem: any, skills: any[], posts: any[], exchangeFeedbackPosts: any[], communityUpdates: any[], testMode?: boolean, initialTab?: 'community', initialCommunityFilter?: 'exchange_feedback', onMounted?: () => void }) => {
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'skills' | 'community'>('skills');
+  const [activeTab, setActiveTab] = useState<'skills' | 'community'>(initialTab || 'skills');
+  const [communityFilter, setCommunityFilter] = useState<'all' | 'exchange_feedback'>(initialCommunityFilter || 'all');
   const [selectedCategory, setSelectedCategory] = useState<string>('All Skills');
+
+  useEffect(() => {
+    if (initialTab) setActiveTab(initialTab);
+    if (initialCommunityFilter) setCommunityFilter(initialCommunityFilter);
+    onMounted?.();
+  }, []);
   const [aiAssistantOpen, setAiAssistantOpen] = useState(false);
   const [aiPanelHeight, setAiPanelHeight] = useState(540);
   const [aiMessages, setAiMessages] = useState<{ role: 'user' | 'assistant'; text: string; skillIds?: number[] }[]>([]);
@@ -568,7 +670,13 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdat
 
   const translatedSkills = useTranslatedData(skills, 'skills');
   const translatedPosts = useTranslatedData(posts, 'posts');
+  const translatedExchangeFeedback = exchangeFeedbackPosts;
   const translatedUpdates = useTranslatedData(communityUpdates, 'community_updates');
+
+  // 全部帖子 = 用户自发帖（小红书风格）；交换反馈 = 平台自动创建的交换记录
+  const communityPostsToShow = communityFilter === 'exchange_feedback'
+    ? translatedExchangeFeedback
+    : translatedPosts;
 
   const filteredSkills = selectedCategory === 'All Skills' 
     ? translatedSkills 
@@ -593,10 +701,10 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdat
                 NEW: 智能技能匹配
               </div>
               <h1 className="text-xl md:text-2xl font-extrabold mb-1 leading-tight text-white">
-                没找到合适的？让 AI 帮你精准匹配专家
+                {t('explore.ai_hero_title')}
               </h1>
               <p className="text-white/90 text-sm mb-0 sm:mb-2">
-                描述你的目标，AI 将分析数千名导师背景，为你找到最契合的交换伙伴。
+                {t('explore.ai_hero_subtitle')}
               </p>
             </div>
             <div className="flex flex-wrap gap-2 shrink-0">
@@ -658,6 +766,22 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdat
                          ))}
                      </div>
                  )}
+                 {activeTab === 'community' && (
+                     <div className="flex items-center gap-2 overflow-x-auto no-scrollbar mask-linear-fade pt-1">
+                         <button 
+                           onClick={() => setCommunityFilter('all')}
+                           className={`h-9 px-4 flex items-center justify-center rounded-full text-xs font-bold shrink-0 transition-all ${communityFilter === 'all' ? 'bg-slate-900 text-white shadow-md shadow-slate-200' : 'bg-white hover:bg-slate-50 border border-slate-200 text-slate-600'}`}
+                         >
+                           {t('explore.all_posts')}
+                         </button>
+                         <button 
+                           onClick={() => setCommunityFilter('exchange_feedback')}
+                           className={`h-9 px-4 flex items-center justify-center rounded-full text-xs font-bold shrink-0 transition-all ${communityFilter === 'exchange_feedback' ? 'bg-slate-900 text-white shadow-md shadow-slate-200' : 'bg-white hover:bg-slate-50 border border-slate-200 text-slate-600'}`}
+                         >
+                           {t('explore.exchange_feedback')}
+                         </button>
+                     </div>
+                 )}
             </div>
 
             {/* CONTENT GRID */}
@@ -694,7 +818,7 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdat
                      transition={{ duration: 0.2 }}
                      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6"
                   >
-                      {translatedPosts.map((post: any, i: any) => (
+                      {communityPostsToShow.map((post: any, i: any) => (
                          <div key={`${post.id}-${i}`} className="relative h-full">
                            {/* Placeholder */}
                            {selectedItem?.id === post.id && <CommunityPostCard post={post} isPlaceholder className="absolute inset-0 z-0 h-full" />}
@@ -953,7 +1077,7 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, communityUpdat
 // --- Layout ---
 
 interface MainAppProps {
-  user: any;
+  user: { name?: string; id?: string; imageUrl?: string };
   testMode?: boolean;
   appMode?: 'demo' | 'guest' | 'authenticated';
 }
@@ -963,28 +1087,47 @@ const MainAppLayout: React.FC<MainAppProps> = ({ user, testMode, appMode }) => {
   const [currentView, setCurrentView] = useState<ViewType>('explore');
   const [selectedItem, setSelectedItem] = useState<any>(null); // State for modal (Inspiration/Community)
   const [selectedSkill, setSelectedSkill] = useState<any>(null); // State for full page view (Find Skills)
+  const [exploreInitialState, setExploreInitialState] = useState<{ tab?: 'community'; communityFilter?: 'exchange_feedback' } | null>(null);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
+  const [notificationMenuOpen, setNotificationMenuOpen] = useState(false);
   const langMenuRef = useRef<HTMLDivElement>(null);
+  const notificationMenuRef = useRef<HTMLDivElement>(null);
+
+  const mockNotifications = [
+    { id: 1, type: 'swap_request', from: 'Elena Rodriguez', text: language === 'zh' ? '请求与你交换西班牙语 × Figma' : 'Requested to swap Spanish × Figma', time: '10m ago', unread: true },
+    { id: 2, type: 'swap_confirmed', from: 'David Kim', text: language === 'zh' ? '交换已确认：周六 14:00' : 'Swap confirmed: Sat 14:00', time: '1h ago', unread: true },
+    { id: 3, type: 'new_message', from: 'Sarah J.', text: language === 'zh' ? '发来一条新消息' : 'Sent you a new message', time: '2h ago', unread: false }
+  ];
+  const unreadCount = mockNotifications.filter(n => n.unread).length;
 
   // API data states
   const [skills, setSkills] = useState<any[]>([]);
   const [upcomingSessions, setUpcomingSessions] = useState<any[]>([]);
   const [posts, setPosts] = useState<any[]>([]);
+  const [exchangeFeedbackPosts, setExchangeFeedbackPosts] = useState<any[]>([]);
   const [communityUpdates, setCommunityUpdates] = useState<any[]>([]);
+  const [learningStats, setLearningStats] = useState<{ learningInProgress: number; savedCount: number }>({ learningInProgress: 0, savedCount: 0 });
+
+  const useDiscoveryMock = appMode === 'authenticated';
 
   useEffect(() => {
-    fetchSkills().then(setSkills).catch(console.error);
+    fetchSkills(undefined, useDiscoveryMock ? { forceMock: true } : undefined).then(setSkills).catch(console.error);
     fetchSessions({ dashboard: true }).then(setUpcomingSessions).catch(console.error);
-    fetchPosts().then(setPosts).catch(console.error);
-    fetchCommunityUpdates().then(setCommunityUpdates).catch(console.error);
-  }, [appMode]);
+    fetchPosts(useDiscoveryMock ? { forceMock: true } : undefined).then(setPosts).catch(console.error);
+    fetchExchangeFeedbackPosts(useDiscoveryMock ? { forceMock: true } : undefined).then(setExchangeFeedbackPosts).catch(() => []);
+    fetchCommunityUpdates(useDiscoveryMock ? { forceMock: true } : undefined).then(setCommunityUpdates).catch(console.error);
+    if (appMode === 'authenticated') {
+      fetchUserLearningStats().then(setLearningStats).catch(() => setLearningStats({ learningInProgress: 0, savedCount: 0 }));
+    } else {
+      setLearningStats({ learningInProgress: 3, savedCount: 12 });
+    }
+  }, [appMode, useDiscoveryMock]);
 
-  // Close language menu when clicking outside
+  // Close language/notification menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (langMenuRef.current && !langMenuRef.current.contains(event.target as Node)) {
-        setLangMenuOpen(false);
-      }
+      if (langMenuRef.current && !langMenuRef.current.contains(event.target as Node)) setLangMenuOpen(false);
+      if (notificationMenuRef.current && !notificationMenuRef.current.contains(event.target as Node)) setNotificationMenuOpen(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -1007,10 +1150,14 @@ const MainAppLayout: React.FC<MainAppProps> = ({ user, testMode, appMode }) => {
 
   return (
     <div className="fixed inset-0 bg-transparent font-sans text-slate-900 overflow-hidden flex flex-col">
-      {/* Detail Modal Overlay (Inspiration) */}
+      {/* Detail Modal Overlay (Inspiration / Exchange Feedback) */}
       <AnimatePresence>
         {selectedItem && (
-          <PostDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />
+          selectedItem.type === 'exchange_feedback' ? (
+            <ExchangeFeedbackDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />
+          ) : (
+            <PostDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />
+          )
         )}
       </AnimatePresence>
       
@@ -1087,13 +1234,51 @@ const MainAppLayout: React.FC<MainAppProps> = ({ user, testMode, appMode }) => {
             </div>
 
             <div className={`flex items-center gap-3 ${testMode ? 'gap-4' : ''}`}>
-               <button className={`relative hover:bg-slate-100 rounded-full flex items-center justify-center text-slate-500 transition-all ${testMode ? 'w-10 h-10' : 'w-9 h-9'}`}>
-                  <Bell size={testMode ? 20 : 18} />
-                  <span className="absolute top-2 right-2.5 w-1.5 h-1.5 bg-red-500 rounded-full border border-white"></span>
-               </button>
-
+               <div className="relative" ref={notificationMenuRef}>
+                  <button 
+                     onClick={() => setNotificationMenuOpen(!notificationMenuOpen)}
+                     className={`relative hover:bg-slate-100 rounded-full flex items-center justify-center text-slate-500 transition-all ${testMode ? 'w-10 h-10' : 'w-9 h-9'} ${notificationMenuOpen ? 'bg-slate-100' : ''}`}
+                  >
+                     <Bell size={testMode ? 20 : 18} />
+                     {unreadCount > 0 && (
+                        <span className="absolute top-2 right-2.5 min-w-[6px] h-1.5 px-0.5 bg-red-500 rounded-full border border-white flex items-center justify-center text-[9px] font-black text-white">
+                           {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
+                     )}
+                  </button>
+                  {notificationMenuOpen && (
+                     <div className="absolute top-full right-0 mt-2 w-80 max-h-[400px] bg-white rounded-xl shadow-xl border border-slate-100 py-2 animate-in fade-in zoom-in-95 origin-top-right overflow-hidden z-[100] flex flex-col">
+                     <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
+                        <h4 className="font-black text-slate-800 text-sm">{t('navbar.notifications')}</h4>
+                        {unreadCount > 0 && <span className="text-xs font-bold text-indigo-600">{unreadCount} {language === 'zh' ? '条未读' : 'unread'}</span>}
+                     </div>
+                     <div className="overflow-y-auto max-h-[320px]">
+                        {mockNotifications.length === 0 ? (
+                           <div className="px-4 py-8 text-center text-slate-400 text-sm">{t('navbar.no_notifications')}</div>
+                        ) : (
+                           mockNotifications.map(n => (
+                              <button
+                                 key={n.id}
+                                 onClick={() => { setNotificationMenuOpen(false); n.type === 'new_message' && setCurrentView('messages'); }}
+                                 className={`w-full text-left px-4 py-3 hover:bg-slate-50 flex gap-3 transition-colors ${n.unread ? 'bg-indigo-50/30' : ''}`}
+                              >
+                                 <div className="w-9 h-9 rounded-full bg-slate-200 shrink-0 flex items-center justify-center">
+                                    <Bell size={14} className="text-slate-500" />
+                                 </div>
+                                 <div className="min-w-0 flex-1">
+                                    <p className="text-sm font-bold text-slate-800 truncate">{n.from}</p>
+                                    <p className="text-xs text-slate-500 line-clamp-2">{n.text}</p>
+                                    <p className="text-[10px] text-slate-400 mt-0.5">{n.time}</p>
+                                 </div>
+                              </button>
+                           ))
+                        )}
+                     </div>
+                  </div>
+                  )}
+               </div>
                <div className={`rounded-full border border-slate-200 shadow-sm overflow-hidden cursor-pointer hover:opacity-80 transition-opacity ${testMode ? 'w-10 h-10' : 'w-9 h-9'}`} onClick={() => setCurrentView('profile')}>
-                  <ImageWithFallback src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="Me" className="w-full h-full object-cover" />
+                  <ImageWithFallback src={user?.imageUrl || (user?.id ? getAvatarForUserId(user.id) : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80')} alt="Me" className="w-full h-full object-cover" />
                </div>
             </div>
          </div>
@@ -1109,10 +1294,10 @@ const MainAppLayout: React.FC<MainAppProps> = ({ user, testMode, appMode }) => {
             <div className={`${testMode ? 'max-w-[1400px] mx-auto' : ''} ${currentView === 'messages' ? 'flex-1 min-h-0 flex flex-col' : ''}`}>
             <AnimatePresence mode="wait">
                {currentView === 'profile' ? (
-                 <div key="profile" className="h-full overflow-y-auto"><UserProfileView /></div>
+                 <div key="profile" className="h-full overflow-y-auto"><UserProfileView user={user} appMode={appMode} /></div>
                ) : currentView === 'messages' ? (
                  <div key="messages" className="flex-1 min-h-0 flex flex-col overflow-hidden">
-                   <MessagesView />
+                   <MessagesView onNavigateToExplore={() => setCurrentView('explore')} />
                  </div>
                ) : (
                  <motion.div 
@@ -1123,9 +1308,9 @@ const MainAppLayout: React.FC<MainAppProps> = ({ user, testMode, appMode }) => {
                    transition={{duration: 0.25}}
                    className="h-full overflow-y-auto"
                  >
-                   {currentView === 'home' && <DashboardView selectedItem={selectedItem} onOpenDetail={handleOpenDetail} onExplore={() => setCurrentView('explore')} skills={skills} upcomingSessions={upcomingSessions} communityUpdates={communityUpdates} testMode={testMode} />}
-                   {currentView === 'explore' && <ExploreView selectedItem={selectedItem} onOpenDetail={handleOpenDetail} skills={skills} posts={posts} communityUpdates={communityUpdates} testMode={testMode} />}
-                   {currentView === 'exchange' && <MyExchangesView />}
+                   {currentView === 'home' && <DashboardView selectedItem={selectedItem} onOpenDetail={handleOpenDetail} onExplore={() => setCurrentView('explore')} onNavigateToExchangeFeedback={() => { setExploreInitialState({ tab: 'community', communityFilter: 'exchange_feedback' }); setCurrentView('explore'); }} skills={skills} upcomingSessions={upcomingSessions} communityUpdates={communityUpdates} learningStats={learningStats} testMode={testMode} />}
+                   {currentView === 'explore' && <ExploreView selectedItem={selectedItem} onOpenDetail={handleOpenDetail} skills={skills} posts={posts} exchangeFeedbackPosts={exchangeFeedbackPosts} communityUpdates={communityUpdates} testMode={testMode} initialTab={exploreInitialState?.tab} initialCommunityFilter={exploreInitialState?.communityFilter} onMounted={() => setExploreInitialState(null)} />}
+                   {currentView === 'exchange' && <MyExchangesView onNavigateToExchangeFeedback={() => { setExploreInitialState({ tab: 'community', communityFilter: 'exchange_feedback' }); setCurrentView('explore'); }} />}
                  </motion.div>
                )}
            </AnimatePresence>

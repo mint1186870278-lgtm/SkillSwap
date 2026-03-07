@@ -1,0 +1,60 @@
+# 当队友推送到 feature/* 分支时，自动合并到 main 并触发 Vercel 部署
+#
+# 【必须配置】若 main 有分支保护，需完成以下步骤：
+# 1. 创建 PAT: GitHub → Settings → Developer settings → Personal access tokens
+#    勾选 repo 权限，生成 token
+# 2. 添加 Secret: 仓库 → Settings → Secrets → Actions → 新建 REPO_ACCESS_TOKEN
+# 3. 分支保护: Settings → Branches → main → 勾选 "Allow specified actors to bypass"
+#    添加你的 GitHub 用户名（PAT 所属账号）
+#
+name: Auto merge to main
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+  workflow_dispatch:
+    inputs:
+      source_branch:
+        description: 'Branch to merge'
+        required: false
+        default: 'feature/develop'
+
+jobs:
+  merge-to-main:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.ref != 'refs/heads/main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.REPO_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Merge into main
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            SOURCE_BRANCH="${{ github.event.inputs.source_branch || 'feature/develop' }}"
+          else
+            SOURCE_BRANCH="${GITHUB_REF#refs/heads/}"
+          fi
+          echo "Merging $SOURCE_BRANCH into main..."
+          git checkout main
+          git pull origin main
+          git merge "origin/$SOURCE_BRANCH" -m "chore: auto-merge $SOURCE_BRANCH into main"
+          git push origin main
+          echo "Done. Vercel will auto-deploy."
+
+      # 可选：若配置了 VERCEL_DEPLOY_HOOK，主动触发部署（应对 Git 触发被 Blocked 的情况）
+      - name: Trigger Vercel Deploy (optional)
+        env:
+          DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -n "$DEPLOY_HOOK" ]; then
+            curl -sS -X POST "$DEPLOY_HOOK" && echo "Deploy hook triggered."
+          fi

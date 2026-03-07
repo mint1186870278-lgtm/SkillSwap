@@ -1,0 +1,26 @@
+# 每次 push 到 main 时，主动触发 Vercel 部署
+# 用于应对 Git 自动部署被 Blocked 的情况
+#
+# 【配置】在仓库 Settings → Secrets 中添加 VERCEL_DEPLOY_HOOK
+# 获取方式：Vercel 项目 → Settings → Git → Deploy Hooks → 新建（分支选 main）→ 复制 URL
+#
+name: Trigger Vercel Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Vercel Deploy Hook
+        env:
+          DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -n "$DEPLOY_HOOK" ]; then
+            curl -sS -X POST "$DEPLOY_HOOK" && echo "Vercel deploy triggered."
+          else
+            echo "VERCEL_DEPLOY_HOOK not configured, skipping."
+          fi

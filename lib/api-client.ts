@@ -18,7 +18,7 @@ import {
   mockDelay
 } from './mock-data';
 
-const API_BASE = '/api';
+const API_BASE = (process.env.NEXT_PUBLIC_API_BASE_URL || '') + '/api';
 
 async function fetchApi<T>(url: string, options?: RequestInit): Promise<T> {
   const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;

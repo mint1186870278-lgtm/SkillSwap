@@ -54,13 +54,8 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onGoToDashboard }) => {
       }`}
     >
       <div className="container mx-auto px-6 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {/* Custom SVG Logo */}
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
-            <path d="M16 2L2 9L16 16L30 9L16 2Z" fill="#6366F1"/>
-            <path d="M2 23L16 30L30 23V9L16 16L2 9V23Z" fill="#818CF8"/>
-            <path d="M16 16V30" stroke="#4F46E5" strokeWidth="2"/>
-          </svg>
+        <div className="flex items-center gap-3 cursor-pointer group">
+          <div className="bg-slate-900 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-slate-200 w-10 h-10 text-lg transform transition-transform group-hover:rotate-12 shrink-0">S</div>
           <span className="text-xl font-black tracking-tight text-textMain">SkillSwap</span>
         </div>
 

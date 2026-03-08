@@ -3,13 +3,18 @@ import {
   Settings, MapPin, Calendar, Star, Zap, Crown, 
   Wallet, Gift, ShieldCheck, Heart, MessageCircle, Share2,
   MoreHorizontal, Medal, Sparkles, CheckCircle2, Hexagon, Trophy, Flame, ChevronRight, Plus,
-  Globe, GraduationCap, Briefcase, User, Quote
+  Globe, GraduationCap, Briefcase, User, Quote, Link2, ImageIcon
 } from 'lucide-react';
 import { ImageWithFallback } from '../../figma/ImageWithFallback';
-import { fetchUserPosts, fetchReviews } from '../../lib/api-client';
+import { fetchUserPosts, fetchReviews, fetchCurrentUser, fetchUserNFTs, fetchNFTDetail } from '../../lib/api-client';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useUserSkills } from '../../contexts/UserSkillsContext';
 import { MOCK_DATA_ZH } from '../../lib/mock-data-zh';
+import { PlanetIcon } from '../PlanetIcons';
+import { SkillsEditModal } from '../SkillsEditModal';
 import { ACHIEVEMENT_BADGE_CARD_HEIGHT } from '../../lib/layout-config';
+import { getAvatarForUserId } from '../../lib/avatar-options';
+import { NFTDetailModal } from '../NFTDetailModal';
 
 // -----------------------------------------------------------------------------
 // PREMIUM BADGE COMPONENT
@@ -17,9 +22,10 @@ import { ACHIEVEMENT_BADGE_CARD_HEIGHT } from '../../lib/layout-config';
 const PremiumBadge = ({ 
   icon: Icon, 
   title, 
-  variant = 'gold', // gold, blue, purple, holographic
+  variant = 'gold', // gold, blue, purple, holographic, gray
   earnedDate,
-  cardHeight = ACHIEVEMENT_BADGE_CARD_HEIGHT
+  cardHeight = ACHIEVEMENT_BADGE_CARD_HEIGHT,
+  grayedOut = false
 }: any) => {
   
   // Variant styles configuration
@@ -51,32 +57,40 @@ const PremiumBadge = ({
       icon: "text-slate-700 drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)]",
       glow: "shadow-pink-400/30",
       innerGlow: "bg-white/40"
+    },
+    gray: {
+      outer: "bg-gradient-to-br from-slate-200 via-slate-100 to-slate-200",
+      border: "border-slate-200/60",
+      icon: "text-slate-400 drop-shadow-none",
+      glow: "shadow-slate-300/20",
+      innerGlow: "bg-slate-300/20"
     }
   };
-  const styles = stylesMap[variant as keyof typeof stylesMap] || stylesMap.gold;
+  const styles = stylesMap[variant as keyof typeof stylesMap] || (grayedOut ? stylesMap.gray : stylesMap.gold);
+  const finalStyles = grayedOut ? stylesMap.gray : styles;
 
   return (
-    <div className="group relative flex flex-col items-center" style={{ minHeight: cardHeight }}>
+    <div className={`group relative flex flex-col items-center ${grayedOut ? 'grayscale opacity-70' : ''}`} style={{ minHeight: cardHeight }}>
       
       {/* GLOW EFFECT (Behind) */}
-      <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 ${styles.glow}`}></div>
+      <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 ${finalStyles.glow}`}></div>
 
       {/* 3D GEMSTONE CONTAINER */}
       <div className="relative w-16 h-16 mb-2 transition-transform duration-500 ease-out group-hover:-translate-y-2 group-hover:scale-105 perspective-1000">
         
         {/* The Gemstone Body */}
-        <div className={`absolute inset-0 rounded-[1.2rem] rotate-45 shadow-xl transition-all duration-500 group-hover:shadow-2xl ${styles.outer} p-[1px]`}>
+        <div className={`absolute inset-0 rounded-[1.2rem] rotate-45 shadow-xl transition-all duration-500 group-hover:shadow-2xl ${finalStyles.outer} p-[1px]`}>
            
            {/* Glassy Surface */}
            <div className="w-full h-full bg-white/80 backdrop-blur-xl rounded-[1.15rem] flex items-center justify-center relative overflow-hidden border border-white/60">
               
-              <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full blur-xl opacity-60 ${styles.innerGlow}`}></div>
+              <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full blur-xl opacity-60 ${finalStyles.innerGlow}`}></div>
               <div className="absolute -inset-[100%] bg-gradient-to-r from-transparent via-white/40 to-transparent rotate-45 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out z-20 pointer-events-none"></div>
               <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/60 to-transparent opacity-80 pointer-events-none z-10"></div>
 
               {/* Icon Container */}
               <div className={`relative z-20 -rotate-45 transform transition-transform group-hover:rotate-0 duration-500 ease-out scale-110`}>
-                 <Icon size={22} className={`${styles.icon} transition-all duration-500 group-hover:scale-110`} strokeWidth={2} />
+                 <Icon size={22} className={`${finalStyles.icon} transition-all duration-500 group-hover:scale-110`} strokeWidth={2} />
               </div>
 
               <div className="absolute bottom-1 right-1 w-full h-full rounded-[1.15rem] shadow-[inset_-2px_-2px_6px_rgba(0,0,0,0.05)] pointer-events-none z-10"></div>
@@ -94,16 +108,55 @@ const PremiumBadge = ({
 };
 // -----------------------------------------------------------------------------
 
-const UserProfileView = () => {
+function computeProfileCompletion(user: any, postsCount: number): number {
+  if (!user) return 0;
+  let filled = 0;
+  const total = 6;
+  if (user.name) filled++;
+  if (user.bio && user.bio.length > 20) filled++;
+  if (user.avatar) filled++;
+  if (user.title || user.location) filled++;
+  if (user.tags && (user.tags as string[]).length > 0) filled++;
+  if (postsCount > 0) filled++;
+  return Math.round((filled / total) * 100);
+}
+
+const UserProfileView = ({ user: propUser, appMode }: { user?: { name?: string; id?: string }; appMode?: 'demo' | 'guest' | 'authenticated' }) => {
   const { t, language } = useLanguage();
+  const { skills } = useUserSkills();
   const [activeTab, setActiveTab] = useState<'posts' | 'about' | 'reviews'>('posts');
+  const [showSkillsEdit, setShowSkillsEdit] = useState(false);
+  const [nfts, setNfts] = useState<{ id: number; title: string; partner: string; skillMe?: string; skillThem?: string; contributionMe?: number; contributionThem?: number; date?: string }[]>([]);
+  const [selectedNftId, setSelectedNftId] = useState<number | null>(null);
+  const [nftDetail, setNftDetail] = useState<any>(null);
   const [userPosts, setUserPosts] = useState<any[]>([]);
   const [reviews, setReviews] = useState<any[]>([]);
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
     fetchUserPosts().then(setUserPosts).catch(console.error);
     fetchReviews().then(setReviews).catch(console.error);
-  }, []);
+    fetchUserNFTs().then(setNfts).catch(() => setNfts([]));
+    if (appMode === 'authenticated') {
+      fetchCurrentUser().then(setCurrentUser).catch(() => setCurrentUser(null));
+    } else {
+      setCurrentUser({ name: 'Jessica Parker', bio: 'Digital product designer...', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80', title: 'Product Designer', tags: ['Design', 'Pottery'] });
+    }
+  }, [appMode]);
+
+  useEffect(() => {
+    if (selectedNftId) {
+      fetchNFTDetail(selectedNftId).then(setNftDetail).catch(() => setNftDetail(null));
+    } else {
+      setNftDetail(null);
+    }
+  }, [selectedNftId]);
+
+  const profileCompletion = computeProfileCompletion(currentUser || propUser, userPosts.length);
+  const isNewUser = appMode === 'authenticated' && (userPosts.length === 0 && profileCompletion < 50);
+  const displayAvatar = isNewUser && propUser?.id
+    ? getAvatarForUserId(propUser.id)
+    : (currentUser?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80');
 
   const isZh = language === 'zh';
 
@@ -151,7 +204,7 @@ const UserProfileView = () => {
   const translatedReviews = reviews.map(review => {
     if (!isZh) return review;
     // Simple content matching for demo purposes
-    if (review.text.includes('amazing teacher')) return { ...review, text: "Jessica 是位很棒的老师！她把 Figma 自动布局解释得非常清楚。我终于搞懂了。强烈推荐！", date: "2天前", class: "Figma 精通" };
+    if (review.text.includes('amazing swap partner') || review.text.includes('amazing teacher')) return { ...review, text: "Jessica 是位很棒的交换伙伴！她把 Figma 自动布局解释得非常清楚。我终于搞懂了。强烈推荐！", date: "2天前", class: "Figma 精通" };
     if (review.text.includes('Great pottery')) return { ...review, text: "很棒的陶艺课。她对我的笨手笨脚非常有耐心哈哈。期待下一次。", date: "1周前", class: "陶艺基础" };
     if (review.text.includes('Very professional')) return { ...review, text: "非常专业且友好。我们交换了西班牙语和 Figma 技能，这是一次完美的交换。", date: "2周前", class: "技能交换" };
     if (review.text.includes('Good session')) return { ...review, text: "不错的课程，学到了很多关于组件属性的知识。", date: "1个月前", class: "设计系统" };
@@ -161,6 +214,17 @@ const UserProfileView = () => {
   return (
     <div className="flex flex-col w-full max-w-7xl mx-auto pb-20 -mt-2">
         
+        {/* 0. 新用户资料填写进度条 */}
+        {isNewUser && (
+          <div className="mb-4 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-[2rem] p-6 text-white shadow-lg">
+            <h3 className="font-black text-lg mb-2">{language === 'zh' ? '完善个人资料' : 'Complete Your Profile'}</h3>
+            <p className="text-indigo-100 text-sm mb-4">{language === 'zh' ? `资料填写进度 ${profileCompletion}%，填完资料让更多人发现你！` : `${profileCompletion}% complete. Fill out your profile to get discovered!`}</p>
+            <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+              <div className="h-full bg-white rounded-full transition-all" style={{ width: `${profileCompletion}%` }}></div>
+            </div>
+          </div>
+        )}
+
         {/* 1. HEADER SECTION - Compact */}
         <div className="relative mb-4">
            {/* Cover Image - Reduced height */}
@@ -173,7 +237,7 @@ const UserProfileView = () => {
                  {/* Avatar Group - Compact */}
                  <div className="relative shrink-0 -mt-0 md:-mt-6">
                     <div className="w-20 h-20 md:w-28 md:h-28 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white">
-                       <ImageWithFallback src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80" alt="Me" className="w-full h-full object-cover" />
+                       <ImageWithFallback src={displayAvatar} alt="Me" className="w-full h-full object-cover" />
                     </div>
                  </div>
 
@@ -188,6 +252,36 @@ const UserProfileView = () => {
                              <span className="px-2.5 py-0.5 bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-200 text-yellow-900 border border-yellow-200/50 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-sm shrink-0">
                                 <Crown size={12} strokeWidth={3} /> {t('profile.pro')}
                              </span>
+                          </div>
+                          {/* Planet icons: 我会的 / 我想学的 */}
+                          <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-2">
+                             <div className="flex items-center gap-1.5">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase">{t('profile.i_can_teach')}:</span>
+                                <div className="flex -space-x-1">
+                                   {skills.teachGalaxies.map(gid => (
+                                      <div key={gid} className="w-8 h-8 rounded-full bg-white border-2 border-white shadow-sm overflow-hidden ring-1 ring-slate-100" title={t(`hero.skills.${gid}`)}>
+                                         <PlanetIcon id={gid} className="w-full h-full" />
+                                      </div>
+                                   ))}
+                                   {skills.teachGalaxies.length === 0 && (
+                                      <span className="text-xs text-slate-400 italic">{language === 'zh' ? '未设置' : 'Not set'}</span>
+                                   )}
+                                </div>
+                             </div>
+                             <span className="w-1 h-1 rounded-full bg-slate-300 hidden sm:inline" />
+                             <div className="flex items-center gap-1.5">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase">{t('profile.i_want_to_learn')}:</span>
+                                <div className="flex -space-x-1">
+                                   {skills.learnGalaxies.map(gid => (
+                                      <div key={gid} className="w-8 h-8 rounded-full bg-white border-2 border-white shadow-sm overflow-hidden ring-1 ring-slate-100 opacity-90" title={t(`hero.skills.${gid}`)}>
+                                         <PlanetIcon id={gid} className="w-full h-full" />
+                                      </div>
+                                   ))}
+                                   {skills.learnGalaxies.length === 0 && (
+                                      <span className="text-xs text-slate-400 italic">{language === 'zh' ? '未设置' : 'Not set'}</span>
+                                   )}
+                                </div>
+                             </div>
                           </div>
                           <p className="text-slate-500 font-medium text-xs mb-2 flex flex-wrap justify-center md:justify-start items-center gap-x-3 gap-y-1">
                              <span className="text-indigo-600 font-bold">@jess_creates</span>
@@ -233,7 +327,7 @@ const UserProfileView = () => {
               <section className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm relative overflow-hidden">
                  <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full mix-blend-multiply blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2"></div>
                  
-                 <div className="flex items-center justify-between mb-5 relative z-10">
+                 <div className="flex items-center justify-between mb-4 relative z-10">
                     <div>
                         <h3 className="font-black text-xl text-slate-900 flex items-center gap-2">
                             <Trophy size={20} className="text-amber-500 fill-amber-500/20" /> 
@@ -246,43 +340,162 @@ const UserProfileView = () => {
                     </button>
                  </div>
                  
-                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 relative z-10">
+                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 relative z-10">
                     <PremiumBadge 
                        icon={Star} 
                        title={t('profile.super_teacher')} 
-                       variant="gold"
-                       earnedDate="Jan 2024"
+                       variant={isNewUser ? 'gray' : 'gold'}
+                       earnedDate={isNewUser ? (language === 'zh' ? '未获得' : 'Locked') : 'Jan 2024'}
+                       grayedOut={isNewUser}
                     />
                     <PremiumBadge 
                        icon={CheckCircle2} 
                        title={t('profile.certified_pro')} 
-                       variant="blue"
-                       earnedDate="Feb 2024"
+                       variant={isNewUser ? 'gray' : 'blue'}
+                       earnedDate={isNewUser ? (language === 'zh' ? '未获得' : 'Locked') : 'Feb 2024'}
+                       grayedOut={isNewUser}
                     />
                     <PremiumBadge 
                        icon={Flame} 
                        title={t('profile.weekly_streak')} 
-                       variant="purple"
-                       earnedDate="3 Days"
+                       variant={isNewUser ? 'gray' : 'purple'}
+                       earnedDate={isNewUser ? (language === 'zh' ? '未获得' : 'Locked') : '3 Days'}
+                       grayedOut={isNewUser}
                     />
                     <PremiumBadge 
                        icon={Sparkles} 
                        title={t('profile.early_adopter')} 
-                       variant="holographic"
-                       earnedDate="Genesis"
+                       variant={isNewUser ? 'gray' : 'holographic'}
+                       earnedDate={isNewUser ? (language === 'zh' ? '未获得' : 'Locked') : 'Genesis'}
+                       grayedOut={isNewUser}
                     />
                  </div>
 
                  {/* Progress Bar */}
-                 <div className="mt-5 pt-4 border-t border-slate-100 relative z-10">
+                 <div className="mt-4 pt-3 relative z-10">
                     <div className="flex justify-between text-[10px] font-bold mb-2 uppercase tracking-wide">
                         <span className="text-slate-500">Next: Master Mentor Badge</span>
-                        <span className="text-indigo-600">8/10 Sessions</span>
+                        <span className="text-indigo-600">{isNewUser ? '0/10' : '8/10'} Sessions</span>
                     </div>
                     <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-indigo-500 w-[80%] rounded-full shadow-lg shadow-indigo-200"></div>
+                        <div className="h-full bg-indigo-500 rounded-full shadow-lg shadow-indigo-200 transition-all" style={{ width: isNewUser ? '0%' : '80%' }}></div>
                     </div>
                  </div>
+              </section>
+
+              {/* My Skills - 可编辑 */}
+              <section className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm">
+                 <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-black text-xl text-slate-900 flex items-center gap-2">
+                       <GraduationCap size={20} className="text-indigo-500" />
+                       {t('profile.my_skills')}
+                    </h3>
+                    <button
+                       onClick={() => setShowSkillsEdit(true)}
+                       className="text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-4 py-2 rounded-xl transition-colors hover:bg-indigo-100"
+                    >
+                       {t('profile.edit_skills')}
+                    </button>
+                 </div>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-indigo-50/50 rounded-xl p-4 border border-indigo-100">
+                       <h4 className="text-xs font-bold text-indigo-600 uppercase mb-2">{t('profile.i_can_teach')}</h4>
+                       <div className="flex flex-wrap gap-2 mb-2">
+                          {skills.teachGalaxies.map(gid => (
+                             <span key={gid} className="inline-flex items-center gap-1 px-2 py-0.5 bg-white rounded-lg border border-indigo-100 text-xs font-medium text-slate-700">
+                                <PlanetIcon id={gid} className="w-4 h-4 shrink-0" />
+                                {t(`hero.skills.${gid}`)}
+                             </span>
+                          ))}
+                       </div>
+                       <div className="flex flex-wrap gap-1.5">
+                          {skills.teachTags.map(tag => (
+                             <span key={tag} className="px-2.5 py-1 bg-indigo-100 text-indigo-700 rounded-lg text-xs font-bold">{tag}</span>
+                          ))}
+                          {skills.teachTags.length === 0 && skills.teachGalaxies.length === 0 && (
+                             <span className="text-slate-400 text-sm italic">{language === 'zh' ? '点击编辑添加' : 'Click Edit to add'}</span>
+                          )}
+                       </div>
+                    </div>
+                    <div className="bg-teal-50/50 rounded-xl p-4 border border-teal-100">
+                       <h4 className="text-xs font-bold text-teal-600 uppercase mb-2">{t('profile.i_want_to_learn')}</h4>
+                       <div className="flex flex-wrap gap-2 mb-2">
+                          {skills.learnGalaxies.map(gid => (
+                             <span key={gid} className="inline-flex items-center gap-1 px-2 py-0.5 bg-white rounded-lg border border-teal-100 text-xs font-medium text-slate-700">
+                                <PlanetIcon id={gid} className="w-4 h-4 shrink-0 opacity-90" />
+                                {t(`hero.skills.${gid}`)}
+                             </span>
+                          ))}
+                       </div>
+                       <div className="flex flex-wrap gap-1.5">
+                          {skills.learnTags.map(tag => (
+                             <span key={tag} className="px-2.5 py-1 bg-teal-100 text-teal-700 rounded-lg text-xs font-bold">{tag}</span>
+                          ))}
+                          {skills.learnTags.length === 0 && skills.learnGalaxies.length === 0 && (
+                             <span className="text-slate-400 text-sm italic">{language === 'zh' ? '点击编辑添加' : 'Click Edit to add'}</span>
+                          )}
+                       </div>
+                    </div>
+                 </div>
+                 {showSkillsEdit && <SkillsEditModal onClose={() => setShowSkillsEdit(false)} />}
+              </section>
+
+              {/* NFT 橱窗 */}
+              <section className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm">
+                 <div className="flex items-center justify-between mb-4">
+                    <div>
+                       <h3 className="font-black text-lg text-slate-900 flex items-center gap-2">
+                          <ImageIcon size={20} className="text-purple-500" />
+                          {t('nft_showcase.title')}
+                       </h3>
+                       <p className="text-xs text-slate-500 mt-1 font-medium">{t('nft_showcase.subtitle')}</p>
+                    </div>
+                    <button className="text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-4 py-2 rounded-xl transition-colors">
+                       {t('nft_showcase.view_all')}
+                    </button>
+                 </div>
+                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    {(nfts.length ? nfts : [
+                       { id: 1, title: 'Figma × Pottery', partner: 'Alex Chen', date: '2024-01', partnerAvatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&q=80' },
+                       { id: 2, title: 'Design × Baking', partner: 'Sam Lee', date: '2024-02', partnerAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80' },
+                       { id: 3, title: 'UX × Sourdough', partner: 'Jordan', date: '2024-03', partnerAvatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80' }
+                    ]).map((nft, i) => {
+                       const gradients = [
+                          'from-amber-400/20 via-orange-100/50 to-rose-200/30',
+                          'from-emerald-400/20 via-teal-100/50 to-cyan-200/30',
+                          'from-violet-400/20 via-purple-100/50 to-fuchsia-200/30'
+                       ];
+                       const borders = ['border-amber-200/60', 'border-emerald-200/60', 'border-violet-200/60'];
+                       const accents = ['text-amber-600', 'text-emerald-600', 'text-violet-600'];
+                       const g = gradients[i % 3]; const b = borders[i % 3]; const a = accents[i % 3];
+                       return (
+                       <div
+                          key={nft.id}
+                          onClick={() => setSelectedNftId(nft.id)}
+                          className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${g} border ${b} p-4 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer group`}
+                       >
+                          <div className="absolute top-0 right-0 w-20 h-20 bg-white/30 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform" />
+                          <div className="relative flex items-center gap-3">
+                             <div className="w-12 h-12 rounded-xl overflow-hidden border-2 border-white/80 shadow-lg shrink-0 ring-2 ring-slate-200/50">
+                                <ImageWithFallback src={(nft as any).partnerAvatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80'} alt={nft.partner} className="w-full h-full object-cover" />
+                             </div>
+                             <div className="min-w-0 flex-1">
+                                <p className="text-sm font-black text-slate-800 line-clamp-2 group-hover:text-slate-900">{nft.title}</p>
+                                <p className="text-[10px] font-bold text-slate-500 mt-0.5">{nft.partner}</p>
+                                <span className={`inline-block mt-1.5 text-[9px] font-black uppercase tracking-wider ${a}`}>⇄ Swap</span>
+                             </div>
+                             <Trophy size={20} className={`shrink-0 ${a} opacity-80 group-hover:scale-110 transition-transform`} />
+                          </div>
+                       </div>
+                    );})}
+                 </div>
+                 {selectedNftId !== null && (
+                    <NFTDetailModal
+                       detail={nftDetail}
+                       currentUserName={currentUser?.name || 'Jessica Parker'}
+                       onClose={() => setSelectedNftId(null)}
+                    />
+                 )}
               </section>
 
               {/* TABS & FEED (Loop 3) */}
@@ -536,6 +749,30 @@ const UserProfileView = () => {
                        <div className="text-xs font-medium text-slate-600 leading-snug mb-2">{t('profile.top_percent')}</div>
                        <button className="text-[10px] font-bold text-slate-400 hover:text-indigo-600 underline">{t('profile.view_report')}</button>
                     </div>
+                 </div>
+              </div>
+
+              {/* 社交账号授权 */}
+              <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm">
+                 <div className="flex items-center gap-2 mb-3">
+                    <Link2 size={18} className="text-indigo-600" />
+                    <h3 className="font-black text-slate-900 text-sm">{t('social_auth.title')}</h3>
+                 </div>
+                 <p className="text-xs text-slate-500 mb-4">{t('social_auth.subtitle')}</p>
+                 <div className="space-y-2">
+                    {[
+                       { key: 'bilibili', label: t('social_auth.bilibili'), connected: true },
+                       { key: 'xiaohongshu', label: t('social_auth.xiaohongshu'), connected: true },
+                       { key: 'wechat', label: t('social_auth.wechat'), connected: false },
+                       { key: 'youtube', label: t('social_auth.youtube'), connected: false }
+                    ].map(({ key, label, connected }) => (
+                       <div key={key} className="flex items-center justify-between py-2 px-3 rounded-xl bg-slate-50 border border-slate-100">
+                          <span className="text-sm font-bold text-slate-700">{label}</span>
+                          <span className={`text-[10px] font-black px-2.5 py-1 rounded-lg ${connected ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-500'}`}>
+                             {connected ? t('social_auth.connected') : t('social_auth.connect')}
+                          </span>
+                       </div>
+                    ))}
                  </div>
               </div>
 

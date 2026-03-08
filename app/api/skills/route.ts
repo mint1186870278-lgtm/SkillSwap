@@ -37,10 +37,16 @@ export async function GET(request: NextRequest) {
 
     const skills = db.prepare(query).all(...params) as any[];
 
+    const providerIdMap: Record<string, string> = {
+      'Elena Rodriguez': 'u_elena',
+      'David Kim': 'u_david',
+      'Sarah Jenks': 'u_sarah',
+    };
     const result = skills.map(s => ({
       id: s.id,
       title: s.title,
       user: s.user_name,
+      providerId: providerIdMap[s.user_name] || null,
       avatar: s.avatar,
       type: s.type,
       distance: s.distance,

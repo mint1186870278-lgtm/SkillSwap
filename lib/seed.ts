@@ -43,6 +43,62 @@ export function seedDatabase() {
     console.log('Messages migration: David & Sarah conversations added.');
   }
 
+  // Migration: similar_experts price 从美元改为积分 (15.00 -> 2, 10.00 -> 1, 17.00 -> 3, 12.00 -> 2)
+  try {
+    const seExists = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='similar_experts'").get();
+    if (seExists) {
+      db.prepare("UPDATE similar_experts SET price = '2' WHERE price = '15.00' OR price = '15'").run();
+      db.prepare("UPDATE similar_experts SET price = '1' WHERE price = '10.00' OR price = '10'").run();
+      db.prepare("UPDATE similar_experts SET price = '3' WHERE price = '17.00' OR price = '17'").run();
+      db.prepare("UPDATE similar_experts SET price = '2' WHERE price = '12.00' OR price = '12'").run();
+    }
+  } catch (_) {}
+
+  // Migration: exchange_feedback (runs when table exists but empty)
+  try {
+    const efExists = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='exchange_feedback'").get();
+    if (efExists) {
+    const efCount = db.prepare('SELECT COUNT(*) as count FROM exchange_feedback').get() as any;
+    if (efCount.count === 0) {
+      const insertEF = db.prepare(`
+        INSERT INTO exchange_feedback (user_name, avatar, title, content, image, likes, comments, tag, time, skill_me, skill_them, partner, partner_avatar, progress_updates)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      const efs = [
+        ['Jessica Parker', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80', 'Jessica ⇄ Elena 西班牙语 × Figma 交换反馈', '第一周：Elena 教了我很多地道表达，我也帮她梳理了 Figma 自动布局的逻辑。期待下周的会话！', 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80', 24, 8, '交换反馈', '2d ago', 'Figma', 'Spanish', 'Elena Rodriguez', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80', JSON.stringify([{ user: 'Jessica', text: '完成了第一课，学会了基本问候语！', time: '1d ago' }, { user: 'Elena', text: 'Figma 组件结构清晰多了，感谢！', time: '1d ago' }])],
+        ['Jessica Parker', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80', 'Jessica ⇄ David React × Figma 设计评审', '和 David 的交换进行得很顺利，他讲 React Hooks 讲得很清楚，我也帮他做了设计系统的评审。', 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=600&q=80', 18, 5, '交换反馈', '5d ago', 'Figma Design Review', 'React & Tailwind', 'David Kim', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80', JSON.stringify([{ user: 'David', text: '设计评审很有帮助，已按建议调整。', time: '4d ago' }])],
+        ['Jessica Parker', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80', 'Jessica ⇄ Sarah 陶艺 × 城市摄影', '和 Sarah 约好了周六陶艺+摄影 walk！平台已自动为我们创建了交换反馈区，可以持续记录学习进度。', 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=600&q=80', 12, 3, '交换反馈', '1w ago', 'Pottery Basics', 'Urban Photography', 'Sarah Jenks', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80', '[]'],
+      ];
+      for (const ef of efs) insertEF.run(...ef);
+      console.log('Exchange feedback migration: 3 posts added.');
+    }
+    }
+  } catch (_) { /* table may not exist yet */ }
+
+  // Migration: nfts (runs when table exists but empty)
+  try {
+    const nftExists = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='nfts'").get();
+    if (nftExists) {
+    const nftCount = db.prepare('SELECT COUNT(*) as count FROM nfts').get() as any;
+    if (nftCount.count === 0) {
+      const insertNft = db.prepare(`
+        INSERT INTO nfts (user_id, title, skill_me, skill_them, partner_name, partner_avatar, contribution_me, contribution_them, story, created_at, timeline)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      const nfts = [
+        ['u_jessica', 'Figma × Pottery', 'Figma', 'Pottery', 'Alex Chen', 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&q=80', 55, 45, '与 Alex 的 Figma 与陶艺交换圆满完成。双方在设计和手工艺领域互相学习，收获满满。', '2024-01-15', JSON.stringify([{ label: '首次交换', date: '2024-01-10' }, { label: '完成 3 次会话', date: '2024-01-15' }])],
+        ['u_jessica', 'Design × Baking', 'Design', 'Baking', 'Sam Lee', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80', 60, 40, '与 Sam 的设计与烘焙技能交换，从 UI 到烤箱，跨界学习乐趣无穷。', '2024-02-20', JSON.stringify([{ label: '首次交换', date: '2024-02-15' }, { label: '完成 5 次会话', date: '2024-02-20' }])],
+        ['u_jessica', 'UX × Sourdough', 'UX', 'Sourdough', 'Jordan', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80', 50, 50, '与 Jordan 的 UX 与酸面团交换，产品思维与发酵艺术完美融合。', '2024-03-10', JSON.stringify([{ label: '首次交换', date: '2024-03-05' }])],
+        ['u_elena', 'Spanish × Figma', 'Spanish', 'Figma', 'Jessica Parker', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80', 45, 55, '与 Jessica 的西班牙语与 Figma 交换，互相学习语言与设计工具。', '2024-01-20', JSON.stringify([{ label: '首次交换', date: '2024-01-15' }])],
+        ['u_david', 'React × Design Review', 'React & Tailwind', 'Figma Design', 'Jessica Parker', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80', 50, 50, '与 Jessica 的 React 与设计评审交换，技术与设计完美结合。', '2024-02-10', JSON.stringify([{ label: '首次交换', date: '2024-02-05' }])],
+        ['u_sarah', 'Photography × Pottery', 'Urban Photography', 'Pottery', 'Jessica Parker', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80', 48, 52, '与 Jessica 的城市摄影与陶艺交换，镜头与陶土的艺术碰撞。', '2024-03-01', JSON.stringify([{ label: '首次交换', date: '2024-02-28' }])],
+      ];
+      for (const n of nfts) insertNft.run(...n);
+      console.log('NFTs migration: 6 NFTs added.');
+    }
+    }
+  } catch (_) { /* table may not exist yet */ }
+
   // Check if already seeded
   const userCount = db.prepare('SELECT COUNT(*) as count FROM users').get() as any;
   if (userCount.count > 0) return;
@@ -217,11 +273,11 @@ export function seedDatabase() {
     const communityUpdates = [
       [1, 'Sophie just learned Python with Mark!', '2m ago', '\ud83d\ude80', 'bg-blue-100 text-blue-600'],
       [2, "New 'Watercolor' group started downtown.", '15m ago', '\ud83c\udfa8', 'bg-purple-100 text-purple-600'],
-      [3, "Liam earned the 'Super Teacher' badge.", '1h ago', '\ud83c\udfc6', 'bg-yellow-100 text-yellow-600'],
+      [3, "Liam earned the 'Super Swapper' badge.", '1h ago', '\ud83c\udfc6', 'bg-yellow-100 text-yellow-600'],
       [4, "Sarah joined the 'Urban Photography' challenge.", '2h ago', '\ud83d\udcf8', 'bg-pink-100 text-pink-600'],
       [5, "David updated his 'React Mastery' course.", '3h ago', '\ud83d\udcbb', 'bg-indigo-100 text-indigo-600'],
       [6, "Emma commented on 'Sourdough Baking'.", '4h ago', '\ud83d\udcac', 'bg-green-100 text-green-600'],
-      [7, 'Tom is looking for a guitar teacher.', '5h ago', '\ud83c\udfb8', 'bg-orange-100 text-orange-600'],
+      [7, 'Tom is looking for a guitar swap partner.', '5h ago', '\ud83c\udfb8', 'bg-orange-100 text-orange-600'],
       [8, 'Anna and Robert swapped skills.', '6h ago', 'qh', 'bg-teal-100 text-teal-600'],
       [9, "James posted a new resource: 'SEO Guide'.", '8h ago', 'aaa', 'bg-cyan-100 text-cyan-600'],
       [10, "Linda liked your 'Vegan Cooking' skill.", '12h ago', '\u2764\ufe0f', 'bg-red-100 text-red-600'],
@@ -232,12 +288,12 @@ export function seedDatabase() {
       insertCommunityUpdate.run(...cu);
     }
 
-    // --- Similar Experts ---
+    // --- Similar Experts (price = 积分 credits, 与找技能卡片一致) ---
     const similarExperts = [
-      ['Brent', 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80', 6099, 5.0, '15.00'],
-      ['Michael R', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80', 10857, 5.0, '10.00'],
-      ['John K.', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=600&q=80', 16043, 5.0, '17.00'],
-      ['Sarah L.', 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=600&q=80', 420, 4.9, '12.00'],
+      ['Brent', 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80', 6099, 5.0, '2'],
+      ['Michael R', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80', 10857, 5.0, '1'],
+      ['John K.', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=600&q=80', 16043, 5.0, '3'],
+      ['Sarah L.', 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=600&q=80', 420, 4.9, '2'],
     ];
     for (const se of similarExperts) {
       insertSimilarExpert.run(...se);
@@ -254,7 +310,7 @@ export function seedDatabase() {
 
     // --- Reviews ---
     const reviews = [
-      ['Sarah Jenks', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80', 5, '2 days ago', 'Jessica is an amazing teacher! She explains Figma auto-layout so clearly. I finally get how it works. Highly recommended!', 'Figma Mastery'],
+      ['Sarah Jenks', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80', 5, '2 days ago', 'Jessica is an amazing swap partner! She explains Figma auto-layout so clearly. I finally get how it works. Highly recommended!', 'Figma Mastery'],
       ['Mike Chen', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80', 5, '1 week ago', "Great pottery session. She was very patient with my clumsy hands haha. Can't wait for the next one.", 'Pottery Basics'],
       ['Elena Rodriguez', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80', 5, '2 weeks ago', 'Very professional and friendly. We swapped Spanish for Figma skills and it was a perfect exchange.', 'Skill Swap'],
       ['David Kim', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80', 4, '1 month ago', 'Good session, learned a lot about component properties.', 'Design Systems'],

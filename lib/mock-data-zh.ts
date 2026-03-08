@@ -45,7 +45,7 @@ export const MOCK_DATA_ZH: Record<string, any> = {
   community_updates: {
     1: { text: "Sophie 刚刚跟 Mark 学会了 Python！" },
     2: { text: "市中心开始了新的'水彩画'小组。" },
-    3: { text: "Liam 获得了'超级教师'徽章。" },
+    3: { text: "Liam 获得了'交换达人'徽章。" },
     4: { text: "Sarah 加入了'城市摄影'挑战。" },
     5: { text: "David 更新了他的'React 精通'课程。" },
     6: { text: "Emma 评论了'酸种面包烘焙'。" },
@@ -79,7 +79,7 @@ export const MOCK_DATA_ZH: Record<string, any> = {
 
   // --- Reviews ---
   reviews: {
-    1: { text: "Jessica 是位很棒的老师！她把 Figma 自动布局解释得非常清楚。我终于搞懂了。强烈推荐！", date: "2天前", class: "Figma 精通" },
+    1: { text: "Jessica 是位很棒的交换伙伴！她把 Figma 自动布局解释得非常清楚。我终于搞懂了。强烈推荐！", date: "2天前", class: "Figma 精通" },
   },
 
   // --- Contacts ---

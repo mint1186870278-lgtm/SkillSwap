@@ -288,12 +288,22 @@ export interface AiMatchResponse {
   skillIds?: number[];
 }
 
+/** AI 配对助手 Mock：多轮对话 + 最终匹配假用户 */
+const MOCK_AI_RESPONSES: { text: string; skillIds?: number[] }[] = [
+  { text: '收到！你擅长什么技能呢？可以简单说一下，比如设计、编程、摄影等～' },
+  { text: '了解了！正在为你匹配能互相交换的伙伴...' },
+  { text: '找到了！Elena 的西班牙语会话很适合你，她也在找 Figma 交换。点击下方卡片查看详情～', skillIds: [1] },
+];
+
 export async function sendAiMatchMessage(
   messages: { role: 'user' | 'assistant'; text: string }[]
 ): Promise<AiMatchResponse> {
   if (useMockData()) {
-    await mockDelay(null, 600);
-    return { text: '收到！正在为你匹配最合适的技能交换伙伴...', skillIds: [] };
+    const userCount = messages.filter(m => m.role === 'user').length;
+    const idx = Math.min(userCount - 1, MOCK_AI_RESPONSES.length - 1);
+    const res = MOCK_AI_RESPONSES[idx] ?? MOCK_AI_RESPONSES[MOCK_AI_RESPONSES.length - 1];
+    await mockDelay(null, 400 + Math.random() * 400);
+    return { text: res.text, skillIds: res.skillIds ?? [] };
   }
   return fetchApi<AiMatchResponse>('/ai/match/chat', {
     method: 'POST',

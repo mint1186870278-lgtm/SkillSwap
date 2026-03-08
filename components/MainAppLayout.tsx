@@ -945,7 +945,7 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, exchangeFeedba
                            </div>
                         </div>
                         {aiMessages.map((m, i) => (
-                           <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                           <div key={i} className={`flex flex-col gap-2 ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
                               <div className={`max-w-[85%] px-4 py-2.5 text-sm rounded-2xl border shadow-sm ${
                                  m.role === 'user'
                                     ? 'bg-indigo-500 text-white rounded-br-none border-indigo-500'
@@ -953,6 +953,30 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, exchangeFeedba
                               }`}>
                                  {m.text}
                               </div>
+                              {m.role === 'assistant' && m.skillIds && m.skillIds.length > 0 && (
+                                 <div className="flex flex-wrap gap-2 max-w-[85%]">
+                                    {m.skillIds.map(id => {
+                                       const skill = translatedSkills.find((s: any) => s.id === id);
+                                       if (!skill) return null;
+                                       return (
+                                          <button
+                                             key={id}
+                                             onClick={() => onOpenDetail(skill)}
+                                             className="flex items-center gap-3 w-full p-3 bg-white rounded-xl border border-slate-100 hover:border-indigo-200 hover:shadow-md transition-all text-left"
+                                          >
+                                             <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-100 shrink-0">
+                                                <ImageWithFallback src={skill.avatar} alt={skill.user} className="w-full h-full object-cover" />
+                                             </div>
+                                             <div className="min-w-0 flex-1">
+                                                <p className="font-bold text-slate-800 text-sm truncate">{skill.title}</p>
+                                                <p className="text-xs text-slate-500 truncate">{skill.user}</p>
+                                             </div>
+                                             <ChevronRight size={16} className="text-slate-400 shrink-0" />
+                                          </button>
+                                       );
+                                    })}
+                                 </div>
+                              )}
                            </div>
                         ))}
                         {aiSending && (
@@ -1018,12 +1042,36 @@ const ExploreView = ({ onOpenDetail, selectedItem, skills, posts, exchangeFeedba
                   </div>
                 </div>
                 {aiMessages.map((m, i) => (
-                  <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div key={i} className={`flex flex-col gap-2 ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
                     <div className={`max-w-[85%] p-3 rounded-2xl text-sm shadow-sm ${
                       m.role === 'user' ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none'
                     }`}>
                       {m.text}
                     </div>
+                    {m.role === 'assistant' && m.skillIds && m.skillIds.length > 0 && (
+                      <div className="flex flex-wrap gap-2 max-w-[85%]">
+                        {m.skillIds.map((id: number) => {
+                          const skill = translatedSkills.find((s: any) => s.id === id);
+                          if (!skill) return null;
+                          return (
+                            <button
+                              key={id}
+                              onClick={() => onOpenDetail(skill)}
+                              className="flex items-center gap-3 w-full p-3 bg-white rounded-xl border border-slate-100 hover:border-indigo-200 hover:shadow-md transition-all text-left"
+                            >
+                              <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-100 shrink-0">
+                                <ImageWithFallback src={skill.avatar} alt={skill.user} className="w-full h-full object-cover" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="font-bold text-slate-800 text-sm truncate">{skill.title}</p>
+                                <p className="text-xs text-slate-500 truncate">{skill.user}</p>
+                              </div>
+                              <ChevronRight size={16} className="text-slate-400 shrink-0" />
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 ))}
                 {aiSending && (
